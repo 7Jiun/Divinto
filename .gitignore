@@ -7,8 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-Client/node_modules/
-Client/divinto/node_modules/
+client/node_modules/
+client/divinto/node_modules/
+server/node_modules
 dist
 dist-ssr
 *.local
