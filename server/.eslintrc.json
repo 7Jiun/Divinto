@@ -1,0 +1,12 @@
+{
+  "extends": ["airbnb-typescript/base", "plugin:import/errors", "plugin:import/warnings"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["import"],
+  "rules": {
+    "import/extensions": ["error", "ignorePackages"],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+  }
+}
