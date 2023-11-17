@@ -48,9 +48,7 @@ router.route('/card/:cardId').get(cardControl.getCard);
 
 router.route('/card').post(cardControl.createCard);
 
-router.route('/card').put((req, res) => {
-  res.json(cardExample);
-});
+router.route('/card').put(cardControl.updateCard);
 
 router.route('/card').delete((req, res) => {
   res.json(cardExample);

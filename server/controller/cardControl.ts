@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
+import { GetCard } from '../routes/card.ts';
 
 export interface UserPayload {
   id: string;
@@ -46,6 +47,17 @@ export async function getCard(req: Request, res: Response) {
   }
 }
 
-// export async function updateCard(req: Request, res: Response) {}
+export async function updateCard(req: Request<{}, {}, GetCard>, res: Response) {
+  const cardStatus = req.body;
+  try {
+    await cardModel.updateCard(cardStatus);
+    res.status(200).json({ data: 'updated successfully' });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`error: ${error.message}`);
+    }
+    res.status(500).json({ data: 'internal server error' });
+  }
+}
 
 // export async function deleteCard(req: Request, res: Response) {}

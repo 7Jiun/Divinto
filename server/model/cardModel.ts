@@ -68,8 +68,6 @@ function classifyContent(content: string): BlockContent[] {
   return blockContents;
 }
 
-// export async function getCardsByWhiteBoard() {}
-
 export async function getCardById(cardId: string): Promise<GetCard> {
   const card = await Card.findById(cardId);
   console.log(card);
@@ -91,4 +89,6 @@ export async function createCard(user: UserPayload, card: CardInput) {
   return insertCard as unknown as GetCard;
 }
 
-// export async function updateCard() {}
+export async function updateCard(card: GetCard) {
+  await Card.findByIdAndUpdate(card._id, card);
+}
