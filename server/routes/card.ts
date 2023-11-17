@@ -20,6 +20,18 @@ export interface GetCard {
   removeAt: string | null;
 }
 
+export interface UpdateCard {
+  _id: string;
+  id: string;
+  title: string;
+  position: Position;
+  content: string;
+  tags: string[];
+  createdAt: string;
+  updateAt: string;
+  removeAt: string | null;
+}
+
 const cardExample: GetCard = {
   _id: '6556e3a17595641fd780b839',
   id: '1123e',

@@ -1,8 +1,6 @@
 import { Router } from 'express';
+import * as cardControl from '../controller/cardControl.ts';
+const router = Router();
 
-interface Markdown {
-  id: string;
-  whiteboardTitle: string;
-  content: string;
-  createTime: string;
-}
+router.route('/markdown/card/:cardId').get(cardControl.getCard);
+router.route('/markdown/whiteboard/:whiteboardId').get(cardControl.getCard);
