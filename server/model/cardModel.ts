@@ -1,6 +1,6 @@
 import { Card } from './schema.ts';
 import { CardInput, UserPayload } from '../controller/cardControl.ts';
-import { GetCard } from '../routes/card.ts';
+import { GetCard, UpdateCard } from '../routes/card.ts';
 
 // 定義 enum
 export enum BlockTypeEnum {
@@ -89,8 +89,21 @@ export async function createCard(user: UserPayload, card: CardInput) {
   return insertCard as unknown as GetCard;
 }
 
-export async function updateCard(card: GetCard) {
-  await Card.findByIdAndUpdate(card._id, card);
+export async function updateCard(card: UpdateCard) {
+  const blockContents: BlockContent[] = classifyContent(card.content);
+  const updatedCard: GetCard = {
+    _id: card._id,
+    id: card.id,
+    title: card.title,
+    position: card.position,
+    content: blockContents,
+    tags: card.tags,
+    createdAt: card.createdAt,
+    updateAt: Date.now().toString(),
+    removeAt: card.removeAt,
+  };
+
+  await Card.findByIdAndUpdate(card._id, updatedCard);
 }
 
 export async function getCards(cardIds: string[]): Promise<GetCard[]> {

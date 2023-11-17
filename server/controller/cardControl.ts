@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
-import { GetCard } from '../routes/card.ts';
+import { UpdateCard } from '../routes/card.ts';
 
 export interface UserPayload {
   id: string;
@@ -47,7 +47,7 @@ export async function getCard(req: Request, res: Response) {
   }
 }
 
-export async function updateCard(req: Request<{}, {}, GetCard>, res: Response) {
+export async function updateCard(req: Request<{}, {}, UpdateCard>, res: Response) {
   const cardStatus = req.body;
   try {
     await cardModel.updateCard(cardStatus);
