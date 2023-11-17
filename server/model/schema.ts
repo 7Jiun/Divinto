@@ -1,4 +1,10 @@
 import mongoose from 'mongoose';
+mongoose.connect('mongodb://localhost/divinto');
+
+const cardContentBlockSchema = new mongoose.Schema({
+  type: { type: String, enum: ['text', 'image', 'video', 'audio'] },
+  content: String,
+});
 
 const cardSchema = new mongoose.Schema({
   id: String,
@@ -8,7 +14,7 @@ const cardSchema = new mongoose.Schema({
     y: Number,
   },
   content: {
-    main: String,
+    main: [cardContentBlockSchema],
     summary: String || null,
     approvement: String || null,
     disapprovement: String || null,
@@ -21,6 +27,10 @@ const cardSchema = new mongoose.Schema({
   updateAt: {
     type: Date,
     default: () => Date.now(),
+  },
+  removeAt: {
+    type: Date,
+    default: null,
   },
 });
 
@@ -36,6 +46,10 @@ const whiteboardSchema = new mongoose.Schema({
     type: Date,
     default: () => Date.now(),
   },
+  removeAt: {
+    type: Date,
+    default: null,
+  },
 });
 
 const userSchema = new mongoose.Schema({
@@ -44,7 +58,6 @@ const userSchema = new mongoose.Schema({
   email: String,
   password: String,
   whiteboards: [String],
-  dialogues: [String],
   agents: [String],
   createdAt: {
     type: Date,
@@ -53,6 +66,10 @@ const userSchema = new mongoose.Schema({
   updateAt: {
     type: Date,
     default: () => Date.now(),
+  },
+  removeAt: {
+    type: Date,
+    default: null,
   },
 });
 
@@ -70,6 +87,10 @@ const agentSchema = new mongoose.Schema({
   updateAt: {
     type: Date,
     default: () => Date.now(),
+  },
+  removeAt: {
+    type: Date,
+    default: null,
   },
 });
 
@@ -95,12 +116,16 @@ const threadSchema = new mongoose.Schema({
     type: Date,
     default: () => Date.now(),
   },
+  removeAt: {
+    type: Date,
+    default: null,
+  },
 });
 
 const markdownSchema = new mongoose.Schema({
   id: String,
-  title: String,
-  content: String,
+  whiteboardId: String,
+  route: String,
   createdAt: {
     type: Date,
     default: () => Date.now(),
