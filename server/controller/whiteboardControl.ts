@@ -22,11 +22,28 @@ export async function getWhiteboard(req: Request, res: Response) {
   const { whiteboardId } = req.params;
   try {
     const whiteboard = await whiteboardModel.getWhiteboard(whiteboardId);
+    console.log(whiteboard);
     res.status(200).json({ data: whiteboard });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`error: ${error.message}`);
     }
     res.status(500).json({ data: 'internal server error' });
+  }
+}
+
+export async function getCardsByTag(req: Request, res: Response) {
+  let tag: string | null = null;
+  if (typeof req.query.tag === 'string') {
+    tag = req.query.tag;
+  }
+  const { whiteboardId } = req.params;
+  try {
+    const taggedCards = await whiteboardModel.getCardsByTag(tag, whiteboardId);
+    res.status(200).json({ data: taggedCards });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`error: ${error.message}`);
+    }
   }
 }

@@ -33,6 +33,7 @@ const cardSchema = new mongoose.Schema({
     default: null,
   },
 });
+cardSchema.index({ tags: 1 });
 
 const whiteboardSchema = new mongoose.Schema({
   id: String,

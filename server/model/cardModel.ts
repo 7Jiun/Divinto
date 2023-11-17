@@ -92,3 +92,8 @@ export async function createCard(user: UserPayload, card: CardInput) {
 export async function updateCard(card: GetCard) {
   await Card.findByIdAndUpdate(card._id, card);
 }
+
+export async function getCards(cardIds: string[]): Promise<GetCard[]> {
+  const cards = await Card.find({ _id: { $in: cardIds } });
+  return cards as unknown as GetCard[];
+}
