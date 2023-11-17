@@ -1,21 +1,10 @@
 import { Router } from 'express';
+import { createWhiteboard, getWhiteboard } from '../controller/whiteboardControl.ts';
 
 const router = Router();
 
-interface Whiteboard {
-  id: string;
-  title: string;
-  cards: Array<string>;
-}
+router.route('/whiteboard/:whiteboardId').get(getWhiteboard);
 
-const whiteboardExample: Whiteboard = {
-  id: 'test123',
-  title: 'about work',
-  cards: ['123e', '123f'],
-};
-
-router.route('/whiteboard').get((req, res) => {
-  res.json(whiteboardExample);
-});
+router.route('/whiteboard').post(createWhiteboard);
 
 export default router;
