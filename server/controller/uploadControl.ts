@@ -9,7 +9,7 @@ export async function uploadImage(req: Request, res: Response) {
       const filePath = req.file.path.replace(basePath, '');
       const addUploadImageInfo: BlockContent = {
         type: BlockTypeEnum.Image,
-        content: `![${req.file.filename}](${filePath})`,
+        content: `![${req.file.originalname}](${filePath})`,
       };
       await addImageContent(cardId, addUploadImageInfo);
       res.status(200).json({ data: 'upload successfully' });
