@@ -77,7 +77,6 @@ function classifyContent(content: string): BlockContent[] {
 
 export async function getCardById(cardId: string): Promise<GetCard> {
   const card = await Card.findById(cardId);
-  console.log(card);
   return card as unknown as GetCard;
 }
 
@@ -119,15 +118,11 @@ export async function updateCard(card: UpdateCard) {
 }
 
 export async function addImageContent(cardId: string, image: BlockContent) {
-  await Card.findByIdAndUpdate(
-    cardId,
-    {
-      $push: {
-        'content.main': image,
-      },
+  await Card.findByIdAndUpdate(cardId, {
+    $push: {
+      'content.main': image,
     },
-    { new: true },
-  );
+  });
 }
 
 export async function getCards(cardIds: string[]): Promise<GetCard[]> {
