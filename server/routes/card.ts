@@ -74,7 +74,7 @@ router.route('/card').delete((req, res) => {
 });
 
 router
-  .route('/upload/:cardId')
+  .route('/upload/:whiteboardId/:cardId')
   .post(
     multer.uploadToBuffer.single('image'),
     multer.uploadTypeCheck,

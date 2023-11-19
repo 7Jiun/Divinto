@@ -20,7 +20,7 @@ import { getCardById } from '../model/cardModel.ts';
 import { Request, Response } from 'express';
 import { GetCard } from '../routes/card.ts';
 
-export async function transferCardMarkdownById(cardId: string): Promise<CardMarkdown> {
+async function transferCardMarkdownById(cardId: string): Promise<CardMarkdown> {
   const card = await getCardById(cardId);
   const mainContent = card.content.main;
   let markdown = '';
@@ -30,9 +30,14 @@ export async function transferCardMarkdownById(cardId: string): Promise<CardMark
       markdown += '\n\n';
     } else if (block.type === 'image') {
       const imageContent = block.content;
-      const username = imageContent.split('/')[1];
-      imageContent.replace(`/${username}`, '.');
-      markdown += imageContent;
+      const folderDirs = imageContent.split('/');
+      const username = folderDirs[1];
+      const whiteboardId = folderDirs[2];
+      const updatedImageContent = imageContent.replace(
+        `/${username}/${whiteboardId}/${cardId}/assets/`,
+        '/assets/',
+      );
+      markdown += updatedImageContent;
       markdown += '\n\n';
     }
   });
@@ -43,10 +48,15 @@ export async function transferCardMarkdownById(cardId: string): Promise<CardMark
   };
 }
 
-export async function markdownCardToFile(userId: string, card: GetCard, markdown: string) {
+async function markdownCardToFile(
+  userId: string,
+  whiteboardId: string,
+  card: GetCard,
+  markdown: string,
+) {
   const cardId = card._id;
   const cardTitle = card.title;
-  const writeUrl = `${process.env.URL}/${userId}/${cardId}/${cardTitle}.md`;
+  const writeUrl = `${process.env.URL}/${userId}/${whiteboardId}/${cardId}/${cardTitle}.md`;
   try {
     fs.writeFile(writeUrl, markdown, { flag: 'a+' }, (err) => {
       if (err instanceof Error) {
@@ -59,8 +69,8 @@ export async function markdownCardToFile(userId: string, card: GetCard, markdown
   }
 }
 
-function addFilesFromDirectory(zipFolder: JSZip, dirPath: string) {
-  const files = fs.readdirSync(dirPath);
+async function addFilesFromDirectory(zipFolder: JSZip, dirPath: string) {
+  const files = fs.readdirSync(`${dirPath}`);
 
   files.forEach((file) => {
     const filePath = path.join(dirPath, file);
@@ -81,34 +91,48 @@ function addFilesFromDirectory(zipFolder: JSZip, dirPath: string) {
 async function jsZipMarkdown(markdownUrl: string): Promise<string> {
   const zip = new JSZip();
   const fileDirArray = markdownUrl.split('/');
-  const assetFolder = `${fileDirArray[0]}/${fileDirArray[1]}/${fileDirArray[2]}/${fileDirArray[3]}`;
-  const filename = fileDirArray[4].split('.')[0];
-
-  const assetZip = zip.folder(assetFolder);
+  // uploads/${user}/${whiteboard}/${card}/assets
+  const assetFolder = `${fileDirArray[0]}/${fileDirArray[1]}/${fileDirArray[2]}/${fileDirArray[3]}/${fileDirArray[4]}`;
+  const filename = fileDirArray[5].split('.')[0];
+  const lastFolderName = path.basename(assetFolder);
+  const assetZip = zip.folder(lastFolderName);
   if (assetZip) {
-    addFilesFromDirectory(assetZip, assetFolder);
+    await addFilesFromDirectory(assetZip, assetFolder);
   }
   const zipDir = `${assetFolder}/${filename}.zip`;
-  zip.generateAsync({ type: 'nodebuffer' }).then(function (content) {
-    fs.writeFileSync(`./${zipDir}`, content);
+  await zip.generateAsync({ type: 'nodebuffer' }).then(function (content) {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(`./${zipDir}`, content, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(zipDir);
+        }
+      });
+    });
   });
 
   return zipDir;
 }
 
-await jsZipMarkdown('./uploads/23iodj2/6557128f9009c80cebeb07b3/test.md');
+// 不知道為什麼第一次讀檔都會讀不到，可能有個地方 async 沒有處理到
 
 export async function exportCardAsMarkdown(req: Request, res: Response) {
   const { userId } = req.body;
-  const { cardId } = req.params;
+  const { cardId, whiteboardId } = req.params;
+
+  // 其實要加個檢查比較合理
   const cardMarkdown = await transferCardMarkdownById(cardId);
-  const filePath = await markdownCardToFile(userId, cardMarkdown.card, cardMarkdown.markdown);
-  if (filePath) {
+  const filePath = await markdownCardToFile(
+    userId,
+    whiteboardId,
+    cardMarkdown.card,
+    cardMarkdown.markdown,
+  );
+  if (filePath && fs.existsSync(filePath)) {
     const zipPath = await jsZipMarkdown(filePath);
     const zipDirArray = zipPath.split('/');
-    const zipDir = `${zipDirArray[0]}/${zipDirArray[1]}/${zipDirArray[2]}/${zipDirArray[3]}`;
-    const zipFilename = zipDirArray[4];
-    console.log(zipPath, zipDir, zipFilename);
+    const zipFilename = zipDirArray[5];
     res.download(zipPath, zipFilename, (err) => {
       if (err instanceof Error) {
         console.error(`error: ${err.message}`);
@@ -116,9 +140,14 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
       }
     });
   } else {
-    res.status(500).json({ data: 'internal server error' });
+    res.status(500).json({ data: 'files not ready, please retry' });
   }
 }
+
+// export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
+//   // 拿白板上的卡片array
+//   // 每張卡片都出 markdown 然後 zip 到 user
+// }
 
 /*
     exportWhiteboard

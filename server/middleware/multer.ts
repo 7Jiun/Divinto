@@ -32,11 +32,11 @@ export async function uploadToDisk(req: Request, res: Response, next: NextFuncti
     name: 'jiun',
     id: '23iodj2',
   };
-  const { cardId } = req.params;
+  const { cardId, whiteboardId } = req.params;
   const file = req.file;
   const dir = process.env.URL;
   if (typeof dir === 'string' && file) {
-    const targetPath = path.join(dir, user.id, cardId);
+    const targetPath = path.join(dir, user.id, whiteboardId, cardId, '/assets');
 
     fs.mkdirSync(targetPath, { recursive: true });
 
