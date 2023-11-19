@@ -115,7 +115,7 @@ async function jsZipMarkdown(markdownUrl: string): Promise<string> {
   return zipDir;
 }
 
-// 不知道為什麼第一次讀檔都會讀不到，可能有個地方 async 沒有處理到
+// ? 加了個 timeout 就可以成功執行，但顯然不該這樣..待修改
 
 export async function exportCardAsMarkdown(req: Request, res: Response) {
   const { userId } = req.body;
@@ -129,19 +129,23 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
     cardMarkdown.card,
     cardMarkdown.markdown,
   );
-  if (filePath && fs.existsSync(filePath)) {
-    const zipPath = await jsZipMarkdown(filePath);
-    const zipDirArray = zipPath.split('/');
-    const zipFilename = zipDirArray[5];
-    res.download(zipPath, zipFilename, (err) => {
-      if (err instanceof Error) {
-        console.error(`error: ${err.message}`);
-        res.status(500).json({ data: 'download failed' });
-      }
-    });
-  } else {
-    res.status(500).json({ data: 'files not ready, please retry' });
-  }
+  setTimeout(async () => {
+    console.log('wait');
+
+    if (filePath && fs.existsSync(filePath)) {
+      const zipPath = await jsZipMarkdown(filePath);
+      const zipDirArray = zipPath.split('/');
+      const zipFilename = zipDirArray[5];
+      res.download(zipPath, zipFilename, (err) => {
+        if (err instanceof Error) {
+          console.error(`error: ${err.message}`);
+          res.status(500).json({ data: 'download failed' });
+        }
+      });
+    } else {
+      res.status(500).json({ data: 'files not ready, please retry' });
+    }
+  }, 1000);
 }
 
 // export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
