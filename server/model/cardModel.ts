@@ -15,6 +15,13 @@ export interface BlockContent {
   content: String;
 }
 
+export interface CardContent {
+  main: BlockContent[];
+  summary: BlockContent[] | null;
+  approvement: BlockContent[] | null;
+  disapprovement: BlockContent[] | null;
+}
+
 export function createId(user: UserPayload): string {
   const userId = user.id;
   const date: string = Date.now().toString();
@@ -70,7 +77,6 @@ function classifyContent(content: string): BlockContent[] {
 
 export async function getCardById(cardId: string): Promise<GetCard> {
   const card = await Card.findById(cardId);
-  console.log(card);
   return card as unknown as GetCard;
 }
 
@@ -96,7 +102,12 @@ export async function updateCard(card: UpdateCard) {
     id: card.id,
     title: card.title,
     position: card.position,
-    content: blockContents,
+    content: {
+      main: blockContents,
+      summary: null,
+      approvement: null,
+      disapprovement: null,
+    },
     tags: card.tags,
     createdAt: card.createdAt,
     updateAt: Date.now().toString(),
@@ -104,6 +115,14 @@ export async function updateCard(card: UpdateCard) {
   };
 
   await Card.findByIdAndUpdate(card._id, updatedCard);
+}
+
+export async function addImageContent(cardId: string, image: BlockContent) {
+  await Card.findByIdAndUpdate(cardId, {
+    $push: {
+      'content.main': image,
+    },
+  });
 }
 
 export async function getCards(cardIds: string[]): Promise<GetCard[]> {

@@ -22,7 +22,6 @@ export async function getWhiteboard(req: Request, res: Response) {
   const { whiteboardId } = req.params;
   try {
     const whiteboard = await whiteboardModel.getWhiteboard(whiteboardId);
-    console.log(whiteboard);
     res.status(200).json({ data: whiteboard });
   } catch (error) {
     if (error instanceof Error) {
