@@ -19,6 +19,7 @@ import path from 'path';
 import { getCardById } from '../model/cardModel.ts';
 import { Request, Response } from 'express';
 import { GetCard } from '../routes/card.ts';
+// import { getWhiteboard } from '../model/whiteboardModel.ts';
 
 async function transferCardMarkdownById(cardId: string): Promise<CardMarkdown> {
   const card = await getCardById(cardId);
@@ -53,17 +54,20 @@ async function markdownCardToFile(
   whiteboardId: string,
   card: GetCard,
   markdown: string,
-) {
+): Promise<string | undefined> {
   const cardId = card._id;
   const cardTitle = card.title;
   const writeUrl = `${process.env.URL}/${userId}/${whiteboardId}/${cardId}/${cardTitle}.md`;
   try {
-    fs.writeFile(writeUrl, markdown, { flag: 'a+' }, (err) => {
-      if (err instanceof Error) {
-        throw err;
-      }
+    return await new Promise((resolve, reject) => {
+      fs.writeFile(writeUrl, markdown, { flag: 'a+' }, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(writeUrl);
+        }
+      });
     });
-    return writeUrl;
   } catch (err) {
     console.error(err);
   }
@@ -115,13 +119,11 @@ async function jsZipMarkdown(markdownUrl: string): Promise<string> {
   return zipDir;
 }
 
-// ? 加了個 timeout 就可以成功執行，但顯然不該這樣..待修改
-
 export async function exportCardAsMarkdown(req: Request, res: Response) {
   const { userId } = req.body;
   const { cardId, whiteboardId } = req.params;
 
-  // 其實要加個檢查比較合理
+  // 其實要加個檢查比較合理：卡片有沒有真的在白板裡
   const cardMarkdown = await transferCardMarkdownById(cardId);
   const filePath = await markdownCardToFile(
     userId,
@@ -129,28 +131,36 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
     cardMarkdown.card,
     cardMarkdown.markdown,
   );
-  setTimeout(async () => {
-    console.log('wait');
 
-    if (filePath && fs.existsSync(filePath)) {
-      const zipPath = await jsZipMarkdown(filePath);
-      const zipDirArray = zipPath.split('/');
-      const zipFilename = zipDirArray[5];
-      res.download(zipPath, zipFilename, (err) => {
-        if (err instanceof Error) {
-          console.error(`error: ${err.message}`);
-          res.status(500).json({ data: 'download failed' });
-        }
-      });
-    } else {
-      res.status(500).json({ data: 'files not ready, please retry' });
-    }
-  }, 1000);
+  if (filePath && fs.existsSync(filePath)) {
+    const zipPath = await jsZipMarkdown(filePath);
+    const zipDirArray = zipPath.split('/');
+    const zipFilename = zipDirArray[5];
+    res.download(zipPath, zipFilename, (err) => {
+      if (err instanceof Error) {
+        console.error(`error: ${err.message}`);
+        res.status(500).json({ data: 'download failed' });
+      }
+    });
+  } else {
+    res.status(500).json({ data: 'files not ready, please retry' });
+  }
 }
 
 // export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
-//   // 拿白板上的卡片array
-//   // 每張卡片都出 markdown 然後 zip 到 user
+//   const { userId } = req.body;
+//   const { whiteboardId } = req.params;
+//   const whiteboard = await getWhiteboard(whiteboardId);
+//   // 改成 promise.all
+//   if (whiteboard) {
+//     whiteboard.cards.forEach(async (card) => {
+//       const cardMarkdown = await transferCardMarkdownById(card._id);
+//       await markdownCardToFile(userId, whiteboardId, card, cardMarkdown.markdown);
+//     });
+//   }
+
+// 拿白板上的卡片array
+// 每張卡片都出 markdown 然後 zip 到 user
 // }
 
 /*

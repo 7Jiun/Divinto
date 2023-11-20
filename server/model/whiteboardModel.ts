@@ -14,6 +14,16 @@ export interface GetWhiteboard {
   removeAt: string;
 }
 
+export interface Iwhiteboard {
+  id: string;
+  _id: string;
+  title: string;
+  cards: string[];
+  createdAt: string;
+  updateAt: string;
+  removeAt: string;
+}
+
 export async function createWhiteboard(user: UserPayload, title: string) {
   const whiteboardId: string = createId(user);
   const insertId = await Whiteboard.create({
@@ -81,4 +91,12 @@ export async function getCardsByTag(tag: string | null, whiteboardId: string) {
     { $match: { 'cards.tags': tag } },
   ]);
   return cardsWithTag;
+}
+
+export async function getCardsByWhiteboard(whiteboardId: string): Promise<Array<string> | null> {
+  const whiteboard: Iwhiteboard | null = await Whiteboard.findById(whiteboardId);
+  if (!whiteboard) {
+    return null;
+  }
+  return whiteboard.cards;
 }
