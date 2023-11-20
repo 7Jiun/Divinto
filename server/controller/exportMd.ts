@@ -19,7 +19,7 @@ import path from 'path';
 import { getCardById } from '../model/cardModel.ts';
 import { Request, Response } from 'express';
 import { GetCard } from '../routes/card.ts';
-// import { getWhiteboard } from '../model/whiteboardModel.ts';
+import { getWhiteboard } from '../model/whiteboardModel.ts';
 
 async function transferCardMarkdownById(cardId: string): Promise<CardMarkdown> {
   const card = await getCardById(cardId);
@@ -119,6 +119,31 @@ async function jsZipMarkdown(markdownUrl: string): Promise<string> {
   return zipDir;
 }
 
+async function jsZipWhiteboard(whiteboardUrl: string): Promise<string> {
+  const zip = new JSZip();
+  // ./uploads/${user}/${whiteboard}
+  const whiteboardDirArray = whiteboardUrl.split('/');
+  const whiteboardFolder = whiteboardDirArray[3];
+  const assetZip = zip.folder(whiteboardFolder);
+  if (assetZip) {
+    await addFilesFromDirectory(assetZip, whiteboardUrl);
+  }
+  const zipDir = `${whiteboardUrl}/${whiteboardFolder}.zip`;
+  await zip.generateAsync({ type: 'nodebuffer' }).then(function (content) {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(`./${zipDir}`, content, (err) => {
+        if (err) {
+          reject(console.error(`zip error: ${err}`));
+        } else {
+          resolve(zipDir);
+        }
+      });
+    });
+  });
+
+  return zipDir;
+}
+
 export async function exportCardAsMarkdown(req: Request, res: Response) {
   const { userId } = req.body;
   const { cardId, whiteboardId } = req.params;
@@ -147,21 +172,43 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
   }
 }
 
-// export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
-//   const { userId } = req.body;
-//   const { whiteboardId } = req.params;
-//   const whiteboard = await getWhiteboard(whiteboardId);
-//   // 改成 promise.all
-//   if (whiteboard) {
-//     whiteboard.cards.forEach(async (card) => {
-//       const cardMarkdown = await transferCardMarkdownById(card._id);
-//       await markdownCardToFile(userId, whiteboardId, card, cardMarkdown.markdown);
-//     });
-//   }
-
-// 拿白板上的卡片array
-// 每張卡片都出 markdown 然後 zip 到 user
-// }
+export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
+  const { userId } = req.body;
+  const { whiteboardId } = req.params;
+  const whiteboard = await getWhiteboard(whiteboardId);
+  const whiteboardUrl = `${process.env.URL}/${userId}/${whiteboardId}`;
+  if (whiteboard[0] && whiteboard[0].cards) {
+    const promises = whiteboard[0].cards.map(async (card) => {
+      const cardMarkdown = await transferCardMarkdownById(card._id);
+      return markdownCardToFile(userId, whiteboardId, cardMarkdown.card, cardMarkdown.markdown);
+    });
+    console.log(promises);
+    try {
+      await Promise.all(promises)
+        .then(async () => {
+          const zipDir = await jsZipWhiteboard(whiteboardUrl);
+          console.log(zipDir);
+          return zipDir;
+        })
+        .then((zipDir) => {
+          const whiteboardZipPath = path.basename(zipDir);
+          console.log(whiteboardZipPath);
+          console.log(zipDir);
+          res.download(zipDir, whiteboardZipPath, (err) => {
+            if (err instanceof Error) {
+              console.error(`error: ${err.message}`);
+              res.status(500).json({ data: 'download failed' });
+            }
+          });
+        })
+        .catch((error) => console.error(`whiteboard export error:, ${error}`));
+    } catch (error) {
+      console.error(`card promise error:, ${error}`);
+    }
+  } else {
+    res.status(500).json({ data: 'get whiteboard error' });
+  }
+}
 
 /*
     exportWhiteboard

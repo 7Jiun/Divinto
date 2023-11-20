@@ -33,7 +33,7 @@ export async function createWhiteboard(user: UserPayload, title: string) {
   return insertId;
 }
 
-export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard> {
+export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard[]> {
   const whiteboard = await Whiteboard.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(whiteboardId) } },
     {
@@ -56,7 +56,7 @@ export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard
       },
     },
   ]);
-  return whiteboard as unknown as GetWhiteboard;
+  return whiteboard as unknown as GetWhiteboard[];
 }
 
 export async function addWhiteboardCards(cardId: string, whiteboardId: string) {
