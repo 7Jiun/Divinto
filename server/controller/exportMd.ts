@@ -56,8 +56,11 @@ async function markdownCardToFile(
   markdown: string,
 ): Promise<string | undefined> {
   const cardId = card._id;
-  const cardTitle = card.title;
-  const writeUrl = `${process.env.URL}/${userId}/${whiteboardId}/${cardId}/${cardTitle}.md`;
+  const writeUrl = `${process.env.URL}/${userId}/${whiteboardId}/${cardId}/${cardId}.md`;
+  const dir = path.dirname(writeUrl);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
   try {
     return await new Promise((resolve, reject) => {
       fs.writeFile(writeUrl, markdown, { flag: 'a+' }, (err) => {
@@ -182,18 +185,14 @@ export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
       const cardMarkdown = await transferCardMarkdownById(card._id);
       return markdownCardToFile(userId, whiteboardId, cardMarkdown.card, cardMarkdown.markdown);
     });
-    console.log(promises);
     try {
       await Promise.all(promises)
         .then(async () => {
           const zipDir = await jsZipWhiteboard(whiteboardUrl);
-          console.log(zipDir);
           return zipDir;
         })
         .then((zipDir) => {
           const whiteboardZipPath = path.basename(zipDir);
-          console.log(whiteboardZipPath);
-          console.log(zipDir);
           res.download(zipDir, whiteboardZipPath, (err) => {
             if (err instanceof Error) {
               console.error(`error: ${err.message}`);

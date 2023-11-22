@@ -25,7 +25,7 @@ export async function createCard(req: Request<{}, {}, CardInput>, res: Response)
   try {
     const newCard = await cardModel.createCard(user, card);
     await whiteboardModel.addWhiteboardCards(newCard._id, card.whiteboardId);
-    res.status(200).json({ data: 'create card successfully' });
+    res.status(200).json(newCard);
   } catch (error) {
     if (error instanceof Error) {
       console.error(`error: ${error.message}`);

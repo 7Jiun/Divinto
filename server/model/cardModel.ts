@@ -39,7 +39,6 @@ function classifyContent(content: string): BlockContent[] {
   let blockNumber = 0;
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].match(imageRegex)) {
-      console.log('match image');
       const imageBlock: BlockContent = {
         type: BlockTypeEnum.Image,
         content: lines[i],

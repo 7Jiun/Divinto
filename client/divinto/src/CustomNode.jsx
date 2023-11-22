@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { Handle, useReactFlow, useStoreApi, Position } from 'reactflow';
 
 const options = [
@@ -72,5 +72,59 @@ function CustomNode({ id, data }) {
     </>
   );
 }
+
+export function EditableNode({ data, id }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [chanege, setChange] = useState(data);
+
+  const onChange = useEffect(() => {
+    // 當 label 變化時，發送更新到服務器
+    const updateNode = async () => {
+      try {
+        await fetch(`/card`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: {
+            _id: id,
+            content: data,
+          },
+        });
+      } catch (error) {
+        console.error('Update failed', error);
+      }
+    };
+
+    if (data !== data) {
+      updateNode();
+    }
+  }, [data, id]);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    // 這裡可以添加進一步的更新邏輯
+  };
+
+  return (
+    <>
+      <Handle type="source" position={Position.Top} />
+      <div onDoubleClick={handleDoubleClick}>
+        {isEditing ? (
+          <input type="text" value={data} onChange={onChange} onBlur={handleBlur} autoFocus />
+        ) : (
+          <div>{data}</div>
+        )}
+      </div>
+      <Handle type="target" position={Position.Buttom} />
+    </>
+  );
+}
+
+// export default CustomNode;
 
 export default memo(CustomNode);
