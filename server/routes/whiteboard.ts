@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { createWhiteboard, getWhiteboard, getCardsByTag } from '../controller/whiteboardControl.ts';
+import * as whiteboardControl from '../controller/whiteboardControl.ts';
+import authenticate from '../middleware/authenticateUser.ts';
 
 const router = Router();
 
-router.route('/whiteboard/:whiteboardId').get(getWhiteboard);
+router.route('/whiteboard/:whiteboardId').get(authenticate, whiteboardControl.getWhiteboard);
 
-router.route('/whiteboard/:whiteboardId/search').get(getCardsByTag);
+router.route('/whiteboard/:whiteboardId/search').get(authenticate, whiteboardControl.getCardsByTag);
 
-router.route('/whiteboard').post(createWhiteboard);
+router.route('/whiteboard').post(authenticate, whiteboardControl.createWhiteboard);
 
 export default router;

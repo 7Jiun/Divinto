@@ -1,5 +1,6 @@
 import express from 'express';
 import cardRouter from './routes/card.ts';
+import userRoute from './routes/user.ts';
 import swaggerRouter from './utils/apiDocs.ts';
 import whiteboardRouter from './routes/whiteboard.ts';
 import markdownRouter from './routes/markdown.ts';
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(express.static('uploads'));
 
 app.use(swaggerRouter);
+app.use(userRoute);
 app.use(cardRouter);
 app.use(whiteboardRouter);
 app.use(markdownRouter);

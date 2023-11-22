@@ -1,6 +1,7 @@
 import { Card } from './schema.ts';
-import { CardInput, UserPayload } from '../controller/cardControl.ts';
+import { CardInput } from '../controller/cardControl.ts';
 import { GetCard, UpdateCard } from '../routes/card.ts';
+import { JwtUserPayload } from '../utils/signJWT.ts';
 
 // 定義 enum
 export enum BlockTypeEnum {
@@ -22,8 +23,8 @@ export interface CardContent {
   disapprovement: BlockContent[] | null;
 }
 
-export function createId(user: UserPayload): string {
-  const userId = user.id;
+export function createId(user: JwtUserPayload): string {
+  const userId = user.id.toString();
   const date: string = Date.now().toString();
   const random = Math.floor(Math.random() * 1000).toString();
   const uniqueId = `${userId}-${date}-${random}`;
@@ -79,7 +80,7 @@ export async function getCardById(cardId: string): Promise<GetCard> {
   return card as unknown as GetCard;
 }
 
-export async function createCard(user: UserPayload, card: CardInput) {
+export async function createCard(user: JwtUserPayload, card: CardInput) {
   const cardId = createId(user);
   const blockContents = classifyContent(card.content);
   const insertCard = await Card.create({

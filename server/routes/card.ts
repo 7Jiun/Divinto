@@ -3,6 +3,7 @@ import * as cardControl from '../controller/cardControl.ts';
 import * as multer from '../middleware/multer.ts';
 import { BlockTypeEnum, CardContent } from '../model/cardModel.ts';
 import { uploadImage } from '../controller/uploadControl.ts';
+import authenticate from '../middleware/authenticateUser.ts';
 const router = Router();
 
 export interface Position {
@@ -63,11 +64,11 @@ const cardExample: GetCard = {
   removeAt: null,
 };
 
-router.route('/card/:cardId').get(cardControl.getCard);
+router.route('/card/:cardId').get(authenticate, cardControl.getCard);
 
-router.route('/card').post(cardControl.createCard);
+router.route('/card').post(authenticate, cardControl.createCard);
 
-router.route('/card').put(cardControl.updateCard);
+router.route('/card').put(authenticate, cardControl.updateCard);
 
 router.route('/card').delete((req, res) => {
   res.json(cardExample);
@@ -76,6 +77,7 @@ router.route('/card').delete((req, res) => {
 router
   .route('/upload/:whiteboardId/:cardId')
   .post(
+    authenticate,
     multer.uploadToBuffer.single('image'),
     multer.uploadTypeCheck,
     multer.uploadToDisk,

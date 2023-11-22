@@ -1,12 +1,9 @@
 import { Request, Response } from 'express';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
-import { UserPayload } from './cardControl.ts';
+import { JwtUserPayload } from '../utils/signJWT.ts';
 
 export async function createWhiteboard(req: Request, res: Response) {
-  const user: UserPayload = {
-    id: '22',
-    name: 'Jiun',
-  };
+  const user: JwtUserPayload = res.locals.userPayload;
   const { title } = req.body;
   try {
     const insert = await whiteboardModel.createWhiteboard(user, title);

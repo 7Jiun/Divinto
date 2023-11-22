@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { Request, Response, NextFunction } from 'express';
-import { UserPayload } from '../controller/cardControl.ts';
+import { JwtUserPayload } from '../utils/signJWT.ts';
 // import { fileTypeFromBuffer } from 'file-type';
 
 export const uploadToBuffer = multer({
@@ -28,15 +28,12 @@ export async function uploadTypeCheck(req: Request, res: Response, next: NextFun
 }
 
 export async function uploadToDisk(req: Request, res: Response, next: NextFunction) {
-  const user: UserPayload = {
-    name: 'jiun',
-    id: '23iodj2',
-  };
+  const user: JwtUserPayload = res.locals.userPayload;
   const { cardId, whiteboardId } = req.params;
   const file = req.file;
   const dir = process.env.URL;
   if (typeof dir === 'string' && file) {
-    const targetPath = path.join(dir, user.id, whiteboardId, cardId, '/assets');
+    const targetPath = path.join(dir, user.id.toString(), whiteboardId, cardId, '/assets');
 
     fs.mkdirSync(targetPath, { recursive: true });
 
