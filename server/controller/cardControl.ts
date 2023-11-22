@@ -2,11 +2,7 @@ import { Request, Response } from 'express';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
 import { UpdateCard } from '../routes/card.ts';
-
-export interface UserPayload {
-  id: string;
-  name: string;
-}
+import { JwtUserPayload } from '../utils/signJWT.ts';
 
 export interface CardInput {
   title: string;
@@ -17,10 +13,7 @@ export interface CardInput {
 }
 
 export async function createCard(req: Request<{}, {}, CardInput>, res: Response) {
-  const user: UserPayload = {
-    id: '22',
-    name: 'Jiun',
-  };
+  const user: JwtUserPayload = res.locals.userPayload;
   const card: CardInput = req.body;
   try {
     const newCard = await cardModel.createCard(user, card);

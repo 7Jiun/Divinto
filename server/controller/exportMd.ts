@@ -148,7 +148,8 @@ async function jsZipWhiteboard(whiteboardUrl: string): Promise<string> {
 }
 
 export async function exportCardAsMarkdown(req: Request, res: Response) {
-  const { userId } = req.body;
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
   const { cardId, whiteboardId } = req.params;
 
   // 其實要加個檢查比較合理：卡片有沒有真的在白板裡
@@ -176,7 +177,8 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
 }
 
 export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
-  const { userId } = req.body;
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
   const { whiteboardId } = req.params;
   const whiteboard = await getWhiteboard(whiteboardId);
   const whiteboardUrl = `${process.env.URL}/${userId}/${whiteboardId}`;
