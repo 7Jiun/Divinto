@@ -11,7 +11,6 @@ async function authenticate(req: Request, res: Response, next: NextFunction) {
     }
     const decoded = await verifyJWT(token);
     res.locals.userPayload = decoded;
-    console.log(decoded);
     next();
   } catch (err) {
     if (err instanceof Error) {
