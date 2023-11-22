@@ -65,7 +65,6 @@ export async function addWhiteboardCards(cardId: string, whiteboardId: string) {
 
 export async function getCardsByTag(tag: string | null, whiteboardId: string) {
   const cardsWithTag = Whiteboard.aggregate([
-    // 第一步：匹配特定的 whiteboard
     { $match: { _id: new mongoose.Types.ObjectId(whiteboardId) } },
     {
       $addFields: {
@@ -87,7 +86,6 @@ export async function getCardsByTag(tag: string | null, whiteboardId: string) {
       },
     },
     { $unwind: '$cards' },
-    // 过滤出包含特定标签的卡片
     { $match: { 'cards.tags': tag } },
   ]);
   return cardsWithTag;
