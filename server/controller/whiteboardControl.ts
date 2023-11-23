@@ -1,13 +1,18 @@
 import { Request, Response } from 'express';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
+import * as userModel from '../model/userModel.ts';
 import { JwtUserPayload } from '../utils/signJWT.ts';
 
 export async function createWhiteboard(req: Request, res: Response) {
   const user: JwtUserPayload = res.locals.userPayload;
+  const userId = user.id.toString();
   const { title } = req.body;
   try {
     const insert = await whiteboardModel.createWhiteboard(user, title);
-    res.status(200).json({ whiteboardId: insert });
+    const whiteboardId = insert._id.toString();
+    const addWhiteboardInUser = await userModel.addWhiteboardInUser(userId, whiteboardId);
+    if (!addWhiteboardInUser) return res.status(500).json({ data: 'user whiteboard wrong' });
+    res.status(200).json({ whiteboard: insert });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`error:${error.message}`);
@@ -28,6 +33,36 @@ export async function getWhiteboard(req: Request, res: Response) {
   }
 }
 
+export async function updateWhiteboardTitle(req: Request, res: Response) {
+  const { whiteboardId } = req.params;
+  const { title } = req.body;
+  try {
+    const updateWhiteboard = await whiteboardModel.updateWhiteboardTitle(whiteboardId, title);
+    // const addWhiteboardInUser;
+    if (!updateWhiteboard) return res.status(400).json({ data: 'no this ID 喔' });
+    res.status(200).json({ data: 'update title successfully' });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`whiteboard update error: ${error.message}`);
+      res.status(500).json({ data: 'server error' });
+    }
+  }
+}
+
+export async function deleteWhiteboard(req: Request, res: Response) {
+  const { whiteboardId } = req.params;
+  try {
+    const updateWhiteboard = await whiteboardModel.deleteWhiteboard(whiteboardId);
+    if (!updateWhiteboard) return res.status(400).json({ data: 'no this ID 喔' });
+    res.status(200).json({ data: 'delete whiteboard successfully' });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`whiteboard update error: ${error.message}`);
+      res.status(500).json({ data: 'server error' });
+    }
+  }
+}
+
 export async function getCardsByTag(req: Request, res: Response) {
   let tag: string | null = null;
   if (typeof req.query.tag === 'string') {
@@ -42,4 +77,12 @@ export async function getCardsByTag(req: Request, res: Response) {
       console.error(`error: ${error.message}`);
     }
   }
+}
+
+export async function getUserWhiteboards(req: Request, res: Response) {
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
+  const whiteboards = await userModel.getUserWhiteboards(userId);
+  if (!whiteboards) return res.status(400).json({ data: 'get users whiteboard wrong' });
+  res.status(200).json({ data: whiteboards });
 }
