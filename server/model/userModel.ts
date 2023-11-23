@@ -57,18 +57,6 @@ export async function checkNativePassword(
   };
 }
 
-export async function addWhiteboardInUser(userId: string, whiteboardId: string) {
-  const updateWhiteboard = await User.findByIdAndUpdate(
-    userId,
-    {
-      $push: { whiteboards: whiteboardId },
-      $set: { updateAt: Date.now() },
-    },
-    { new: true },
-  );
-  return updateWhiteboard;
-}
-
 export async function getUserProfile(userId: string): Promise<IUser | null> {
   const userRawdata = await User.findById(userId);
   if (!userRawdata) return null;
@@ -87,5 +75,36 @@ export async function getUserProfile(userId: string): Promise<IUser | null> {
     return user;
   } else {
     return null;
+  }
+}
+
+export async function addWhiteboardInUser(userId: string, whiteboardId: string) {
+  const updateWhiteboard = await User.findByIdAndUpdate(
+    userId,
+    {
+      $push: { whiteboards: whiteboardId },
+      $set: { updateAt: Date.now() },
+    },
+    { new: true },
+  );
+  return updateWhiteboard;
+}
+
+export async function deleteWhiteboardInUser(
+  userId: string,
+  whiteboardId: string,
+): Promise<Boolean> {
+  const deleteWhiteboard = await User.findByIdAndUpdate(
+    userId,
+    {
+      $pull: { whiteboards: whiteboardId },
+      $set: { updateAt: Date.now() },
+    },
+    { new: true },
+  );
+  if (deleteWhiteboard) {
+    return true;
+  } else {
+    return false;
   }
 }

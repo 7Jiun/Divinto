@@ -50,10 +50,13 @@ export async function updateWhiteboardTitle(req: Request, res: Response) {
 }
 
 export async function deleteWhiteboard(req: Request, res: Response) {
+  const userId = res.locals.userPayload.id.toString();
   const { whiteboardId } = req.params;
   try {
     const updateWhiteboard = await whiteboardModel.deleteWhiteboard(whiteboardId);
     if (!updateWhiteboard) return res.status(400).json({ data: 'no this ID 喔' });
+    const deleteWhiteboardInUser = await userModel.deleteWhiteboardInUser(userId, whiteboardId);
+    if (!deleteWhiteboardInUser) return res.status(500).json({ data: 'user db update failed' });
     res.status(200).json({ data: 'delete whiteboard successfully' });
   } catch (error) {
     if (error instanceof Error) {
@@ -77,12 +80,4 @@ export async function getCardsByTag(req: Request, res: Response) {
       console.error(`error: ${error.message}`);
     }
   }
-}
-
-export async function getUserWhiteboards(req: Request, res: Response) {
-  const userPayload = res.locals.userPayload;
-  const userId = userPayload.id.toString();
-  const whiteboards = await userModel.getUserWhiteboards(userId);
-  if (!whiteboards) return res.status(400).json({ data: 'get users whiteboard wrong' });
-  res.status(200).json({ data: whiteboards });
 }
