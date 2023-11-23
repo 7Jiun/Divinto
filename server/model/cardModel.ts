@@ -117,6 +117,11 @@ export async function updateCard(card: UpdateCard) {
   await Card.findByIdAndUpdate(card._id, updatedCard);
 }
 
+export async function deleteCard(cardId: string) {
+  const removed = await Card.findByIdAndUpdate(cardId, { removeAt: Date.now() });
+  return removed;
+}
+
 export async function addImageContent(cardId: string, image: BlockContent) {
   await Card.findByIdAndUpdate(cardId, {
     $push: {

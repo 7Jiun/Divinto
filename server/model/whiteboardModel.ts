@@ -55,12 +55,69 @@ export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard
         as: 'cards',
       },
     },
+    {
+      $project: {
+        title: '$title',
+        cards: {
+          $filter: {
+            input: '$cards',
+            as: 'card',
+            cond: { $eq: ['$$card.removeAt', null] },
+          },
+        },
+        createdAt: '$createdAt',
+        updateAt: '$updateAt',
+        removeAt: '$removeAt',
+      },
+    },
   ]);
   return whiteboard as unknown as GetWhiteboard[];
 }
 
 export async function addWhiteboardCards(cardId: string, whiteboardId: string) {
-  await Whiteboard.findByIdAndUpdate(whiteboardId, { $push: { cards: cardId } }, { new: true });
+  await Whiteboard.findByIdAndUpdate(
+    whiteboardId,
+    {
+      $push: { cards: cardId },
+      $set: { updateAt: Date.now() },
+    },
+    { new: true },
+  );
+}
+
+export async function updateWhiteboardTitle(whiteboardId: string, title: string): Promise<Boolean> {
+  const updateWhiteboard = await Whiteboard.findByIdAndUpdate(
+    whiteboardId,
+    {
+      $set: {
+        title: title,
+        updateAt: Date.now(),
+      },
+    },
+    { new: true },
+  );
+  if (updateWhiteboard) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export async function deleteWhiteboard(whiteboardId: string): Promise<Boolean> {
+  const removeWhiteboard = await Whiteboard.findByIdAndUpdate(
+    whiteboardId,
+    {
+      $set: {
+        removeAt: Date.now(),
+      },
+    },
+    { new: true },
+  );
+  if (removeWhiteboard) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 export async function getCardsByTag(tag: string | null, whiteboardId: string) {

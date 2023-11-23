@@ -6,6 +6,18 @@ interface CheckedUser {
   isVerified: Boolean;
 }
 
+interface IUser {
+  whiteboards: string[] | undefined | null;
+  agents: string[] | undefined | null;
+  createdAt: string | undefined | null;
+  updateAt: string | undefined | null;
+  removeAt: string | undefined | null;
+  provider?: string | null | undefined;
+  name?: string | null | undefined;
+  email?: string | null | undefined;
+  password?: string | null | undefined;
+}
+
 export async function nativeUserSignUp(email: string, name: string, password: string) {
   const user = await User.create({
     provider: 'native',
@@ -43,4 +55,56 @@ export async function checkNativePassword(
     userPayload: null,
     isVerified: false,
   };
+}
+
+export async function getUserProfile(userId: string): Promise<IUser | null> {
+  const userRawdata = await User.findById(userId);
+  if (!userRawdata) return null;
+  if (!userRawdata.removeAt) {
+    const user = {
+      id: userId,
+      name: userRawdata?.name,
+      whiteboards: userRawdata?.whiteboards,
+      agents: userRawdata?.agents,
+      createdAt: userRawdata?.createdAt.toString(),
+      updateAt: userRawdata?.updateAt.toString(),
+      removeAt: null,
+      provider: userRawdata?.provider,
+      email: userRawdata?.email,
+    };
+    return user;
+  } else {
+    return null;
+  }
+}
+
+export async function addWhiteboardInUser(userId: string, whiteboardId: string) {
+  const updateWhiteboard = await User.findByIdAndUpdate(
+    userId,
+    {
+      $push: { whiteboards: whiteboardId },
+      $set: { updateAt: Date.now() },
+    },
+    { new: true },
+  );
+  return updateWhiteboard;
+}
+
+export async function deleteWhiteboardInUser(
+  userId: string,
+  whiteboardId: string,
+): Promise<Boolean> {
+  const deleteWhiteboard = await User.findByIdAndUpdate(
+    userId,
+    {
+      $pull: { whiteboards: whiteboardId },
+      $set: { updateAt: Date.now() },
+    },
+    { new: true },
+  );
+  if (deleteWhiteboard) {
+    return true;
+  } else {
+    return false;
+  }
 }

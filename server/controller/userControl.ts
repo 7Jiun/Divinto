@@ -26,13 +26,10 @@ export async function nativeUserSignUp(req: Request, res: Response) {
   const { email, name, password } = req.body;
   try {
     const hashedPassword = await createHashPassword(password);
-    console.log(hashedPassword);
     if (!hashedPassword) return res.status(500).json({ data: 'create hashed user failed' });
     const UserPayload = await userModel.nativeUserSignUp(email, name, hashedPassword);
-    console.log(UserPayload);
     if (!UserPayload) return res.status(500).json({ data: 'sign up failed' });
     const token = await signJWT(UserPayload);
-    console.log(token);
     res
       .cookie('jwtToken', token, COOKIE_OPTIONS)
       .status(200)
@@ -83,4 +80,12 @@ export async function nativeUserSignIn(req: Request, res: Response) {
       console.error(`sign in error: ${error.message}`);
     }
   }
+}
+
+export async function getUserProfile(req: Request, res: Response) {
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
+  const whiteboards = await userModel.getUserProfile(userId);
+  if (!whiteboards) return res.status(400).json({ data: 'get users whiteboard wrong' });
+  res.status(200).json({ data: whiteboards });
 }

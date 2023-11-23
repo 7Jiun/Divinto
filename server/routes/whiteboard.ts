@@ -10,4 +10,10 @@ router.route('/whiteboard/:whiteboardId/search').get(authenticate, whiteboardCon
 
 router.route('/whiteboard').post(authenticate, whiteboardControl.createWhiteboard);
 
+router
+  .route('/whiteboard/:whiteboardId')
+  .put(authenticate, whiteboardControl.updateWhiteboardTitle);
+
+router.route('/whiteboard/:whiteboardId').delete(authenticate, whiteboardControl.deleteWhiteboard);
+
 export default router;

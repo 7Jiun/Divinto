@@ -31,6 +31,7 @@ export async function getCard(req: Request, res: Response) {
   try {
     const { cardId } = req.params;
     const card = await cardModel.getCardById(cardId);
+    if (card.removeAt) return res.status(400).json({ data: 'card is removed' });
     res.status(200).json(card);
   } catch (error) {
     if (error instanceof Error) {
@@ -50,6 +51,19 @@ export async function updateCard(req: Request<{}, {}, UpdateCard>, res: Response
       console.error(`error: ${error.message}`);
     }
     res.status(500).json({ data: 'internal server error' });
+  }
+}
+
+export async function deleteCard(req: Request, res: Response) {
+  const { cardId } = req.params;
+  try {
+    const removedCard = await cardModel.deleteCard(cardId);
+    res.status(200).json(removedCard);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`deleted failed: ${error.message}`);
+    }
+    res.status(500).json({ data: 'deleted card failed' });
   }
 }
 
