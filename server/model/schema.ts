@@ -79,7 +79,7 @@ const agentSchema = new mongoose.Schema({
   name: String,
   icon: String,
   whiteboardResource: String,
-  configures: Object,
+  instruction: String,
   threads: [String],
   createdAt: {
     type: Date,
@@ -98,7 +98,7 @@ const agentSchema = new mongoose.Schema({
 const threadSchema = new mongoose.Schema({
   id: String,
   title: String,
-  content: [
+  messages: [
     {
       speaker: {
         type: String,

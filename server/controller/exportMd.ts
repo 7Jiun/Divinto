@@ -21,7 +21,7 @@ import { Request, Response } from 'express';
 import { GetCard } from '../routes/card.ts';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 
-async function transferCardMarkdownById(cardId: string): Promise<CardMarkdown> {
+export async function transferCardMarkdownById(cardId: string): Promise<CardMarkdown> {
   const card = await getCardById(cardId);
   const mainContent = card.content.main;
   let markdown = '';
