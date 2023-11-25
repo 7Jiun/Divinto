@@ -1,14 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import OpenAi from 'openai';
 import { Request, Response } from 'express';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 import { transferCardMarkdownById } from './exportMd.ts';
 import * as agentModel from '../model/agentModel.ts';
-
-const openai = new OpenAi({
-  apiKey: process.env.OPEN_AI_KEY,
-});
+import * as openAiUtils from '../utils/openAI.ts';
 
 async function markdownWhiteboardToFile(
   userId: string,
@@ -49,9 +45,7 @@ export async function createAgent(req: Request, res: Response) {
       const cardMarkdown = await transferCardMarkdownById(card._id);
       const tagsMarkdownPair = `${card.tags}: ${cardMarkdown}`;
       whiteboardCardsWithTags = whiteboardCardsWithTags + tagsMarkdownPair + '/n/n';
-      // 建立 agent with file (用function 把 原本的寫好，只要改file id 就好)
     });
-
     try {
       await Promise.all(promises)
         .then(async () => {
@@ -65,12 +59,11 @@ export async function createAgent(req: Request, res: Response) {
         .then(async (agentKnowledgeFile) => {
           if (!agentKnowledgeFile) return res.status(500).json({ data: 'export failed' });
           const agentKnowledgePath = path.basename(agentKnowledgeFile);
-          const file = await openai.files.create({
+          const file = await openAiUtils.openai.files.create({
             file: fs.createReadStream(`${agentKnowledgePath}`),
             purpose: 'assistants',
           });
-          // 把file.id 存起來
-          const assistant = await openai.beta.assistants.create({
+          const assistant = await openAiUtils.openai.beta.assistants.create({
             instructions:
               'You are a open-minded person who adjust talking style to fit your client for helping them to a deeper self-awareness. you also probably know some information via upload files',
             model: 'gpt-4-1106-preview',
@@ -97,10 +90,9 @@ export async function createAgent(req: Request, res: Response) {
             ],
             file_ids: [file.id],
           });
-          await agentModel.createAgentInDb(userPayload, assistant.id, agentKnowledgeFile);
+          await agentModel.createAgentInDb(userPayload, assistant.id, agentKnowledgeFile, file.id);
           res.status(200).json({ data: 'create assistant successfully' });
         })
-        //  把 assistant 存起來
         .catch((error) => console.error(`create agent error:, ${error}`));
     } catch (error) {
       console.error(`card promise error:, ${error}`);
@@ -125,8 +117,12 @@ export async function deleteAgent(req: Request, res: Response) {
 export async function createThread(req: Request, res: Response) {
   const { agentId } = req.params;
   const { threadTitle } = req.body;
+
   try {
-    const thread = await agentModel.createThread(agentId, threadTitle);
+    const openAiThread = await openAiUtils.openai.beta.threads.create();
+    if (!openAiThread)
+      return res.status(500).json({ data: 'openAI api failed, please retry later' });
+    const thread = await agentModel.createThread(agentId, threadTitle, openAiThread.id);
     if (!thread)
       return res.status(400).json({ data: 'create thread wrong, please check agent exist' });
     res.status(200).json(thread);

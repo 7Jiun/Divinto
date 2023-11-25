@@ -79,6 +79,7 @@ const agentSchema = new mongoose.Schema({
   name: String,
   icon: String,
   whiteboardResource: String,
+  openAifileId: String,
   instruction: String,
   threads: [String],
   createdAt: {
@@ -96,7 +97,7 @@ const agentSchema = new mongoose.Schema({
 });
 
 const threadSchema = new mongoose.Schema({
-  id: String,
+  openAiThreadId: String,
   title: String,
   messages: [
     {

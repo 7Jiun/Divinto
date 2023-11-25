@@ -15,11 +15,13 @@ export async function createAgentInDb(
   user: JwtUserPayload,
   agentIdFromOpenAi: string,
   whiteboardResourceUrl: string,
+  openAiFileId: string,
 ) {
   const agentId: string = agentIdFromOpenAi;
   const insertId = await Agent.create({
     id: agentId,
     whiteboardResource: whiteboardResourceUrl,
+    openAifileId: openAiFileId,
   });
   const updateAgentInUser = await Thread.findByIdAndUpdate(
     user.id.toString(),
@@ -48,9 +50,10 @@ export async function deleteAgent(agentId: string): Promise<Boolean> {
   }
 }
 
-export async function createThread(agentId: string, threadTitle: string) {
+export async function createThread(agentId: string, threadTitle: string, openAiThreadId: string) {
   const thread = await Thread.create({
     title: threadTitle,
+    openAiThreadId: openAiThreadId,
   });
   if (!thread) return false;
   await Agent.findByIdAndUpdate(
