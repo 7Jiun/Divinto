@@ -4,6 +4,7 @@ import userRoute from './routes/user.ts';
 import swaggerRouter from './utils/apiDocs.ts';
 import whiteboardRouter from './routes/whiteboard.ts';
 import markdownRouter from './routes/markdown.ts';
+import agentRouter from './routes/agent.ts';
 import cors from 'cors';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(userRoute);
 app.use(cardRouter);
 app.use(whiteboardRouter);
 app.use(markdownRouter);
+app.use(agentRouter);
 
 app.listen(port, () => {
   console.log(`STYLiSH listening on port ${port}`);

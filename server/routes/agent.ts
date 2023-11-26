@@ -16,6 +16,16 @@ router.route('/agent/thread/:threadId').put(authenticate, agentControl.updateThr
 
 router.route('/agent/thread/:threadId').delete(authenticate, agentControl.deleteThread);
 
-router.route('/agent/thread/message/:threadId').put(authenticate, agentControl.updateThreadMessage);
+router
+  .route('/agent/:agentId/thread/:threadId/message')
+  .put(authenticate, agentControl.updateThreadMessage);
+
+router
+  .route('/agent/thread/:threadId/approvement')
+  .put(authenticate, agentControl.updateThreadApprovement);
+
+router
+  .route('/agent/thread/:threadId/approvement')
+  .put(authenticate, agentControl.updateThreadDisapprovement);
 
 export default router;

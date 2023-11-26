@@ -5,6 +5,7 @@ import { getWhiteboard } from '../model/whiteboardModel.ts';
 import { transferCardMarkdownById } from './exportMd.ts';
 import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
+import { Message } from '../model/agentModel.ts';
 
 async function markdownWhiteboardToFile(
   userId: string,
@@ -43,7 +44,7 @@ export async function createAgent(req: Request, res: Response) {
     let whiteboardCardsWithTags = '';
     const promises = whiteboard[0].cards.map(async (card) => {
       const cardMarkdown = await transferCardMarkdownById(card._id);
-      const tagsMarkdownPair = `${card.tags}: ${cardMarkdown}`;
+      const tagsMarkdownPair = `${card.tags}: ${cardMarkdown.markdown}`;
       whiteboardCardsWithTags = whiteboardCardsWithTags + tagsMarkdownPair + '/n/n';
     });
     try {
@@ -51,7 +52,7 @@ export async function createAgent(req: Request, res: Response) {
         .then(async () => {
           const agentKnowledgeFile = await markdownWhiteboardToFile(
             userId,
-            whiteboardUrl,
+            whiteboardId,
             whiteboardCardsWithTags,
           );
           return agentKnowledgeFile;
@@ -59,8 +60,11 @@ export async function createAgent(req: Request, res: Response) {
         .then(async (agentKnowledgeFile) => {
           if (!agentKnowledgeFile) return res.status(500).json({ data: 'export failed' });
           const agentKnowledgePath = path.basename(agentKnowledgeFile);
+          console.log(whiteboardUrl, agentKnowledgePath);
+          console.log(agentKnowledgeFile);
+
           const file = await openAiUtils.openai.files.create({
-            file: fs.createReadStream(`${agentKnowledgePath}`),
+            file: fs.createReadStream(`${agentKnowledgeFile}`),
             purpose: 'assistants',
           });
           const assistant = await openAiUtils.openai.beta.assistants.create({
@@ -93,9 +97,13 @@ export async function createAgent(req: Request, res: Response) {
           await agentModel.createAgentInDb(userPayload, assistant.id, agentKnowledgeFile, file.id);
           res.status(200).json({ data: 'create assistant successfully' });
         })
-        .catch((error) => console.error(`create agent error:, ${error}`));
+        .catch((error) => {
+          console.error(`create agent error:, ${error}`);
+          res.status(500).json({ data: 'create agent error' });
+        });
     } catch (error) {
       console.error(`card promise error:, ${error}`);
+      res.status(500).json({ data: 'create agent error' });
     }
   } else {
     res.status(500).json({ data: 'get whiteboard error' });
@@ -160,6 +168,79 @@ export async function updateThreadTitle(req: Request, res: Response) {
   }
 }
 
+export async function updateThreadMessage(req: Request, res: Response) {
+  const { agentId } = req.params;
+  const { threadId } = req.params;
+  const { message } = req.body;
+  try {
+    const updateThread = await agentModel.updateThreadMessage(threadId, message);
+    if (!updateThread)
+      return res.status(500).json({ data: 'update title  failed, please retry later' });
+    console.log(updateThread);
+    const openAiAgentId = await agentModel.getAgentId(agentId);
+    console.log('agentAiId:', openAiAgentId, updateThread.openAiThreadId, message.text);
+    await openAiUtils.postOpenAiMessage(updateThread.openAiThreadId, message.text);
+    console.log('post success');
+    await openAiUtils.runOpenAiThread(updateThread.openAiThreadId, openAiAgentId);
+    console.log('run success');
+
+    let messagesFromOpenAi = await openAiUtils.getOpenAiMessage(updateThread.openAiThreadId);
+    if (typeof messagesFromOpenAi !== 'string' && messagesFromOpenAi[0].type === 'text') {
+      const messagesFromOpenAitoDb: Message = {
+        speaker: 'agent',
+        text: messagesFromOpenAi[0].text.value,
+      };
+      await agentModel.updateThreadMessage(threadId, messagesFromOpenAitoDb);
+      console.log(messagesFromOpenAi);
+      // if (messagesFromOpenAi && messagesFromOpenAi.type === 'text') {
+      //   if (
+      //     messagesFromOpenAi &&
+      //     messagesFromOpenAi.type === 'text' &&
+      //     messagesFromOpenAi.text.value === message.text
+      //   ) {
+      //     messagesFromOpenAi = await openAiUtils.getOpenAiMessage(updateThread.openAiThreadId);
+      //   }
+      // }
+      // post to user
+      res.status(200).json(messagesFromOpenAi);
+    }
+  } catch (error) {
+    if (error instanceof Error) console.error(`update agent error: ${error.message}`);
+    res.status(500).json({ data: 'update title failed, something error' });
+  }
+}
+
+export async function updateThreadApprovement(req: Request, res: Response) {
+  const { threadId } = req.params;
+  const { approvementContent } = req.body;
+  try {
+    const updateThread = await agentModel.updateThreadApprovement(threadId, approvementContent);
+    if (!updateThread)
+      return res.status(500).json({ data: 'update title  failed, please retry later' });
+    res.status(200).json(updateThread);
+  } catch (error) {
+    if (error instanceof Error) console.error(`delete agent error: ${error.message}`);
+    res.status(500).json({ data: 'update title failed, something error' });
+  }
+}
+
+export async function updateThreadDisapprovement(req: Request, res: Response) {
+  const { threadId } = req.params;
+  const { disapprovementContent } = req.body;
+  try {
+    const updateThread = await agentModel.updateThreadDisapprovement(
+      threadId,
+      disapprovementContent,
+    );
+    if (!updateThread)
+      return res.status(500).json({ data: 'update title  failed, please retry later' });
+    res.status(200).json(updateThread);
+  } catch (error) {
+    if (error instanceof Error) console.error(`delete agent error: ${error.message}`);
+    res.status(500).json({ data: 'update title failed, something error' });
+  }
+}
+
 export async function deleteThread(req: Request, res: Response) {
   const { threadId } = req.params;
   try {
@@ -169,22 +250,5 @@ export async function deleteThread(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof Error) console.error(`delete thread error: ${error.message}`);
     res.status(500).json({ data: 'thread delete failed, please retry later' });
-  }
-}
-
-export async function updateThreadMessage(req: Request, res: Response) {
-  const { threadId } = req.params;
-  const { message } = req.body;
-  try {
-    const updateThread = await agentModel.updateThreadMessage(threadId, message);
-    if (!updateThread)
-      return res.status(500).json({ data: 'update title  failed, please retry later' });
-    // call chat gpt api
-    // save api response
-    // post to user
-    res.status(200).json(updateThread);
-  } catch (error) {
-    if (error instanceof Error) console.error(`delete agent error: ${error.message}`);
-    res.status(500).json({ data: 'update title failed, something error' });
   }
 }

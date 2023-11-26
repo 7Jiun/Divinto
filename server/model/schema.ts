@@ -97,15 +97,25 @@ const agentSchema = new mongoose.Schema({
 });
 
 const threadSchema = new mongoose.Schema({
-  openAiThreadId: String,
-  title: String,
+  openAiThreadId: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
   messages: [
     {
       speaker: {
         type: String,
         enum: ['agent', 'user'],
+        required: true,
       },
-      text: String,
+      text: {
+        type: String,
+        required: true,
+      },
     },
   ],
   approvement: String || null,

@@ -1,14 +1,19 @@
 import { JwtUserPayload } from '../utils/signJWT.ts';
 import { Agent, Thread } from './schema.ts';
 
-enum MessageSpeakerEnum {
-  UserEnum = 'user',
-  AgentEnum = 'agent',
+export interface Message {
+  speaker: 'user' | 'agent';
+  text: string;
 }
 
-interface Message {
-  speaker: MessageSpeakerEnum;
-  text: string;
+interface IThread {
+  _id: any;
+  openAiThreadId: any;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+  updateAt: Date;
+  removeAt: Date | null;
 }
 
 export async function createAgentInDb(
@@ -48,6 +53,12 @@ export async function deleteAgent(agentId: string): Promise<Boolean> {
   } else {
     return false;
   }
+}
+
+export async function getAgentId(agentId: string) {
+  const agent = await Agent.findById(agentId);
+  if (!agent || agent.removeAt) return null;
+  return agent.id;
 }
 
 export async function createThread(agentId: string, threadTitle: string, openAiThreadId: string) {
@@ -91,7 +102,10 @@ export async function updateThreadTitle(threadId: string, newTitle: string): Pro
   }
 }
 
-export async function updateThreadMessage(threadId: string, message: Message): Promise<Boolean> {
+export async function updateThreadMessage(
+  threadId: string,
+  message: Message,
+): Promise<IThread | null> {
   const updateThread = await Thread.findByIdAndUpdate(
     threadId,
     {
@@ -99,8 +113,58 @@ export async function updateThreadMessage(threadId: string, message: Message): P
     },
     { new: true },
   );
+  if (!updateThread) return null;
+  if (updateThread.messages.length === 0) return null;
+  if (!updateThread.createdAt) return null;
+  const updateInterfaceThread = {
+    title: updateThread.title,
+    messages: updateThread.messages,
+    _id: updateThread._id.toString(),
+    openAiThreadId: updateThread.openAiThreadId,
+    createdAt: updateThread.createdAt,
+    updateAt: updateThread.updateAt,
+    removeAt: updateThread.removeAt,
+  };
+  return updateInterfaceThread;
+}
+
+export async function updateThreadApprovement(
+  threadId: string,
+  approvementContent: string,
+): Promise<unknown> {
+  const updateThread = await Thread.findByIdAndUpdate(
+    threadId,
+    {
+      $set: {
+        approvement: approvementContent,
+        updateAt: Date.now(),
+      },
+    },
+    { new: true },
+  );
   if (updateThread) {
-    return true;
+    return updateThread;
+  } else {
+    return false;
+  }
+}
+
+export async function updateThreadDisapprovement(
+  threadId: string,
+  disapprovementContent: string,
+): Promise<unknown> {
+  const updateThread = await Thread.findByIdAndUpdate(
+    threadId,
+    {
+      $set: {
+        approvement: disapprovementContent,
+        updateAt: Date.now(),
+      },
+    },
+    { new: true },
+  );
+  if (updateThread) {
+    return updateThread;
   } else {
     return false;
   }
