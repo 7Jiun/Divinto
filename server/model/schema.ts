@@ -79,7 +79,8 @@ const agentSchema = new mongoose.Schema({
   name: String,
   icon: String,
   whiteboardResource: String,
-  configures: Object,
+  openAifileId: String,
+  instruction: String,
   threads: [String],
   createdAt: {
     type: Date,
@@ -96,19 +97,39 @@ const agentSchema = new mongoose.Schema({
 });
 
 const threadSchema = new mongoose.Schema({
-  id: String,
-  title: String,
-  content: [
+  openAiThreadId: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  messages: [
     {
       speaker: {
         type: String,
         enum: ['agent', 'user'],
+        required: true,
       },
-      text: String,
+      text: {
+        type: String,
+        required: true,
+      },
     },
   ],
-  approvement: String || null,
-  disapprovement: String || null,
+  approvements: [
+    {
+      type: String || null,
+      default: null,
+    },
+  ],
+  disapprovements: [
+    {
+      type: String || null,
+      default: null,
+    },
+  ],
   createdAt: {
     type: Date,
     default: () => Date.now(),

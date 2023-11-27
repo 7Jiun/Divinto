@@ -23,6 +23,12 @@ export interface CardContent {
   disapprovement: BlockContent[] | null;
 }
 
+export interface AiCardInput {
+  title: string;
+  approvement: string | null;
+  disapprovement: string | null;
+}
+
 export function createId(user: JwtUserPayload): string {
   const userId = user.id.toString();
   const date: string = Date.now().toString();
@@ -91,6 +97,25 @@ export async function createCard(user: JwtUserPayload, card: CardInput) {
       main: blockContents,
     },
     tags: card.tags,
+  });
+  return insertCard as unknown as GetCard;
+}
+
+export async function createAiCard(user: JwtUserPayload, card: AiCardInput) {
+  const cardId = createId(user);
+  const approvement = card.approvement;
+  const disapprovement = card.disapprovement;
+  const insertCard = await Card.create({
+    id: cardId,
+    title: card.title,
+    position: {
+      x: 100,
+      y: 100,
+    },
+    content: {
+      approvement: approvement,
+      disapprovement: disapprovement,
+    },
   });
   return insertCard as unknown as GetCard;
 }

@@ -66,5 +66,3 @@ export async function deleteCard(req: Request, res: Response) {
     res.status(500).json({ data: 'deleted card failed' });
   }
 }
-
-// export async function deleteCard(req: Request, res: Response) {}
