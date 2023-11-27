@@ -135,8 +135,10 @@ export async function updateThreadApprovement(
   const updateThread = await Thread.findByIdAndUpdate(
     threadId,
     {
+      $push: {
+        approvements: approvementContent,
+      },
       $set: {
-        approvement: approvementContent,
         updateAt: Date.now(),
       },
     },
@@ -156,8 +158,10 @@ export async function updateThreadDisapprovement(
   const updateThread = await Thread.findByIdAndUpdate(
     threadId,
     {
+      $push: {
+        disapprovements: disapprovementContent,
+      },
       $set: {
-        approvement: disapprovementContent,
         updateAt: Date.now(),
       },
     },

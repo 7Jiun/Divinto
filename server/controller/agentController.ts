@@ -5,6 +5,7 @@ import { getWhiteboard } from '../model/whiteboardModel.ts';
 import { transferCardMarkdownById } from './exportMd.ts';
 import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
+import * as cardModel from '../model/cardModel.ts';
 import { Message } from '../model/agentModel.ts';
 
 async function markdownWhiteboardToFile(
@@ -32,6 +33,10 @@ async function markdownWhiteboardToFile(
   } catch (err) {
     console.error(err);
   }
+}
+
+async function waitForRunCompletion() {
+  return new Promise((resolve) => setTimeout(resolve, 5000));
 }
 
 export async function createAgent(req: Request, res: Response) {
@@ -176,14 +181,18 @@ export async function updateThreadMessage(req: Request, res: Response) {
     const updateThread = await agentModel.updateThreadMessage(threadId, message);
     if (!updateThread)
       return res.status(500).json({ data: 'update title  failed, please retry later' });
-    console.log(updateThread);
     const openAiAgentId = await agentModel.getAgentId(agentId);
-    console.log('agentAiId:', openAiAgentId, updateThread.openAiThreadId, message.text);
     await openAiUtils.postOpenAiMessage(updateThread.openAiThreadId, message.text);
     console.log('post success');
-    await openAiUtils.runOpenAiThread(updateThread.openAiThreadId, openAiAgentId);
+    const runId = await openAiUtils.runOpenAiThread(updateThread.openAiThreadId, openAiAgentId);
+    console.log(runId);
     console.log('run success');
 
+    let isRunCompleted = await openAiUtils.isRunCompleted(updateThread.openAiThreadId, runId);
+    while (!isRunCompleted) {
+      await waitForRunCompletion();
+      isRunCompleted = await openAiUtils.isRunCompleted(updateThread.openAiThreadId, runId);
+    }
     let messagesFromOpenAi = await openAiUtils.getOpenAiMessage(updateThread.openAiThreadId);
     if (typeof messagesFromOpenAi !== 'string' && messagesFromOpenAi[0].type === 'text') {
       const messagesFromOpenAitoDb: Message = {
@@ -191,7 +200,7 @@ export async function updateThreadMessage(req: Request, res: Response) {
         text: messagesFromOpenAi[0].text.value,
       };
       await agentModel.updateThreadMessage(threadId, messagesFromOpenAitoDb);
-      console.log(messagesFromOpenAi);
+      console.log('controller' + messagesFromOpenAi);
       // if (messagesFromOpenAi && messagesFromOpenAi.type === 'text') {
       //   if (
       //     messagesFromOpenAi &&
@@ -250,5 +259,38 @@ export async function deleteThread(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof Error) console.error(`delete thread error: ${error.message}`);
     res.status(500).json({ data: 'thread delete failed, please retry later' });
+  }
+}
+
+export async function exportAiCard(req: Request, res: Response) {
+  const userPayload = res.locals.userPayload;
+  const { threadId } = req.params;
+  try {
+    const thread = await agentModel.getThread(threadId);
+    if (!thread) return res.status(400).json({ data: 'wrong thread input' });
+    let totalApprovement = '';
+    let totalDisapprovement = '';
+    thread.approvements.forEach((approvement) => {
+      totalApprovement += approvement;
+      totalApprovement += '\n';
+    });
+    thread.disapprovements.forEach((disapprovement) => {
+      totalDisapprovement += disapprovement;
+      totalDisapprovement += '\n';
+    });
+    const aiCardInput: cardModel.AiCardInput = {
+      title: thread.title,
+      approvement: totalApprovement,
+      disapprovement: totalDisapprovement,
+    };
+    const card = await cardModel.createAiCard(userPayload, aiCardInput);
+    if (card) {
+      res.status(200).json({ data: 'create card successfully' });
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`create AI card error: ${error.message}`);
+      res.status(500).json({ data: 'create card unsuccessfully' });
+    }
   }
 }

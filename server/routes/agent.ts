@@ -25,7 +25,9 @@ router
   .put(authenticate, agentControl.updateThreadApprovement);
 
 router
-  .route('/agent/thread/:threadId/approvement')
+  .route('/agent/thread/:threadId/disapprovement')
   .put(authenticate, agentControl.updateThreadDisapprovement);
+
+router.route('/agent/thread/:threadId/export').post(authenticate, agentControl.exportAiCard);
 
 export default router;

@@ -118,8 +118,18 @@ const threadSchema = new mongoose.Schema({
       },
     },
   ],
-  approvement: String || null,
-  disapprovement: String || null,
+  approvements: [
+    {
+      type: String || null,
+      default: null,
+    },
+  ],
+  disapprovements: [
+    {
+      type: String || null,
+      default: null,
+    },
+  ],
   createdAt: {
     type: Date,
     default: () => Date.now(),
