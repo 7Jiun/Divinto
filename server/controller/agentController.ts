@@ -6,6 +6,8 @@ import { transferCardMarkdownById } from './exportMd.ts';
 import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
 import * as cardModel from '../model/cardModel.ts';
+import * as whiteboardModel from '../model/whiteboardModel.ts';
+
 import { Message } from '../model/agentModel.ts';
 
 async function markdownWhiteboardToFile(
@@ -99,8 +101,16 @@ export async function createAgent(req: Request, res: Response) {
             ],
             file_ids: [file.id],
           });
-          await agentModel.createAgentInDb(userPayload, assistant.id, agentKnowledgeFile, file.id);
-          res.status(200).json({ data: 'create assistant successfully' });
+          const newAgentId = await agentModel.createAgentInDb(
+            userPayload,
+            assistant.id,
+            whiteboardId,
+            agentKnowledgeFile,
+            file.id,
+          );
+          console.log(newAgentId);
+
+          res.status(200).json({ data: newAgentId });
         })
         .catch((error) => {
           console.error(`create agent error:, ${error}`);
@@ -183,14 +193,12 @@ export async function updateThreadMessage(req: Request, res: Response) {
       return res.status(500).json({ data: 'update title  failed, please retry later' });
     const openAiAgentId = await agentModel.getAgentId(agentId);
     await openAiUtils.postOpenAiMessage(updateThread.openAiThreadId, message.text);
-    console.log('post success');
     const runId = await openAiUtils.runOpenAiThread(updateThread.openAiThreadId, openAiAgentId);
-    console.log(runId);
-    console.log('run success');
 
     let isRunCompleted = await openAiUtils.isRunCompleted(updateThread.openAiThreadId, runId);
     while (!isRunCompleted) {
       await waitForRunCompletion();
+      console.log('eeeeeeeeeeeee');
       isRunCompleted = await openAiUtils.isRunCompleted(updateThread.openAiThreadId, runId);
     }
     let messagesFromOpenAi = await openAiUtils.getOpenAiMessage(updateThread.openAiThreadId);
@@ -200,17 +208,7 @@ export async function updateThreadMessage(req: Request, res: Response) {
         text: messagesFromOpenAi[0].text.value,
       };
       await agentModel.updateThreadMessage(threadId, messagesFromOpenAitoDb);
-      console.log('controller' + messagesFromOpenAi);
-      // if (messagesFromOpenAi && messagesFromOpenAi.type === 'text') {
-      //   if (
-      //     messagesFromOpenAi &&
-      //     messagesFromOpenAi.type === 'text' &&
-      //     messagesFromOpenAi.text.value === message.text
-      //   ) {
-      //     messagesFromOpenAi = await openAiUtils.getOpenAiMessage(updateThread.openAiThreadId);
-      //   }
-      // }
-      // post to user
+
       res.status(200).json(messagesFromOpenAi);
     }
   } catch (error) {
@@ -280,11 +278,14 @@ export async function exportAiCard(req: Request, res: Response) {
     });
     const aiCardInput: cardModel.AiCardInput = {
       title: thread.title,
+      whiteboardId: thread.whiteboardId,
       approvement: totalApprovement,
       disapprovement: totalDisapprovement,
     };
-    const card = await cardModel.createAiCard(userPayload, aiCardInput);
-    if (card) {
+    const aiCard = await cardModel.createAiCard(userPayload, aiCardInput);
+    await whiteboardModel.addWhiteboardCards(aiCard._id, aiCard.whiteboardId);
+
+    if (aiCard) {
       res.status(200).json({ data: 'create card successfully' });
     }
   } catch (error) {

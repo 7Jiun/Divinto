@@ -85,7 +85,15 @@ export async function nativeUserSignIn(req: Request, res: Response) {
 export async function getUserProfile(req: Request, res: Response) {
   const userPayload = res.locals.userPayload;
   const userId = userPayload.id.toString();
-  const whiteboards = await userModel.getUserProfile(userId);
+  const profile = await userModel.getUserProfile(userId);
+  if (!profile) return res.status(400).json({ data: 'get users whiteboard wrong' });
+  res.status(200).json({ data: profile });
+}
+
+export async function getWhiteboardsByUser(req: Request, res: Response) {
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
+  const whiteboards = await userModel.getWhiteboardsByUser(userId);
   if (!whiteboards) return res.status(400).json({ data: 'get users whiteboard wrong' });
   res.status(200).json({ data: whiteboards });
 }

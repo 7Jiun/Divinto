@@ -1,5 +1,5 @@
 import { JwtUserPayload } from '../utils/signJWT.ts';
-import { Agent, Thread } from './schema.ts';
+import { Agent, Thread, User } from './schema.ts';
 
 export interface Message {
   speaker: 'user' | 'agent';
@@ -19,23 +19,26 @@ interface IThread {
 export async function createAgentInDb(
   user: JwtUserPayload,
   agentIdFromOpenAi: string,
+  whiteboardId: string,
   whiteboardResourceUrl: string,
   openAiFileId: string,
 ) {
   const agentId: string = agentIdFromOpenAi;
   const insertId = await Agent.create({
     id: agentId,
+    whiteboardId: whiteboardId,
     whiteboardResource: whiteboardResourceUrl,
     openAifileId: openAiFileId,
   });
-  const updateAgentInUser = await Thread.findByIdAndUpdate(
+  console.log(insertId);
+  await User.findByIdAndUpdate(
     user.id.toString(),
     {
-      $push: { agents: insertId },
+      $push: { agents: insertId._id.toString() },
     },
     { new: true },
   );
-  return updateAgentInUser;
+  return insertId._id.toString();
 }
 
 export async function deleteAgent(agentId: string): Promise<Boolean> {
@@ -66,16 +69,30 @@ export async function createThread(agentId: string, threadTitle: string, openAiT
     title: threadTitle,
     openAiThreadId: openAiThreadId,
   });
+  console.log(thread);
   if (!thread) return false;
-  await Agent.findByIdAndUpdate(
+  const threadId = thread._id.toString();
+  const agent = await Agent.findByIdAndUpdate(
     agentId,
     {
-      $push: { threads: thread._id },
+      $push: { threads: threadId },
       $set: { updateAt: Date.now() },
     },
     { new: true },
   );
-  return thread;
+  if (!agent) return false;
+  console.log(agent);
+  const newThread = await Thread.findByIdAndUpdate(
+    threadId,
+    {
+      $set: {
+        whiteboardId: agent.whiteboardId,
+        updatedAt: Date.now(),
+      },
+    },
+    { new: true },
+  );
+  return newThread;
 }
 
 export async function getThread(threadId: string) {

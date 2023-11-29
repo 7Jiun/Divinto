@@ -6,13 +6,16 @@ export function mergeCardContents(card) {
   const imageRegex = /!\[.*?\]\(.*?\)/;
   let fullContent = '';
   card.content.main.forEach((blockContent) => {
-    console.log(blockContent);
-    if (blockContent.content.match(imageRegex)) {
-      const images = blockContent.content.split('(');
-      console.log(images);
-      fullContent += `${images[0]}(${images[1]}`;
-    } else {
-      fullContent += `${blockContent.content}\n`;
+    try {
+      if (blockContent.content.match(imageRegex)) {
+        const images = blockContent.content.split('(');
+        console.log(images);
+        fullContent += `${images[0]}(${images[1]}`;
+      } else {
+        fullContent += `${blockContent.content}\n`;
+      }
+    } catch (error) {
+      return;
     }
   });
   return fullContent;
@@ -21,7 +24,7 @@ export function mergeCardContents(card) {
 export function convertCardsToNodes(cards) {
   return cards.map((card) => ({
     id: card._id,
-    type: 'input',
+    type: 'CustomNode',
     data: {
       label: (
         <>
@@ -30,6 +33,7 @@ export function convertCardsToNodes(cards) {
           {/* <Markdown>{`tags: _${card.tags}_`}</Markdown> */}
         </>
       ),
+      tags: card.tags,
     },
     position: card.position,
     resizing: true,

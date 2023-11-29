@@ -1,0 +1,42 @@
+.chat-room {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin: auto;
+  border: 1px solid #ddd;
+  padding: 20px;
+}
+
+.messages-list {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.message {
+  margin-bottom: 10px;
+  animation: fadeIn 0.5s;
+}
+
+.timestamp {
+  font-size: 0.7em;
+  color: #666;
+}
+
+.message-input {
+  display: flex;
+  margin-top: 20px;
+}
+
+.message-input textarea {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { JwtUserPayload } from '../utils/signJWT.ts';
 import { User } from './schema.ts';
 
@@ -76,6 +77,46 @@ export async function getUserProfile(userId: string): Promise<IUser | null> {
   } else {
     return null;
   }
+}
+
+export async function getWhiteboardsByUser(userId: string) {
+  const whiteboards = await User.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+    {
+      $addFields: {
+        whiteboards: {
+          $map: {
+            input: '$whiteboards',
+            as: 'whiteboards',
+            in: { $toObjectId: '$$whiteboards' },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'whiteboards',
+        localField: 'whiteboards',
+        foreignField: '_id',
+        as: 'whiteboards',
+      },
+    },
+    {
+      $project: {
+        whiteboards: {
+          $filter: {
+            input: '$whiteboards',
+            as: 'whiteboard',
+            cond: { $eq: ['$$whiteboard.removeAt', null] },
+          },
+        },
+        createdAt: '$createdAt',
+        updateAt: '$updateAt',
+        removeAt: '$removeAt',
+      },
+    },
+  ]);
+  return whiteboards;
 }
 
 export async function addWhiteboardInUser(userId: string, whiteboardId: string) {
