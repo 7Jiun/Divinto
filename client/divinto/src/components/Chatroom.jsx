@@ -54,9 +54,10 @@ const fetchThreadMessages = async (threadId, setMessages) => {
 
 export const Chatroom = () => {
   const { agentId, threadId } = useParams();
-
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [agreedPoints, setAgreedPoints] = useState([]);
+  const [disagreedPoints, setDisagreedPoints] = useState([]);
 
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '') {
@@ -65,34 +66,100 @@ export const Chatroom = () => {
     }
   };
 
+  const addAgreedPoint = (point) => {
+    setAgreedPoints((prev) => [...prev, point]);
+  };
+
+  const addDisagreedPoint = (point) => {
+    setDisagreedPoints((prev) => [...prev, point]);
+  };
+
+  const adjustTextareaHeight = (event) => {
+    const textarea = event.target;
+    textarea.style.height = 'auto';
+    const maxHeight = window.innerHeight * 0.1;
+    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`;
+  };
+
   useEffect(() => {
     fetchThreadMessages(threadId, setMessages);
   }, []);
 
   return (
-    <div className="chat-room">
-      <div className="messages-list">
-        {messages.map((message, index) => (
-          <div key={index} className={`message ${message.speaker}-message`}>
-            <div className="avatar">
-              {message.speaker === 'user' ? <IoIcons.IoIosPerson /> : <IoIcons.IoIosHeadset />}
+    <div className="chat-container">
+      <div className="chat-room">
+        <div className="messages-list">
+          {messages.map((message, index) => (
+            <div key={index} className={`message ${message.speaker}-message`}>
+              <div className="avatar">
+                {message.speaker === 'user' ? <IoIcons.IoMdPerson /> : <IoIcons.IoLogoIonitron />}
+              </div>
+              <div className="text-container">
+                <Markdown>{message.text}</Markdown>
+              </div>
             </div>
-            <div className="text-container">
-              <Markdown>{message.text}</Markdown>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <div className="message-input">
+          <textarea
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..."
+            onInput={adjustTextareaHeight}
+          />
+          <button onClick={handleSendMessage}>
+            <IoIcons.IoMdArrowRoundUp />
+          </button>
+        </div>
       </div>
-      <div className="message-input">
-        <textarea
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message..."
-        />
-        <button onClick={handleSendMessage}>
-          <IoIcons.IoMdArrowRoundUp />
+      <div className="sidebar-container">
+        <button className="export-ai-card-button">
+          <IoIcons.IoMdSync />
+          <p>export as a card</p>
         </button>
+        <div className="agreed-points">
+          <h3>認同的觀點</h3>
+          <div className="recorded-points">
+            <ul>
+              {agreedPoints.map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="message-input">
+            <textarea
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+            />
+            <button>
+              <IoIcons.IoMdArrowRoundUp />
+            </button>
+          </div>
+        </div>
+        <div className="disagreed-points">
+          <h3>不認同的觀點</h3>
+          <div className="recorded-points">
+            <ul>
+              {disagreedPoints.map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="message-input">
+            <textarea
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+            />
+            <button>
+              <IoIcons.IoMdArrowRoundUp />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
