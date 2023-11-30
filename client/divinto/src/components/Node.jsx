@@ -8,9 +8,8 @@ import '../text-updater-note.css';
 import '../updatenode.css';
 import Markdown from 'react-markdown';
 import SimpleMDE from 'react-simplemde-editor';
-import 'easymde/dist/easymde.min.css';
+import './MDEditor.css';
 import './CustomNode.css';
-
 import CustomNode from './CustomNode';
 import ContextMenu from './ContextMenu';
 
@@ -80,8 +79,11 @@ export const UpdateNode = () => {
   const [nodeHidden, setNodeHidden] = useState(false);
   const [selectNodeId, setSelectNodeId] = useState();
   const [menu, setMenu] = useState(false);
+  const [showControls, setShowControls] = useState(false);
+
   const menuRef = useRef();
   const reactFlowWrapper = useRef(null);
+  const controlsRef = useRef(null);
 
   const onNodeDragStart = (event, node) => {};
   const onNodeDragStop = (event, node) => {
@@ -119,6 +121,11 @@ export const UpdateNode = () => {
 
   const onPaneClick = useCallback(
     (event) => {
+      if (controlsRef.current && !controlsRef.current.contains(event.target)) {
+        setShowControls(false);
+        return;
+      }
+
       const reactFlowBounds = event.currentTarget.getBoundingClientRect();
       const position = {
         x: event.clientX - reactFlowBounds.left,
@@ -150,9 +157,10 @@ export const UpdateNode = () => {
           console.error('Error creating card:', error);
         });
     },
-    [setNodes, id],
+    [setNodes, id, showControls],
   );
   const handleNodeClick = (event, node) => {
+    setShowControls(true);
     try {
       setNodeContent(
         `${node.data.label.props.children[0].props.children}\n${node.data.label.props.children[1].props.children}`,
@@ -240,7 +248,7 @@ export const UpdateNode = () => {
 
   return (
     <>
-      <div style={{ width: '100vw', height: '100vh' }} ref={reactFlowWrapper}>
+      <div style={{ width: '100vw', height: '92vh' }} ref={reactFlowWrapper}>
         <ReactFlow
           ref={menuRef}
           nodes={nodes}
@@ -252,30 +260,18 @@ export const UpdateNode = () => {
           onNodesDelete={onNodesDelete}
           onNodeDragStart={onNodeDragStart}
           onNodeDragStop={onNodeDragStop}
-          style={{ backgroundColor: '	#ADADAD	' }}
+          style={{ backgroundColor: '	#ADADAD	', height: '100vh' }}
           onPaneClick={onPaneClick}
           onNodeContextMenu={onNodeContextMenu}
           defaultViewport={defaultViewport}
           minZoom={0.2}
           maxZoom={4}
         >
-          <div className="updatenode__controls">
-            <label>text:</label>
-            <SimpleMDE className="myCustomMDE" value={nodeContent} onChange={setNodeContent} />
-
-            <label className="updatenode__bglabel">background:</label>
-            <input type="color" value={nodeBg} onChange={(evt) => setNodeBg(evt.target.value)} />
-
-            <div className="updatenode__checkboxwrapper">
-              <label>hidden:</label>
-              <input
-                type="checkbox"
-                checked={nodeHidden}
-                onChange={(evt) => setNodeHidden(evt.target.checked)}
-              />
+          {showControls && (
+            <div ref={controlsRef} className="updatenode__controls">
+              <SimpleMDE className="myCustomMDE" value={nodeContent} onChange={setNodeContent} />
             </div>
-          </div>
-          <Controls />
+          )}
           <Background color="#000" />
           {menu && <ContextMenu onClick={onMenuPaneClick} {...menu} />}
           <MiniMap zoomable pannable />

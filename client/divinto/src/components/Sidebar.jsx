@@ -12,7 +12,7 @@ import { URL } from '../App';
 
 const token = localStorage.getItem('jwtToken');
 
-async function getWhiteboardsByUser() {
+export async function getWhiteboardsByUser() {
   const token = localStorage.getItem('jwtToken');
   const response = await fetch(`${URL}/user/whiteboards`, {
     method: 'GET',
@@ -25,7 +25,7 @@ async function getWhiteboardsByUser() {
   return user.data[0].whiteboards;
 }
 
-async function createWhiteboardInDb(title) {
+export async function createWhiteboardInDb(title) {
   const result = await fetch(`${URL}/whiteboard`, {
     method: 'POST',
     headers: {

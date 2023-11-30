@@ -73,3 +73,27 @@
 span {
   margin-left: 16px;
 }
+
+.nav-menu-items button {
+  margin-top: 1.5rem;
+  margin-left: 1.5rem;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #253383;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.nav-menu-items button:hover {
+  background-color: #1ab3ff;
+}
+
+.nav-menu-items button:focus {
+  outline: none;
+}
+
+.auth-form-container button:active {
+  background-color: #004085;
+}

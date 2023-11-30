@@ -17,12 +17,12 @@ export const SidebarData = [
     icon: <IoIcons.IoIosPaper />,
     cName: 'nav-text',
   },
-  // {
-  //   title: 'Reflects',
-  //   path: '/',
-  //   icon: <AiIcons.AiFillHome />,
-  //   cName: 'nav-text',
-  // },
+  {
+    title: 'Reflects',
+    path: '/',
+    icon: <AiIcons.AiFillHome />,
+    cName: 'nav-text',
+  },
   {
     title: 'Threads',
     path: '/thread',

@@ -4,6 +4,7 @@ import { LoginPage } from './components/LoginPage';
 import { UpdateNode } from './components/Node';
 import { Sidebar } from './components/Sidebar';
 import { Chatroom } from './components/Chatroom';
+import { WhiteboardPage } from './components/WhiteboardPage';
 import 'reactflow/dist/style.css';
 import './overview.css';
 import './text-updater-note.css';
@@ -27,13 +28,15 @@ const App = () => {
       <Sidebar />
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/whiteboard">
-          <Route
-            exact
-            path=":id"
-            element={isLoggedIn ? <UpdateNode /> : <Navigate to="/login" />}
-          />
-        </Route>
+        <Route
+          path="/whiteboard"
+          element={isLoggedIn ? <WhiteboardPage /> : <Navigate to="/login" />}
+        ></Route>
+        <Route
+          path="/whiteboard/:id"
+          element={isLoggedIn ? <UpdateNode /> : <Navigate to="/login" />}
+        />
+
         <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <LoginPage />} />
         <Route path="/agent/:agentId/thread/:threadId" element={<Chatroom />} />
       </Routes>

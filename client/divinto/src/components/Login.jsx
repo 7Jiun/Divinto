@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Login.css';
 const url = 'http://localhost:3000';
 
 export const Login = (props) => {
@@ -44,7 +45,7 @@ export const Login = (props) => {
         ></input>
         <button>Log In</button>
       </form>
-      <button onClick={() => props.onFormSwitch('Register')}>
+      <button className="secondary-button" onClick={() => props.onFormSwitch('Register')}>
         Don't have an account? Register here
       </button>
     </div>
