@@ -24,8 +24,8 @@ export const SidebarData = [
     cName: 'nav-text',
   },
   {
-    title: 'Threads',
-    path: '/thread',
+    title: 'Agents',
+    path: '/agent',
     icon: <AiIcons.AiFillMessage />,
     cName: 'nav-text',
   },

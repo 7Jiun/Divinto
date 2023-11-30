@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { getWhiteboardsByUser, createWhiteboardInDb, Sidebar } from './sidebar';
+import { getWhiteboardsByUser, createWhiteboardInDb } from './sidebar';
 import * as IoIcons from 'react-icons/io';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './WhiteboardPage.css';
 
 export const WhiteboardPage = () => {
   const [whiteboardItems, setWhiteboardItems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchWhiteboards = async () => {

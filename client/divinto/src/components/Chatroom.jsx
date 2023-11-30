@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Chatroom.css';
 import Markdown from 'react-markdown';
+import * as IoIcons from 'react-icons/io';
 import { useParams } from 'react-router-dom';
 import { URL } from '../App';
 
@@ -36,14 +37,15 @@ const sendMessageToServer = async (message, agentId, threadId, setMessages) => {
   }
 };
 
-const fetchThreadMessages = async (threadId) => {
+const fetchThreadMessages = async (threadId, setMessages) => {
   try {
-    const response = await fetch(`${URL}/thread/${threadId}`, {
+    const response = await fetch(`${URL}/agent/thread/${threadId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     const data = await response.json();
+    console.log(data);
     setMessages(data.messages); // 假設響應體中有 messages 陣列
   } catch (error) {
     console.error('Failed to fetch thread messages:', error);
@@ -63,18 +65,21 @@ export const Chatroom = () => {
     }
   };
 
-  //   useEffect(() => {
-  //     fetchThreadMessages(threadId);
-  //   }, []);
+  useEffect(() => {
+    fetchThreadMessages(threadId, setMessages);
+  }, []);
 
   return (
     <div className="chat-room">
       <div className="messages-list">
         {messages.map((message, index) => (
-          <div key={index} className="message">
-            <span>{message.username}: </span>
-            <Markdown>{message.text}</Markdown>
-            <div className="timestamp">{message.timestamp.toLocaleTimeString()}</div>
+          <div key={index} className={`message ${message.speaker}-message`}>
+            <div className="avatar">
+              {message.speaker === 'user' ? <IoIcons.IoIosPerson /> : <IoIcons.IoIosHeadset />}
+            </div>
+            <div className="text-container">
+              <Markdown>{message.text}</Markdown>
+            </div>
           </div>
         ))}
       </div>
@@ -85,7 +90,9 @@ export const Chatroom = () => {
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
         />
-        <button onClick={handleSendMessage}>Send</button>
+        <button onClick={handleSendMessage}>
+          <IoIcons.IoMdArrowRoundUp />
+        </button>
       </div>
     </div>
   );

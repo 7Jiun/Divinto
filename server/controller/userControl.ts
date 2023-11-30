@@ -97,3 +97,11 @@ export async function getWhiteboardsByUser(req: Request, res: Response) {
   if (!whiteboards) return res.status(400).json({ data: 'get users whiteboard wrong' });
   res.status(200).json({ data: whiteboards });
 }
+
+export async function getAgentsByUser(req: Request, res: Response) {
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
+  const agents = await userModel.getAgentsByUser(userId);
+  if (!agents) return res.status(400).json({ data: 'get users agent wrong' });
+  res.status(200).json({ data: agents });
+}

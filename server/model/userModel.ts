@@ -149,3 +149,43 @@ export async function deleteWhiteboardInUser(
     return false;
   }
 }
+
+export async function getAgentsByUser(userId: string) {
+  const agents = await User.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+    {
+      $addFields: {
+        agents: {
+          $map: {
+            input: '$agents',
+            as: 'agents',
+            in: { $toObjectId: '$$agents' },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'agents',
+        localField: 'agents',
+        foreignField: '_id',
+        as: 'agents',
+      },
+    },
+    {
+      $project: {
+        agents: {
+          $filter: {
+            input: '$agents',
+            as: 'agents',
+            cond: { $eq: ['$$agents.removeAt', null] },
+          },
+        },
+        createdAt: '$createdAt',
+        updateAt: '$updateAt',
+        removeAt: '$removeAt',
+      },
+    },
+  ]);
+  return agents;
+}

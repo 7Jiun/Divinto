@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { JwtUserPayload } from '../utils/signJWT.ts';
 import { Agent, Thread, User } from './schema.ts';
 
@@ -99,6 +100,46 @@ export async function getThread(threadId: string) {
   const thread = await Thread.findById(threadId);
   if (!thread || thread.removeAt) return null;
   return thread;
+}
+
+export async function getThreadsByAgent(agentId: string) {
+  const threads = await Agent.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(agentId) } },
+    {
+      $addFields: {
+        threads: {
+          $map: {
+            input: '$threads',
+            as: 'threads',
+            in: { $toObjectId: '$$threads' },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'threads',
+        localField: 'threads',
+        foreignField: '_id',
+        as: 'threads',
+      },
+    },
+    {
+      $project: {
+        threads: {
+          $filter: {
+            input: '$threads',
+            as: 'threads',
+            cond: { $eq: ['$$threads.removeAt', null] },
+          },
+        },
+        createdAt: '$createdAt',
+        updateAt: '$updateAt',
+        removeAt: '$removeAt',
+      },
+    },
+  ]);
+  return threads;
 }
 
 export async function updateThreadTitle(threadId: string, newTitle: string): Promise<unknown> {

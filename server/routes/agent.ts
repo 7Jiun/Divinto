@@ -8,6 +8,8 @@ router.route('/agent/:whiteboardId').post(authenticate, agentControl.createAgent
 
 router.route('/agent/:agentId').delete(authenticate, agentControl.deleteAgent);
 
+router.route('/agent/:agentId/thread').get(authenticate, agentControl.getThreadsByAgent);
+
 router.route('/agent/thread/:agentId').post(authenticate, agentControl.createThread);
 
 router.route('/agent/thread/:threadId').get(authenticate, agentControl.getThread);

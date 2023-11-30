@@ -89,7 +89,6 @@ export const Sidebar = () => {
     try {
       // 第一步: Fetch create agent API
       const demoId = '6565cedf26466d2e3168b39a';
-      console.log(demoId);
 
       const agentResponse = await fetch(`${URL}/agent/${demoId}`, {
         method: 'POST',
@@ -98,9 +97,7 @@ export const Sidebar = () => {
         },
       });
       const agentData = await agentResponse.json();
-      console.log(agentData);
       const agentId = agentData.data;
-      console.log(agentId);
       // 第二步: Fetch create thread API
       const threadResponse = await fetch(`${URL}/agent/thread/${agentId}`, {
         method: 'POST',

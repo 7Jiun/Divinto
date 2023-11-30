@@ -1,10 +1,18 @@
 .chat-room {
   display: flex;
   flex-direction: column;
-  max-width: 500px;
-  margin: auto;
-  border: 1px solid #ddd;
-  padding: 20px;
+  max-width: 60vw;
+  margin-top: 2vh;
+  margin-left: auto;
+  margin-right: auto;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  background-color: rgb(2, 57, 77);
+  padding-top: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 2rem;
+  letter-spacing: 0.5px;
 }
 
 .messages-list {
@@ -13,8 +21,49 @@
 }
 
 .message {
-  margin-bottom: 10px;
-  animation: fadeIn 0.5s;
+  display: flex;
+  justify-content: flex-end; /* 預設靠右對齊 */
+  margin-bottom: 2vh;
+}
+
+.avatar {
+  width: 2vw; /* 大頭貼的寬度 */
+  height: 2vw; /* 大頭貼的高度 */
+  border-radius: 50%; /* 圓形大頭貼 */
+  background-color: white; /* 暫時的背景顏色，可以替換為圖片 */
+  margin-right: 10px; /* 與文本容器之間的間隔 */
+  display: flex; /* 啟用 Flexbox */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+
+.message .text-container {
+  max-width: 60%; /* 最大寬度限制 */
+  text-align: start;
+  padding: 10px 20px; /* 內邊距 */
+  border-radius: 15px; /* 圓角邊框 */
+  background-color: #e8f0fe; /* 淺藍色背景 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 輕微陰影 */
+  flex-grow: 1;
+}
+
+.user-message .avatar {
+  order: 2; /* 將大頭貼放在文本容器的右邊 */
+  margin-left: 10px; /* 為右邊的大頭貼添加左側間隔 */
+  margin-right: 0;
+}
+
+.agent-message {
+  justify-content: flex-start; /* agent 消息靠左對齊 */
+}
+
+.agent-message .text-container {
+  background-color: #f0f0f0; /* 淺灰色背景 */
+  text-align: start;
+}
+
+.user-message .text-container {
+  order: 1;
 }
 
 .timestamp {
@@ -24,14 +73,55 @@
 
 .message-input {
   display: flex;
-  margin-top: 20px;
+  margin-top: 2vh;
+  align-items: center; /* 確保按鈕和輸入框垂直對齊 */
+  background-color: rgb(2, 57, 77);
+  border: 2px solid whitesmoke; /* 移除邊框 */
+  border-radius: 15px; /* 整體圓角邊框 */
+  padding-right: 1vw; /* 統一右側內邊距 */
 }
 
 .message-input textarea {
-  flex-grow: 1;
-  margin-right: 10px;
+  flex-grow: 1; /* 使輸入框占滿剩餘空間 */
+  display: flex; /* 啟用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  text-align: start;
+  font-size: 16px;
+  color: white; /* 文字顏色為白色 */
+  outline: none;
+  background-color: rgb(2, 57, 77); /* 深色背景 */
+  border: none;
+  border-radius: 15px; /* 圓角邊框 */
+  padding: 10px 1rem; /* 增加垂直內邊距 */
+  margin-right: auto; /* 移除外邊距 */
+  height: 40px; /* 設定固定高度 */
 }
 
+.message-input textarea:focus {
+  box-shadow: inset 0 0 3px #6db3ff; /* 內部陰影以強調焦點 */
+}
+
+.message-input button {
+  border: none;
+  border-radius: 50%; /* 圓形按鈕 */
+  background-color: rgb(2, 57, 77);
+  color: white;
+  font-size: 24px;
+  font-weight: bold; /* 加粗字體 */
+  cursor: pointer;
+  box-shadow: none; /* 移除陰影 */
+  line-height: 1; /* 使文字垂直居中 */
+  display: flex; /* 使用 Flexbox */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  width: 2em; /* 固定寬度 */
+  height: 2em; /* 固定高度 */
+  padding-left: 1rem;
+}
+
+.message-input button:hover {
+  opacity: 0.5; /* 滑鼠懸停時的透明度 */
+}
 @keyframes fadeIn {
   from {
     opacity: 0;

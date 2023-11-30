@@ -169,6 +169,13 @@ export async function getThread(req: Request, res: Response) {
   }
 }
 
+export async function getThreadsByAgent(req: Request, res: Response) {
+  const { agentId } = req.params;
+  const threads = await agentModel.getThreadsByAgent(agentId);
+  if (!threads) return res.status(400).json({ data: 'get agent threads wrong' });
+  res.status(200).json({ data: threads });
+}
+
 export async function updateThreadTitle(req: Request, res: Response) {
   const { threadId } = req.params;
   const { threadTitle } = req.body;

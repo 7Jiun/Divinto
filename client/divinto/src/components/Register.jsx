@@ -15,7 +15,7 @@ export const Register = (props) => {
         body: JSON.stringify({ provider: 'native', name, email, password: pass }),
       });
       const data = await response.json();
-      console.log(data);
+      localStorage.setItem('jwtToken', data.data.access_token);
     } catch (error) {
       console.error('登入錯誤', error);
     }

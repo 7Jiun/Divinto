@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import './Login.css';
 const url = 'http://localhost:3000';
 
 export const Login = (props) => {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     try {
+      console.log(url);
       const response = await fetch(`${url}/user/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password: pass }),
+        body: JSON.stringify({ email: email, password: pass }),
       });
       const data = await response.json();
       localStorage.setItem('jwtToken', data.data.access_token);
+      navigate('/whiteboard');
     } catch (error) {
       console.error('登入錯誤', error);
     }
