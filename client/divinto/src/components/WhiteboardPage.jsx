@@ -13,7 +13,6 @@ export const WhiteboardPage = () => {
     const fetchWhiteboards = async () => {
       try {
         const whiteboards = await getWhiteboardsByUser();
-        console.log(whiteboards);
         const userWhiteboardItems = whiteboards.map((whiteboard) => ({
           title: whiteboard.title,
           path: `/whiteboard/${whiteboard._id}`,

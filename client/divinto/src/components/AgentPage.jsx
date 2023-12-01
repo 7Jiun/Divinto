@@ -29,9 +29,9 @@ export const AgentPage = () => {
         const userAgents = await getAgentsByUser();
         console.log(userAgents);
         const modifiedUserAgents = userAgents.map((userAgent) => ({
-          title: userAgent.id,
+          title: userAgent.name,
           path: `/agent/${userAgent._id}`,
-          icon: <IoIcons.IoIosAirplane />,
+          icon: <IoIcons.IoLogoIonitron color="#003D79" size={'24px'} />,
           cName: 'whiteboard-text',
         }));
         setAgents([...agents, ...modifiedUserAgents]);

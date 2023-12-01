@@ -45,6 +45,8 @@ export async function createAgent(req: Request, res: Response) {
   const userPayload = res.locals.userPayload;
   const userId = userPayload.id.toString();
   const { whiteboardId } = req.params;
+  const agentName = req.body.agentName;
+  console.log(agentName);
   const whiteboard = await getWhiteboard(whiteboardId);
   const whiteboardUrl = `${process.env.URL}/${userId}/${whiteboardId}`;
   if (whiteboard[0] && whiteboard[0].cards) {
@@ -103,6 +105,7 @@ export async function createAgent(req: Request, res: Response) {
           });
           const newAgentId = await agentModel.createAgentInDb(
             userPayload,
+            agentName,
             assistant.id,
             whiteboardId,
             agentKnowledgeFile,

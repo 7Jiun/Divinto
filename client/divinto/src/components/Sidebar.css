@@ -75,6 +75,9 @@ span {
 }
 
 .nav-menu-items button {
+  display: flex; /* 使用 Flexbox 布局 */
+  align-items: center; /* 垂直居中对齐子元素 */
+  justify-content: center; /* 水平居中对齐子元素 */
   margin-top: 1.5rem;
   margin-left: 1.5rem;
   padding: 10px;
@@ -84,8 +87,8 @@ span {
   color: white;
   font-size: 14px;
   cursor: pointer;
+  gap: 10px; /* 在图标和文本之间添加间隙 */
 }
-
 .nav-menu-items button:hover {
   background-color: #1ab3ff;
 }

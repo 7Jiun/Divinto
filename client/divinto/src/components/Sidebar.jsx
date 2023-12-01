@@ -94,34 +94,46 @@ export const Sidebar = () => {
 
   const handleAgentClick = async () => {
     try {
-      // 第一步: Fetch create agent API
-      const demoId = '6565cedf26466d2e3168b39a';
+      if (isWhiteboardPage) {
+        const whiteboardId = location.pathname.split('/')[2];
+        console.log(whiteboardId);
 
-      const agentResponse = await fetch(`${URL}/agent/${demoId}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const agentData = await agentResponse.json();
-      const agentId = agentData.data;
-      // 第二步: Fetch create thread API
-      const threadResponse = await fetch(`${URL}/agent/thread/${agentId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          threadTitle: '做專案的目標釐清',
-        }),
-      });
-      const threadData = await threadResponse.json();
-      console.log(threadData);
-      const threadId = threadData._id;
+        const agentName = prompt('請幫 Agent 取名 :');
+        const threadTitle = prompt('你這次談話的主題 :');
 
-      // 第三步: 導航到新 URL
-      navigate(`/agent/${agentId}/thread/${threadId}`);
+        if (!agentName || !threadTitle) {
+          alert('請隨意輸入即可');
+          return;
+        }
+        console.log(agentName);
+        const agentResponse = await fetch(`${URL}/agent/${whiteboardId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            agentName: agentName,
+          }),
+        });
+        const agentData = await agentResponse.json();
+        const agentId = agentData.data;
+
+        const threadResponse = await fetch(`${URL}/agent/thread/${agentId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            threadTitle: threadTitle,
+          }),
+        });
+        const threadData = await threadResponse.json();
+        const threadId = threadData._id;
+
+        navigate(`/agent/${agentId}/thread/${threadId}`);
+      }
     } catch (error) {
       console.error('Error occurred:', error);
     }
@@ -157,15 +169,23 @@ export const Sidebar = () => {
               );
             })}
             <li>
-              <button onClick={handleAddPageClick}>Add New Whiteboard</button>
+              <button onClick={handleAddPageClick}>
+                <IoIcons.IoIosAddCircle /> Add New Whiteboard
+              </button>
             </li>
             {isWhiteboardPage && (
               <>
                 <li>
-                  <button onClick={handleAgentClick}>Create Agent</button>
+                  <button onClick={handleAgentClick}>
+                    <IoIcons.IoLogoIonitron />
+                    Create Agent
+                  </button>
                 </li>
                 <li>
-                  <button onClick={handleReflectionClick}>Reflections</button>
+                  <button onClick={handleReflectionClick}>
+                    <IoIcons.IoIosSwitch />
+                    Reflections
+                  </button>
                 </li>
               </>
             )}

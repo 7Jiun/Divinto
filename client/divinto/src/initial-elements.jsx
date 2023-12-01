@@ -19,7 +19,6 @@ export function mergeCardContents(card) {
     try {
       if (blockContent.content.match(imageRegex)) {
         const images = blockContent.content.split('(');
-        console.log(images);
         fullContent += `${images[0]}(${images[1]}`;
       } else {
         fullContent += `${blockContent.content}\n`;

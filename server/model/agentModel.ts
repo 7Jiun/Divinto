@@ -19,6 +19,7 @@ interface IThread {
 
 export async function createAgentInDb(
   user: JwtUserPayload,
+  agentName: string,
   agentIdFromOpenAi: string,
   whiteboardId: string,
   whiteboardResourceUrl: string,
@@ -27,6 +28,7 @@ export async function createAgentInDb(
   const agentId: string = agentIdFromOpenAi;
   const insertId = await Agent.create({
     id: agentId,
+    name: agentName,
     whiteboardId: whiteboardId,
     whiteboardResource: whiteboardResourceUrl,
     openAifileId: openAiFileId,
