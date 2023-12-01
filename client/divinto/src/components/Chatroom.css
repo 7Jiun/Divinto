@@ -23,7 +23,7 @@
 
 .messages-list {
   flex-grow: 1;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 .message {
@@ -87,6 +87,7 @@
   border: 1px solid rgba(245, 245, 245, 0.601); /* 移除邊框 */
   border-radius: 15px; /* 整體圓角邊框 */
   padding-right: 1vw; /* 統一右側內邊距 */
+  letter-spacing: 0.5px;
 }
 
 .message-input textarea {
@@ -102,11 +103,10 @@
   border-radius: 15px; /* 圓角邊框 */
   padding-top: 0.5rem;
   padding-left: 1rem;
-  padding-bottom: 0.3rem;
   margin-right: auto; /* 移除外邊距 */
   height: 40px; /* 初始高度 */
   max-height: 20vh; /* 最大高度 */
-  overflow-y: auto;
+  overflow-y: hidden;
   z-index: 5;
 }
 
@@ -144,10 +144,14 @@
 }
 
 .recorded-points {
-  height: 75%;
+  height: 70%;
+  letter-spacing: 0.05rem;
+  font-size: 16px;
+  margin-top: 1vh;
+  overflow-y: auto;
 }
 
-.agreed-points {
+.approvement-points {
   height: 40vh; /* 設定高度為視窗高度的 40% */
   margin-top: 2vh; /* 添加一些底部外邊距 */
   margin-bottom: 2vh; /* 添加一些底部外邊距 */
@@ -158,9 +162,17 @@
   overflow-y: auto; /* 如果內容過多，添加滾動條 */
   /* background-color: #ff000077; */
   color: white;
+  position: relative;
 }
 
-.disagreed-points {
+.approvement-points h3 {
+  position: sticky;
+  left: 1rem; /* 置於容器左側 */
+  top: 0.2rem;
+  width: 100%;
+}
+
+.disapprovement-points {
   height: 40vh; /* 設定高度為視窗高度的 40% */
   margin-top: 2vh; /* 添加一些底部外邊距 */
   margin-bottom: 3vh; /* 添加一些底部外邊距 */
@@ -171,6 +183,13 @@
   overflow-y: auto; /* 如果內容過多，添加滾動條 */
   /* background-color: #ff000077; */
   color: white;
+}
+
+.disapprovement-points h3 {
+  position: sticky;
+  left: 1rem; /* 置於容器左側 */
+  top: 0.2rem;
+  width: 100%;
 }
 
 .export-ai-card-button {
@@ -184,6 +203,7 @@
   align-items: center; /* 垂直居中 */
   justify-content: center; /* 水平居中 */
   background-color: #060b26;
+  cursor: pointer;
   border: none;
   color: white;
 }

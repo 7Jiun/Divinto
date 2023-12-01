@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getWhiteboardsByUser, createWhiteboardInDb } from './sidebar';
+import { getWhiteboardsByUser, createWhiteboardInDb } from './Sidebar';
 import * as IoIcons from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';

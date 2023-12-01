@@ -4,6 +4,7 @@ import { LoginPage } from './components/LoginPage';
 import { UpdateNode } from './components/Node';
 import { Sidebar } from './components/Sidebar';
 import { Chatroom } from './components/Chatroom';
+import { Reflection } from './components/reflection';
 import { WhiteboardPage } from './components/WhiteboardPage';
 import { AgentPage } from './components/AgentPage';
 import 'reactflow/dist/style.css';
@@ -38,9 +39,12 @@ const App = () => {
           path="/whiteboard/:id"
           element={isLoggedIn ? <UpdateNode /> : <Navigate to="/login" />}
         />
-
+        <Route
+          path="/whiteboard/:id/reflection"
+          element={isLoggedIn ? <Reflection /> : <Navigate to="/login" />}
+        />
         <Route path="/login" element={isLoggedIn ? <Navigate to="/whiteboard" /> : <LoginPage />} />
-        <Route path="/agent" element={isLoggedIn ? <AgentPage /> : <Navigate to="/" />} />
+        <Route path="/agent" element={isLoggedIn ? <AgentPage /> : <Navigate to="/login" />} />
         <Route
           path="/agent/:agentId"
           element={isLoggedIn ? <AgentThreadPage /> : <Navigate to="/" />}

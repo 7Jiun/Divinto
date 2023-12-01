@@ -142,6 +142,17 @@ export async function getCardsByTag(tag: string | null, whiteboardId: string) {
         as: 'cards',
       },
     },
+    {
+      $addFields: {
+        cards: {
+          $filter: {
+            input: '$cards',
+            as: 'card',
+            cond: { $eq: ['$$card.removeAt', null] },
+          },
+        },
+      },
+    },
     { $unwind: '$cards' },
     { $match: { 'cards.tags': tag } },
   ]);

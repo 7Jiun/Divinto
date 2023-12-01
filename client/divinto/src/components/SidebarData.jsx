@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import * as IoIcons from 'react-icons/io';
-import { URL } from '../App';
 
 export const SidebarData = [
   {
@@ -18,21 +16,9 @@ export const SidebarData = [
     cName: 'nav-text',
   },
   {
-    title: 'Reflects',
-    path: '/',
-    icon: <AiIcons.AiFillHome />,
-    cName: 'nav-text',
-  },
-  {
     title: 'Agents',
     path: '/agent',
     icon: <AiIcons.AiFillMessage />,
     cName: 'nav-text',
   },
-  // {
-  //   title: 'Create Agent',
-  //   path: '/create Agent',
-  //   icon: <AiIcons.AiFillHome />,
-  //   cName: 'nav-text',
-  // },
 ];

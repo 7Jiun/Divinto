@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import * as IoIcons from 'react-icons/io';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import { Link } from 'react-router-dom';
 import { SidebarData } from './SidebarData';
@@ -42,9 +42,15 @@ export async function createWhiteboardInDb(title) {
 
 export const Sidebar = () => {
   const [sidebar, setSidebar] = useState(false);
-  const [sidebarData, setSidebarData] = useState(SidebarData);
+  const [sidebarData, setSidebarData] = useState(
+    SidebarData.map((item) => ({
+      ...item,
+      show: true, // 假设初始时所有项都显示
+    })),
+  );
   const navigate = useNavigate();
-  const { id } = useParams();
+  const location = useLocation();
+  const isWhiteboardPage = location.pathname.match(/\/whiteboard\/\w+/);
 
   const handleAddPageClick = async () => {
     const pageTitle = prompt('Enter the title for the new page:');
@@ -64,6 +70,7 @@ export const Sidebar = () => {
       }
     }
   };
+
   const showSidebar = () => setSidebar(!sidebar);
 
   useEffect(() => {
@@ -120,6 +127,10 @@ export const Sidebar = () => {
     }
   };
 
+  const handleReflectionClick = () => {
+    navigate(`${location.pathname}/reflection`);
+  };
+
   return (
     <>
       <IconContext.Provider value={{ color: 'fff' }}>
@@ -148,9 +159,16 @@ export const Sidebar = () => {
             <li>
               <button onClick={handleAddPageClick}>Add New Whiteboard</button>
             </li>
-            <li>
-              <button onClick={handleAgentClick}>Create Agent</button>
-            </li>
+            {isWhiteboardPage && (
+              <>
+                <li>
+                  <button onClick={handleAgentClick}>Create Agent</button>
+                </li>
+                <li>
+                  <button onClick={handleReflectionClick}>Reflections</button>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
       </IconContext.Provider>

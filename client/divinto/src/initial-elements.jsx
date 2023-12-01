@@ -1,6 +1,16 @@
 import React from 'react';
-import { MarkerType, Position } from 'reactflow';
 import Markdown from 'react-markdown';
+
+function getDate() {
+  const today = new Date();
+
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+
+  const dateString = `${month}-${day}`;
+
+  return dateString;
+}
 
 export function mergeCardContents(card) {
   const imageRegex = /!\[.*?\]\(.*?\)/;
@@ -18,6 +28,14 @@ export function mergeCardContents(card) {
       return;
     }
   });
+  if (card.content.approvement) {
+    fullContent += `# 對話記錄${card.title}-${getDate()}\n ## 認同的觀點\n ${
+      card.content.approvement
+    } \n`;
+  }
+  if (card.content.disapprovement) {
+    fullContent += `## 不認同的觀點\n ${card.content.disapprovement}`;
+  }
   return fullContent;
 }
 
@@ -28,9 +46,7 @@ export function convertCardsToNodes(cards) {
     data: {
       label: (
         <>
-          {/* <Markdown>{`# ${card.title}`}</Markdown> */}
           <Markdown>{mergeCardContents(card)}</Markdown>
-          {/* <Markdown>{`tags: _${card.tags}_`}</Markdown> */}
         </>
       ),
       tags: card.tags,

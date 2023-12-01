@@ -290,10 +290,10 @@ export async function exportAiCard(req: Request, res: Response) {
       disapprovement: totalDisapprovement,
     };
     const aiCard = await cardModel.createAiCard(userPayload, aiCardInput);
-    await whiteboardModel.addWhiteboardCards(aiCard._id, aiCard.whiteboardId);
+    await whiteboardModel.addWhiteboardCards(aiCard._id, thread.whiteboardId);
 
     if (aiCard) {
-      res.status(200).json({ data: 'create card successfully' });
+      res.status(200).json({ data: aiCard, whiteboardId: thread.whiteboardId });
     }
   } catch (error) {
     if (error instanceof Error) {
