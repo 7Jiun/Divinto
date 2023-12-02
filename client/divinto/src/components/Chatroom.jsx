@@ -119,6 +119,7 @@ export const Chatroom = () => {
   const { agentId, threadId } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isMessageSending, setIsMessageSending] = useState(false);
   const [approvementPoints, setApprovementPoints] = useState([]);
   const [newApprovementPoints, setNewApprovementPoints] = useState('');
   const [disapprovementPoints, setDisapprovementPoints] = useState([]);
@@ -126,9 +127,11 @@ export const Chatroom = () => {
   const navigate = useNavigate();
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() !== '') {
+    if (newMessage.trim() !== '' && !isMessageSending) {
+      setIsMessageSending(true);
       await sendMessageToServer(newMessage, agentId, threadId, setMessages);
       setNewMessage(''); // 清空輸入框
+      setIsMessageSending(false);
     }
   };
 
@@ -197,8 +200,8 @@ export const Chatroom = () => {
             placeholder="Type a message..."
             onInput={adjustTextareaHeight}
           />
-          <button onClick={handleSendMessage}>
-            <IoIcons.IoMdArrowRoundUp />
+          <button onClick={handleSendMessage} disabled={isMessageSending}>
+            {isMessageSending ? <IoIcons.IoMdSquare /> : <IoIcons.IoMdArrowRoundUp />}
           </button>
         </div>
       </div>

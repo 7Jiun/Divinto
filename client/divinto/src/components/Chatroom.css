@@ -144,10 +144,10 @@
 }
 
 .recorded-points {
-  height: 70%;
+  height: 64%;
   letter-spacing: 0.05rem;
   font-size: 16px;
-  margin-top: 1vh;
+  margin-top: 2vh;
   overflow-y: auto;
 }
 
@@ -180,7 +180,7 @@
   padding: 1rem 2rem;
   border: 1px solid #ccc;
   border-radius: 16px;
-  overflow-y: auto; /* 如果內容過多，添加滾動條 */
+  /* overflow-y: auto; */
   /* background-color: #ff000077; */
   color: white;
 }
