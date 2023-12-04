@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
-mongoose.connect('mongodb://localhost/divinto');
+mongoose.connect(
+  `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@divinto-cluster.q51ep5x.mongodb.net/?retryWrites=true&w=majority`,
+);
+
+mongoose.connection.on('error', (err) => {
+  console.log('MongoDB connection error: ' + err);
+});
 
 const cardContentBlockSchema = new mongoose.Schema({
   type: { type: String, enum: ['text', 'image', 'video', 'audio'] },
