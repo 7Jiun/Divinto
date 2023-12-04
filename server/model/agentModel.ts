@@ -1,5 +1,6 @@
+import mongoose from 'mongoose';
 import { JwtUserPayload } from '../utils/signJWT.ts';
-import { Agent, Thread } from './schema.ts';
+import { Agent, Thread, User } from './schema.ts';
 
 export interface Message {
   speaker: 'user' | 'agent';
@@ -18,24 +19,29 @@ interface IThread {
 
 export async function createAgentInDb(
   user: JwtUserPayload,
+  agentName: string,
   agentIdFromOpenAi: string,
+  whiteboardId: string,
   whiteboardResourceUrl: string,
   openAiFileId: string,
 ) {
   const agentId: string = agentIdFromOpenAi;
   const insertId = await Agent.create({
     id: agentId,
+    name: agentName,
+    whiteboardId: whiteboardId,
     whiteboardResource: whiteboardResourceUrl,
     openAifileId: openAiFileId,
   });
-  const updateAgentInUser = await Thread.findByIdAndUpdate(
+  console.log(insertId);
+  await User.findByIdAndUpdate(
     user.id.toString(),
     {
-      $push: { agents: insertId },
+      $push: { agents: insertId._id.toString() },
     },
     { new: true },
   );
-  return updateAgentInUser;
+  return insertId._id.toString();
 }
 
 export async function deleteAgent(agentId: string): Promise<Boolean> {
@@ -66,22 +72,76 @@ export async function createThread(agentId: string, threadTitle: string, openAiT
     title: threadTitle,
     openAiThreadId: openAiThreadId,
   });
+  console.log(thread);
   if (!thread) return false;
-  await Agent.findByIdAndUpdate(
+  const threadId = thread._id.toString();
+  const agent = await Agent.findByIdAndUpdate(
     agentId,
     {
-      $push: { threads: thread._id },
+      $push: { threads: threadId },
       $set: { updateAt: Date.now() },
     },
     { new: true },
   );
-  return thread;
+  if (!agent) return false;
+  console.log(agent);
+  const newThread = await Thread.findByIdAndUpdate(
+    threadId,
+    {
+      $set: {
+        whiteboardId: agent.whiteboardId,
+        updatedAt: Date.now(),
+      },
+    },
+    { new: true },
+  );
+  return newThread;
 }
 
 export async function getThread(threadId: string) {
   const thread = await Thread.findById(threadId);
   if (!thread || thread.removeAt) return null;
   return thread;
+}
+
+export async function getThreadsByAgent(agentId: string) {
+  const threads = await Agent.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(agentId) } },
+    {
+      $addFields: {
+        threads: {
+          $map: {
+            input: '$threads',
+            as: 'threads',
+            in: { $toObjectId: '$$threads' },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'threads',
+        localField: 'threads',
+        foreignField: '_id',
+        as: 'threads',
+      },
+    },
+    {
+      $project: {
+        threads: {
+          $filter: {
+            input: '$threads',
+            as: 'threads',
+            cond: { $eq: ['$$threads.removeAt', null] },
+          },
+        },
+        createdAt: '$createdAt',
+        updateAt: '$updateAt',
+        removeAt: '$removeAt',
+      },
+    },
+  ]);
+  return threads;
 }
 
 export async function updateThreadTitle(threadId: string, newTitle: string): Promise<unknown> {

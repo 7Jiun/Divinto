@@ -1,0 +1,115 @@
+/* 确保容器占据所有可用空间 */
+.reflection-container {
+  height: 92vh;
+  overflow-y: auto;
+  background-color: #060b26;
+}
+
+/* 编辑器容器 */
+
+.reflection-container {
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.search-render {
+  flex-basis: 40%;
+  max-width: 50%;
+  position: fixed; /* 固定位置 */
+  left: 0;
+  top: 8vh;
+  bottom: 0; /* 延伸到底部 */
+  overflow-y: auto;
+  margin: 0 auto; /* 增加外边距，并且居中 */
+}
+
+.search-render input[type='text'] {
+  width: 30vw;
+  padding: 10px; /* 增加内边距，使输入更舒适 */
+  border: 1px solid #ccc; /* 边框颜色 */
+  border-radius: 5px; /* 轻微的圆角 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 轻微的阴影，增加立体感 */
+  margin: 20px; /* 增加与下方元素的距离 */
+  margin-left: 10vw;
+}
+
+.search-render input[type='text']:hover,
+.search-render input[type='text']:focus {
+  border-color: #888; /* 鼠标悬停或输入框聚焦时的边框颜色 */
+  outline: none; /* 去除默认的轮廓 */
+}
+
+.search-render input[type='text'] {
+  transition: border-color 0.3s, box-shadow 0.3s; /* 平滑过渡效果 */
+}
+
+.search-render ul {
+  display: grid;
+  left: 0;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
+  padding: 20px;
+  list-style: none;
+  max-width: 50vw;
+  width: 100%;
+}
+
+.search-render li {
+  display: flex; /* 使用 flexbox 進行布局 */
+  flex-direction: column; /* 元素垂直排列 */
+  justify-content: space-between; /* 分散對齊 */
+  align-items: center; /* 水平居中對齊 */
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 300px; /* 固定卡片高度 */
+  overflow: auto; /* 防止內容溢出 */
+  word-wrap: break-word; /* 在长单词或URL不会溢出容器 */
+  word-break: break-word; /* 在适当的地方断开 */
+}
+
+.search-render img {
+  max-width: 100%; /* 圖片最大寬度為100% */
+  max-height: 150px; /* 固定圖片最大高度 */
+  object-fit: cover; /* 圖片按比例填充指定空間 */
+}
+
+.reflection-card-button {
+  position: fixed; /* 固定位置 */
+  bottom: 1rem; /* 距离底部16像素 */
+  right: 2rem; /* 距离右侧16像素 */
+  padding: 10px 20px; /* 内填充 */
+  background-color: #4caf50; /* 绿色背景 */
+  color: white; /* 白色文字 */
+  border: none; /* 无边框 */
+  border-radius: 4px; /* 轻微的圆角 */
+  cursor: pointer; /* 手型光标 */
+  box-shadow: rgba(0, 0, 0, 0.2); /* 轻微的阴影 */
+  transition: background-color 0.3s; /* 平滑的背景色过渡效果 */
+  z-index: 50;
+}
+
+.reflection-card-button:hover {
+  background-color: #45a049; /* 悬停时深绿色背景 */
+}
+.MDeditor {
+  position: fixed; /* 固定位置 */
+  right: 0;
+  width: 50%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .search-render ul {
+    grid-template-columns: repeat(2, 1fr); /* 较小屏幕上每行两列 */
+  }
+}
+
+@media (max-width: 480px) {
+  .search-render ul {
+    grid-template-columns: 1fr; /* 更小屏幕上每行一列 */
+  }
+}

@@ -48,7 +48,9 @@ export async function nativeUserSignUp(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof Error) {
       console.error(`sign up error: ${error.message}`);
-      res.status(500).json({ data: 'sign up failed' });
+      if (error.message === 'Email already in use')
+        res.status(400).json({ data: 'email has been used' });
+      res.status(500).json({ data: 'Signed up failed, please retry again' });
     }
   }
 }
@@ -78,6 +80,7 @@ export async function nativeUserSignIn(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof Error) {
       console.error(`sign in error: ${error.message}`);
+      res.status(400).json({ data: 'wrong email or password' });
     }
   }
 }
@@ -85,7 +88,23 @@ export async function nativeUserSignIn(req: Request, res: Response) {
 export async function getUserProfile(req: Request, res: Response) {
   const userPayload = res.locals.userPayload;
   const userId = userPayload.id.toString();
-  const whiteboards = await userModel.getUserProfile(userId);
+  const profile = await userModel.getUserProfile(userId);
+  if (!profile) return res.status(400).json({ data: 'get users whiteboard wrong' });
+  res.status(200).json({ data: profile });
+}
+
+export async function getWhiteboardsByUser(req: Request, res: Response) {
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
+  const whiteboards = await userModel.getWhiteboardsByUser(userId);
   if (!whiteboards) return res.status(400).json({ data: 'get users whiteboard wrong' });
   res.status(200).json({ data: whiteboards });
+}
+
+export async function getAgentsByUser(req: Request, res: Response) {
+  const userPayload = res.locals.userPayload;
+  const userId = userPayload.id.toString();
+  const agents = await userModel.getAgentsByUser(userId);
+  if (!agents) return res.status(400).json({ data: 'get users agent wrong' });
+  res.status(200).json({ data: agents });
 }

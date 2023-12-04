@@ -29,10 +29,10 @@ export async function isRunCompleted(threadId: string, runId: string): Promise<B
   try {
     const run = await openai.beta.threads.runs.retrieve(threadId, runId);
     console.log(run);
-    if (!run.completed_at) {
-      return false;
-    } else {
+    if (run.completed_at || run.failed_at) {
       return true;
+    } else {
+      return false;
     }
   } catch (error) {
     console.error('Fetch error:', error);

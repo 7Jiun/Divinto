@@ -25,6 +25,7 @@ export interface CardContent {
 
 export interface AiCardInput {
   title: string;
+  whiteboardId: string;
   approvement: string | null;
   disapprovement: string | null;
 }
@@ -137,6 +138,7 @@ export async function updateCard(card: UpdateCard) {
     createdAt: card.createdAt,
     updateAt: Date.now().toString(),
     removeAt: card.removeAt,
+    whiteboardId: '',
   };
 
   await Card.findByIdAndUpdate(card._id, updatedCard);

@@ -12,6 +12,7 @@ export interface Position {
 }
 
 export interface GetCard {
+  whiteboardId: string;
   _id: string;
   id: string;
   title: string;

@@ -9,4 +9,8 @@ router.route('/user/signin').post(userControl.nativeUserSignIn);
 
 router.route('/user/profile').get(authenticate, userControl.getUserProfile);
 
+router.route('/user/whiteboards').get(authenticate, userControl.getWhiteboardsByUser);
+
+router.route('/user/agents').get(authenticate, userControl.getAgentsByUser);
+
 export default router;

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { JwtUserPayload } from '../utils/signJWT.ts';
 import { User } from './schema.ts';
 
@@ -19,6 +20,12 @@ interface IUser {
 }
 
 export async function nativeUserSignUp(email: string, name: string, password: string) {
+  const isEmailExist = await User.findOne({ email: email });
+
+  if (isEmailExist) {
+    throw new Error('Email already in use');
+  }
+
   const user = await User.create({
     provider: 'native',
     email: email,
@@ -78,6 +85,46 @@ export async function getUserProfile(userId: string): Promise<IUser | null> {
   }
 }
 
+export async function getWhiteboardsByUser(userId: string) {
+  const whiteboards = await User.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+    {
+      $addFields: {
+        whiteboards: {
+          $map: {
+            input: '$whiteboards',
+            as: 'whiteboards',
+            in: { $toObjectId: '$$whiteboards' },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'whiteboards',
+        localField: 'whiteboards',
+        foreignField: '_id',
+        as: 'whiteboards',
+      },
+    },
+    {
+      $project: {
+        whiteboards: {
+          $filter: {
+            input: '$whiteboards',
+            as: 'whiteboard',
+            cond: { $eq: ['$$whiteboard.removeAt', null] },
+          },
+        },
+        createdAt: '$createdAt',
+        updateAt: '$updateAt',
+        removeAt: '$removeAt',
+      },
+    },
+  ]);
+  return whiteboards;
+}
+
 export async function addWhiteboardInUser(userId: string, whiteboardId: string) {
   const updateWhiteboard = await User.findByIdAndUpdate(
     userId,
@@ -107,4 +154,44 @@ export async function deleteWhiteboardInUser(
   } else {
     return false;
   }
+}
+
+export async function getAgentsByUser(userId: string) {
+  const agents = await User.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+    {
+      $addFields: {
+        agents: {
+          $map: {
+            input: '$agents',
+            as: 'agents',
+            in: { $toObjectId: '$$agents' },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'agents',
+        localField: 'agents',
+        foreignField: '_id',
+        as: 'agents',
+      },
+    },
+    {
+      $project: {
+        agents: {
+          $filter: {
+            input: '$agents',
+            as: 'agents',
+            cond: { $eq: ['$$agents.removeAt', null] },
+          },
+        },
+        createdAt: '$createdAt',
+        updateAt: '$updateAt',
+        removeAt: '$removeAt',
+      },
+    },
+  ]);
+  return agents;
 }
