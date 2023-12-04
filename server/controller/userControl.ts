@@ -48,7 +48,9 @@ export async function nativeUserSignUp(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof Error) {
       console.error(`sign up error: ${error.message}`);
-      res.status(500).json({ data: 'sign up failed' });
+      if (error.message === 'Email already in use')
+        res.status(400).json({ data: 'email has been used' });
+      res.status(500).json({ data: 'Signed up failed, please retry again' });
     }
   }
 }
@@ -78,6 +80,7 @@ export async function nativeUserSignIn(req: Request, res: Response) {
   } catch (error) {
     if (error instanceof Error) {
       console.error(`sign in error: ${error.message}`);
+      res.status(400).json({ data: 'wrong email or password' });
     }
   }
 }

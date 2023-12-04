@@ -85,7 +85,7 @@ export function Reflection() {
       content: editorContent,
     };
     try {
-      const card = await fetch(`http://localhost:3000/card`, {
+      const card = await fetch(`${URL}/card`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

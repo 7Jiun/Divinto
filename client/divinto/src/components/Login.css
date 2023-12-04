@@ -26,6 +26,7 @@ label {
   margin-bottom: 5px;
   color: #495057;
   font-weight: bold;
+  text-align: start;
 }
 
 input[type='email'],
@@ -74,7 +75,7 @@ input[type='password'] {
 
 .login-page-container {
   background: linear-gradient(to bottom, #060b26, #004085, rgb(33, 46, 120));
-  height: 92vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;

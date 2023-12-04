@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
-const url = 'http://localhost:3000';
-
+import { URL } from '../App';
 export const Login = (props) => {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
@@ -10,8 +9,8 @@ export const Login = (props) => {
 
   const handleSubmit = async (e) => {
     try {
-      console.log(url);
-      const response = await fetch(`${url}/user/signin`, {
+      e.preventDefault();
+      const response = await fetch(`${URL}/user/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -19,8 +18,13 @@ export const Login = (props) => {
         body: JSON.stringify({ email: email, password: pass }),
       });
       const data = await response.json();
-      localStorage.setItem('jwtToken', data.data.access_token);
-      navigate('/whiteboard');
+      if (data.data.access_token) {
+        localStorage.setItem('jwtToken', data.data.access_token);
+        navigate('/whiteboard');
+      } else {
+        alert('wrong email or password');
+      }
+      window.location.reload();
     } catch (error) {
       console.error('登入錯誤', error);
     }
@@ -28,15 +32,16 @@ export const Login = (props) => {
 
   return (
     <div className="auth-form-container">
-      <form onSubmit={handleSubmit}>
+      <form>
         <label htmlFor="email">email</label>
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
-          placeholder="please enter your email"
+          placeholder="Please enter your email"
           id="email"
           name="email"
+          required
         ></input>
         <label htmlFor="password">password</label>
         <input
@@ -46,8 +51,9 @@ export const Login = (props) => {
           placeholder="********"
           id="password"
           name="password"
+          required
         ></input>
-        <button>Log In</button>
+        <button onClick={handleSubmit}>Log In</button>
       </form>
       <button className="secondary-button" onClick={() => props.onFormSwitch('Register')}>
         Don't have an account? Register here

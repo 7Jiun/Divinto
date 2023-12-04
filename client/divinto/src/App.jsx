@@ -7,6 +7,7 @@ import { Chatroom } from './components/Chatroom';
 import { Reflection } from './components/reflection';
 import { WhiteboardPage } from './components/WhiteboardPage';
 import { AgentPage } from './components/AgentPage';
+import { LandingPage } from './components/LandingPage';
 import 'reactflow/dist/style.css';
 import './overview.css';
 import './text-updater-note.css';
@@ -14,10 +15,17 @@ import './updatenode.css';
 import './App.css';
 import { AgentThreadPage } from './components/AgentThreadPage';
 
-export const URL = 'http://localhost:3000';
+export const URL = '';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const MainLayout = ({ children }) => (
+    <>
+      <Sidebar />
+      <div>{children}</div>
+    </>
+  );
 
   useEffect(() => {
     const token =
@@ -28,29 +36,95 @@ const App = () => {
 
   return (
     <Router>
-      <Sidebar />
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                <WhiteboardPage />
+              </MainLayout>
+            ) : (
+              <LandingPage />
+            )
+          }
+        />
         <Route
           path="/whiteboard"
-          element={isLoggedIn ? <WhiteboardPage /> : <Navigate to="/login" />}
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                <WhiteboardPage />
+              </MainLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         ></Route>
         <Route
           path="/whiteboard/:id"
-          element={isLoggedIn ? <UpdateNode /> : <Navigate to="/login" />}
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                <UpdateNode />{' '}
+              </MainLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/whiteboard/:id/reflection"
-          element={isLoggedIn ? <Reflection /> : <Navigate to="/login" />}
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                <Reflection />
+              </MainLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route path="/login" element={isLoggedIn ? <Navigate to="/whiteboard" /> : <LoginPage />} />
-        <Route path="/agent" element={isLoggedIn ? <AgentPage /> : <Navigate to="/login" />} />
+        <Route
+          path="/agent"
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                {' '}
+                <AgentPage />{' '}
+              </MainLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
         <Route
           path="/agent/:agentId"
-          element={isLoggedIn ? <AgentThreadPage /> : <Navigate to="/" />}
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                {' '}
+                <AgentThreadPage />{' '}
+              </MainLayout>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
 
-        <Route path="/agent/:agentId/thread/:threadId" element={<Chatroom />} />
+        <Route
+          path="/agent/:agentId/thread/:threadId"
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                <Chatroom />
+              </MainLayout>
+            ) : (
+              <LoginPage />
+            )
+          }
+        />
       </Routes>
     </Router>
   );

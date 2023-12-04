@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
 import { useReactFlow } from 'reactflow';
 import { getFirstLineAsTitle } from '../initial-elements';
+import { URL } from '../App';
 
 const token = localStorage.getItem('jwtToken');
 
 function updateNodeTagsOnServer(node, updateContent) {
   const title = getFirstLineAsTitle(updateContent);
 
-  fetch(`http://localhost:3000/card`, {
+  fetch(`${URL}/card`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -66,10 +67,18 @@ export default function ContextMenu({ id, top, left, right, bottom, ...props }) 
     }
   }, [setNodes]);
 
+  // const exportCardMarkdown = useCallback(() => {
+  //   const whiteboardId = location.pathname.split('/')[2];
+  //   const markdown = async () => {
+  //     await fetch(`${URL}/markdown/card/${whiteboardId}/${id}`);
+  //   };
+  // });
+
   return (
     <div style={{ top, left, right, bottom }} className="context-menu" {...props}>
       <p style={{ margin: '0.5em' }}></p>
       <button onClick={addNodeTags}>add tags</button>
+      {/* <button onClick={exportCardMarkdown}> export card </button> */}
     </div>
   );
 }

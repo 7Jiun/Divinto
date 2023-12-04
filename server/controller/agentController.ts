@@ -46,9 +46,7 @@ export async function createAgent(req: Request, res: Response) {
   const userId = userPayload.id.toString();
   const { whiteboardId } = req.params;
   const agentName = req.body.agentName;
-  console.log(agentName);
   const whiteboard = await getWhiteboard(whiteboardId);
-  const whiteboardUrl = `${process.env.URL}/${userId}/${whiteboardId}`;
   if (whiteboard[0] && whiteboard[0].cards) {
     let whiteboardCardsWithTags = '';
     const promises = whiteboard[0].cards.map(async (card) => {
@@ -68,9 +66,6 @@ export async function createAgent(req: Request, res: Response) {
         })
         .then(async (agentKnowledgeFile) => {
           if (!agentKnowledgeFile) return res.status(500).json({ data: 'export failed' });
-          const agentKnowledgePath = path.basename(agentKnowledgeFile);
-          console.log(whiteboardUrl, agentKnowledgePath);
-          console.log(agentKnowledgeFile);
 
           const file = await openAiUtils.openai.files.create({
             file: fs.createReadStream(`${agentKnowledgeFile}`),
@@ -111,7 +106,6 @@ export async function createAgent(req: Request, res: Response) {
             agentKnowledgeFile,
             file.id,
           );
-          console.log(newAgentId);
 
           res.status(200).json({ data: newAgentId });
         })

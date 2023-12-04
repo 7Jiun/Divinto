@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactFlow, { MiniMap, Controls, Background, useNodesState, useEdgesState } from 'reactflow';
 import { convertCardsToNodes, getFirstLineAsTitle } from '../initial-elements';
+import { URL } from '../App';
 import 'reactflow/dist/style.css';
 import '../overview.css';
 import '../text-updater-note.css';
@@ -17,7 +18,7 @@ const token = localStorage.getItem('jwtToken');
 
 function updateNodeOnServer(node, updateContent) {
   const title = getFirstLineAsTitle(updateContent);
-  fetch(`http://localhost:3000/card`, {
+  fetch(`${URL}/card`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ function updateNodeOnServer(node, updateContent) {
 }
 
 function deleteNodeOnServer(nodeId) {
-  fetch(`http://localhost:3000/card/${nodeId}`, {
+  fetch(`/card/${nodeId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -131,7 +132,7 @@ export const UpdateNode = () => {
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       };
-      fetch(`http://localhost:3000/card`, {
+      fetch(`${URL}/card`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ export const UpdateNode = () => {
   };
 
   useEffect(() => {
-    fetch(`http://localhost:3000/whiteboard/${id}`, {
+    fetch(`${URL}/whiteboard/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

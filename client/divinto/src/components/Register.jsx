@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-const url = 'http://localhost:3000';
-
+import { useNavigate } from 'react-router-dom';
+import { URL } from '../App';
 export const Register = (props) => {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [name, setName] = useState('');
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     try {
-      const response = await fetch(`${url}/user/signup`, {
+      e.preventDefault();
+      const response = await fetch(`${URL}/user/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -15,21 +17,28 @@ export const Register = (props) => {
         body: JSON.stringify({ provider: 'native', name, email, password: pass }),
       });
       const data = await response.json();
-      localStorage.setItem('jwtToken', data.data.access_token);
+      if (data.data.access_token) {
+        localStorage.setItem('jwtToken', data.data.access_token);
+        navigate('/whiteboard');
+      } else {
+        alert('invalid email or password!');
+      }
+      window.location.reload();
     } catch (error) {
       console.error('登入錯誤', error);
+      alert('wrong account or password!');
     }
   };
 
   return (
     <div className="auth-form-container">
-      <form onSubmit={handleSubmit}>
+      <form>
         <label htmlFor="name">name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           type="name"
-          placeholder="please enter your name"
+          placeholder="Please enter your name..."
           id="name"
           name="name"
         ></input>
@@ -38,7 +47,7 @@ export const Register = (props) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
-          placeholder="please enter your email"
+          placeholder="Please enter your email..."
           id="email"
           name="email"
         ></input>
@@ -51,7 +60,7 @@ export const Register = (props) => {
           id="password"
           name="password"
         ></input>
-        <button>Register</button>
+        <button onClick={handleSubmit}>Register</button>
       </form>
       <button onClick={() => props.onFormSwitch('Login')}>
         Already have an account? Login here

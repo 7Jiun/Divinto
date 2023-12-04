@@ -96,7 +96,6 @@ export const Sidebar = () => {
     try {
       if (isWhiteboardPage) {
         const whiteboardId = location.pathname.split('/')[2];
-        console.log(whiteboardId);
 
         const agentName = prompt('請幫 Agent 取名 :');
         const threadTitle = prompt('你這次談話的主題 :');
@@ -141,6 +140,12 @@ export const Sidebar = () => {
 
   const handleReflectionClick = () => {
     navigate(`${location.pathname}/reflection`);
+  };
+
+  const handleLogoutClick = () => {
+    localStorage.removeItem('jwtToken');
+    navigate('/');
+    window.location.reload();
   };
 
   return (
@@ -189,6 +194,12 @@ export const Sidebar = () => {
                 </li>
               </>
             )}
+            <li>
+              <button onClick={handleLogoutClick}>
+                <IoIcons.IoIosLogOut />
+                Log out
+              </button>
+            </li>
           </ul>
         </nav>
       </IconContext.Provider>

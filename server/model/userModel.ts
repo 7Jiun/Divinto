@@ -20,6 +20,12 @@ interface IUser {
 }
 
 export async function nativeUserSignUp(email: string, name: string, password: string) {
+  const isEmailExist = await User.findOne({ email: email });
+
+  if (isEmailExist) {
+    throw new Error('Email already in use');
+  }
+
   const user = await User.create({
     provider: 'native',
     email: email,

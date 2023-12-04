@@ -28,8 +28,8 @@ const sendMessageToServer = async (message, agentId, threadId, setMessages) => {
     if (data && data[0].text.value) {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: message, from: 'user', timestamp: new Date() }, // 用戶發送的消息
-        { text: data[0].text.value, from: 'agent', timestamp: new Date() }, // 伺服器響應的消息
+        { text: message, speaker: 'user', timestamp: new Date() }, // 用戶發送的消息
+        { text: data[0].text.value, speaker: 'agent', timestamp: new Date() }, // 伺服器響應的消息
       ]);
     }
   } catch (error) {
@@ -50,7 +50,7 @@ const fetchThreadMessages = async (
       },
     });
     const data = await response.json();
-    setMessages(data.messages); // 假設響應體中有 messages 陣列
+    setMessages(data.messages);
     setApprovementPoints(data.approvements || []);
     setDisapprovementPoints(data.disapprovements || []);
   } catch (error) {
