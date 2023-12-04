@@ -10,7 +10,6 @@ lerna-debug.log*
 client/node_modules/
 client/divinto/node_modules/
 server/node_modules
-dist
 dist-ssr
 *.local
 
