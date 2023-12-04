@@ -6,6 +6,7 @@ import whiteboardRouter from './routes/whiteboard.ts';
 import markdownRouter from './routes/markdown.ts';
 import agentRouter from './routes/agent.ts';
 import cors from 'cors';
+import path from 'path';
 
 const app = express();
 const port = 3000;
@@ -25,6 +26,10 @@ app.use(cardRouter);
 app.use(whiteboardRouter);
 app.use(markdownRouter);
 app.use(agentRouter);
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/dist', 'index.html'));
+});
 
 app.listen(port, () => {
   console.log(`STYLiSH listening on port ${port}`);
