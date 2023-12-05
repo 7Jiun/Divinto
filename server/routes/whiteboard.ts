@@ -8,6 +8,10 @@ router.route('/whiteboard/:whiteboardId').get(authenticate, whiteboardControl.ge
 
 router.route('/whiteboard/:whiteboardId/search').get(authenticate, whiteboardControl.getCardsByTag);
 
+router
+  .route('/whiteboard/:whiteboardId/fullTextSearch')
+  .get(authenticate, whiteboardControl.getCardsByTextSearch);
+
 router.route('/whiteboard').post(authenticate, whiteboardControl.createWhiteboard);
 
 router

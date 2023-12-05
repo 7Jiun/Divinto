@@ -18,6 +18,24 @@ const fetchSearchApi = async (whiteboardId, keyword) => {
       },
     });
     const cards = await search.json();
+    return cards.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const fetchFullTextSearchApi = async (whiteboardId, keyword) => {
+  try {
+    const search = await fetch(
+      `${URL}/whiteboard/${whiteboardId}/fullTextSearch?keyword=${keyword}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const cards = await search.json();
     console.log(cards.data);
     return cards.data;
   } catch (error) {
@@ -33,7 +51,7 @@ export function SearchRenderComponent() {
     async function fetchData() {
       try {
         setCards([]);
-        const searchCards = await fetchSearchApi(id, searchTerm);
+        const searchCards = await fetchFullTextSearchApi(id, searchTerm);
         setCards(searchCards);
       } catch (error) {
         console.error(error);
@@ -54,8 +72,8 @@ export function SearchRenderComponent() {
       <ul>
         {cards &&
           cards.map((card) => (
-            <li key={card.cards.id}>
-              <Markdown>{mergeCardContents(card.cards)}</Markdown>
+            <li key={card._id}>
+              <Markdown>{mergeCardContents(card)}</Markdown>
             </li>
           ))}
       </ul>
