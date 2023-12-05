@@ -81,3 +81,20 @@ export async function getCardsByTag(req: Request, res: Response) {
     }
   }
 }
+
+export async function getCardsByTextSearch(req: Request, res: Response) {
+  let keyword: string | null = null;
+  if (typeof req.query.keyword === 'string') {
+    keyword = req.query.keyword;
+  }
+  const { whiteboardId } = req.params;
+  try {
+    const matchedCard = await whiteboardModel.getCardsByTextSearch(keyword, whiteboardId);
+    res.status(200).json({ data: matchedCard });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`error: ${error.message}`);
+      res.status(500).json({ data: 'error' });
+    }
+  }
+}

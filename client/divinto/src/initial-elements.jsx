@@ -15,18 +15,18 @@ function getDate() {
 export function mergeCardContents(card) {
   const imageRegex = /!\[.*?\]\(.*?\)/;
   let fullContent = '';
-  card.content.main.forEach((blockContent) => {
-    try {
+  try {
+    card.content.main.forEach((blockContent) => {
       if (blockContent.content.match(imageRegex)) {
         const images = blockContent.content.split('(');
         fullContent += `${images[0]}(${images[1]}`;
       } else {
         fullContent += `${blockContent.content}\n`;
       }
-    } catch (error) {
-      return;
-    }
-  });
+    });
+  } catch (error) {
+    return;
+  }
   if (card.content.approvement) {
     fullContent += `# 對話記錄${card.title}-${getDate()}\n ## 認同的觀點\n ${
       card.content.approvement

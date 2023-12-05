@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Whiteboard } from './schema.ts';
+import { Card, Whiteboard } from './schema.ts';
 import { createId } from './cardModel.ts';
 import { GetCard } from '../routes/card.ts';
 import { JwtUserPayload } from '../utils/signJWT.ts';
@@ -121,7 +121,7 @@ export async function deleteWhiteboard(whiteboardId: string): Promise<Boolean> {
 }
 
 export async function getCardsByTag(tag: string | null, whiteboardId: string) {
-  const cardsWithTag = Whiteboard.aggregate([
+  const cardsWithTag = await Whiteboard.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(whiteboardId) } },
     {
       $addFields: {
@@ -157,6 +157,19 @@ export async function getCardsByTag(tag: string | null, whiteboardId: string) {
     { $match: { 'cards.tags': tag } },
   ]);
   return cardsWithTag;
+}
+
+export async function getCardsByTextSearch(keyword: string | null, whiteboardId: string) {
+  if (!keyword) return null;
+  const targetWhiteboard = await getWhiteboard(whiteboardId);
+  if (!targetWhiteboard) return null;
+  const cardIds = targetWhiteboard[0].cards.map((cards) => cards._id);
+  const cardsWithTextSearch = await Card.find({
+    $text: { $search: keyword },
+    _id: { $in: cardIds },
+  });
+
+  return cardsWithTextSearch;
 }
 
 export async function getCardsByWhiteboard(whiteboardId: string): Promise<Array<string> | null> {
