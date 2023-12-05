@@ -48,7 +48,7 @@ router
   .route('/upload/:whiteboardId/:cardId')
   .post(
     authenticate,
-    multer.uploadToBuffer.single('image'),
+    multer.uploadS3.single('image'),
     multer.uploadTypeCheck,
     multer.uploadToDisk,
     uploadImage,

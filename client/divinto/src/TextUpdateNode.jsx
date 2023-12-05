@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import Markdown from 'react-markdown';
+import Markdown from './CustomizedMarkdown';
 
 const handleStyle = { left: 10 };
 

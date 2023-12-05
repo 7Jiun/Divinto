@@ -151,7 +151,7 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
   const userPayload = res.locals.userPayload;
   const userId = userPayload.id.toString();
   const { cardId, whiteboardId } = req.params;
-
+  console.log(cardId, whiteboardId);
   // 其實要加個檢查比較合理：卡片有沒有真的在白板裡
   const cardMarkdown = await transferCardMarkdownById(cardId);
   const filePath = await markdownCardToFile(
@@ -160,9 +160,10 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
     cardMarkdown.card,
     cardMarkdown.markdown,
   );
-
+  console.log(filePath);
   if (filePath && fs.existsSync(filePath)) {
     const zipPath = await jsZipMarkdown(filePath);
+    console.log(zipPath);
     const zipDirArray = zipPath.split('/');
     const zipFilename = zipDirArray[5];
     res.download(zipPath, zipFilename, (err) => {

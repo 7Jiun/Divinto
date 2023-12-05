@@ -176,3 +176,6 @@ out
 # upload test folder
 uploads/
 dump/
+
+*.crt
+*.key
