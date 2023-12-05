@@ -1,9 +1,11 @@
-import multer from 'multer';
-import path from 'path';
+/* eslint-disable @typescript-eslint/no-shadow */
 import fs from 'fs';
+import path from 'path';
+import multer from 'multer';
+import multerS3 from 'multer-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 import { Request, Response, NextFunction } from 'express';
 import { JwtUserPayload } from '../utils/signJWT.ts';
-// import { fileTypeFromBuffer } from 'file-type';
 
 export const uploadToBuffer = multer({
   storage: multer.memoryStorage(),
@@ -12,16 +14,42 @@ export const uploadToBuffer = multer({
   },
 });
 
+const s3 = new S3Client({ region: process.env.AWS_S3_REGION });
+
+export const uploadS3 = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'divinto',
+    key: function (
+      req: {
+        user: JwtUserPayload;
+        params: { cardId: any; whiteboardId: any };
+      },
+      file: { originalname: any },
+      cb: (arg0: null, arg1: string) => void,
+    ) {
+      const user: JwtUserPayload = req.user;
+      const { cardId, whiteboardId } = req.params;
+      const key = `${user.id}/${whiteboardId}/${cardId}/${file.originalname}`;
+      cb(null, key);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  fileFilter: function (req, file, cb) {
+    if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
+      cb(new Error('Invalid image type'));
+    } else {
+      cb(null, true);
+    }
+  },
+});
+
 export async function uploadTypeCheck(req: Request, res: Response, next: NextFunction) {
   const file = req.file;
 
   if (file && (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png')) {
-    // const fileType = await fileTypeFromBuffer(file.buffer);
-    // if (fileType !== file.mimetype.split('/')[1]) {
-    //   res.status(400).json({ data: 'fake image type' });
-    // } else {
     next();
-    // }
   } else {
     res.status(400).json({ data: 'invalid file type' });
   }

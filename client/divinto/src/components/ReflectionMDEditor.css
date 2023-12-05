@@ -423,6 +423,7 @@ span.CodeMirror-selectedtext {
 }
 .EasyMDEContainer .CodeMirror {
   box-sizing: border-box;
+  text-align: start;
   height: 100vh;
   background-color: white;
   color: black;

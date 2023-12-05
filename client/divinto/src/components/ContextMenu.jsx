@@ -67,18 +67,30 @@ export default function ContextMenu({ id, top, left, right, bottom, ...props }) 
     }
   }, [setNodes]);
 
-  // const exportCardMarkdown = useCallback(() => {
-  //   const whiteboardId = location.pathname.split('/')[2];
-  //   const markdown = async () => {
-  //     await fetch(`${URL}/markdown/card/${whiteboardId}/${id}`);
-  //   };
-  // });
+  const exportCardMarkdown = useCallback(async () => {
+    const whiteboardId = location.pathname.split('/')[2];
+    const markdown = async () => {
+      const download = await fetch(`${URL}/markdown/card/${whiteboardId}/${id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(download);
+
+      const downloadJson = await markdown.json();
+
+      return downloadJson;
+    };
+    const markJson = await markdown();
+    console.log(markJson);
+  }, []);
 
   return (
     <div style={{ top, left, right, bottom }} className="context-menu" {...props}>
       <p style={{ margin: '0.5em' }}></p>
       <button onClick={addNodeTags}>add tags</button>
-      {/* <button onClick={exportCardMarkdown}> export card </button> */}
+      <button onClick={exportCardMarkdown}> export card </button>
     </div>
   );
 }
