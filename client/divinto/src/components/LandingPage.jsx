@@ -9,7 +9,7 @@ export const LandingPage = () => {
   };
   return (
     <div className="landing-page-container">
-      <img src="../../public/logo2.png" alt="Logo" className="landing-page-logo" />
+      <img src="logo2.png" alt="Logo" className="landing-page-logo" />
 
       <h1 className="landing-page-text">Divinto Yourself</h1>
       <p className="landing-page-text">透過日常卡片記錄、反思</p>
