@@ -46,12 +46,6 @@ router.route('/card/:cardId').delete(authenticate, cardControl.deleteCard);
 
 router
   .route('/upload/:whiteboardId/:cardId')
-  .post(
-    authenticate,
-    multer.uploadS3.single('image'),
-    multer.uploadTypeCheck,
-    multer.uploadToDisk,
-    uploadImage,
-  );
+  .post(authenticate, multer.uploadS3.single('image'), multer.uploadTypeCheck, uploadImage);
 
 export default router;
