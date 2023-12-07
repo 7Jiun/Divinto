@@ -47,6 +47,7 @@
   position: absolute;
   right: 5vw;
   bottom: 8vh;
+  min-width: 8vw;
   padding: 10px;
   border: none;
   background-color: #007bff87;
@@ -56,6 +57,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  letter-spacing: 0.2rem;
 }
 
 .add-whiteboard-button:hover {

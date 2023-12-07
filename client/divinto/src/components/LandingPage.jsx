@@ -14,7 +14,7 @@ export const LandingPage = () => {
       <h1 className="landing-page-text">Divinto Yourself</h1>
       <p className="landing-page-text">透過日常卡片記錄、反思</p>
       <button className="landing-page-button" onClick={onClick}>
-        Start Your First Card
+        點擊開始使用
       </button>
     </div>
   );

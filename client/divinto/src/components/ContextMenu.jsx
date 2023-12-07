@@ -70,21 +70,40 @@ export default function ContextMenu({ id, top, left, right, bottom, ...props }) 
   const exportCardMarkdown = useCallback(async () => {
     const whiteboardId = location.pathname.split('/')[2];
     const markdown = async () => {
-      const download = await fetch(`${URL}/markdown/card/${whiteboardId}/${id}`, {
+      const response = await fetch(`${URL}/api/markdown/card/${whiteboardId}/${id}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(download);
 
-      const downloadJson = await markdown.json();
+      // 检查响应是否成功
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
 
-      return downloadJson;
+      return response.blob(); // 返回 Blob 对象
     };
-    const markJson = await markdown();
-    console.log(markJson);
-  }, []);
+
+    const triggerDownload = (blob, filename) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    };
+
+    // 获取 Markdown 内容并触发下载
+    try {
+      const markdownBlob = await markdown();
+      triggerDownload(markdownBlob, 'download.zip');
+    } catch (error) {
+      console.error('下载失败:', error);
+    }
+  });
 
   return (
     <div style={{ top, left, right, bottom }} className="context-menu" {...props}>

@@ -9,7 +9,7 @@ export const Register = (props) => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      const response = await fetch(`${URL}/user/signup`, {
+      const response = await fetch(`${URL}/api/user/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,25 +33,25 @@ export const Register = (props) => {
   return (
     <div className="auth-form-container">
       <form>
-        <label htmlFor="name">name</label>
+        <label htmlFor="name">暱稱</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           type="name"
-          placeholder="Please enter your name..."
+          placeholder="請輸入暱稱"
           id="name"
           name="name"
         ></input>
-        <label htmlFor="email">email</label>
+        <label htmlFor="email">電子信箱</label>
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
-          placeholder="Please enter your email..."
+          placeholder="請輸入電子信箱"
           id="email"
           name="email"
         ></input>
-        <label htmlFor="password">password</label>
+        <label htmlFor="password">密碼</label>
         <input
           value={pass}
           onChange={(e) => setPass(e.target.value)}
@@ -60,11 +60,9 @@ export const Register = (props) => {
           id="password"
           name="password"
         ></input>
-        <button onClick={handleSubmit}>Register</button>
+        <button onClick={handleSubmit}>註冊</button>
       </form>
-      <button onClick={() => props.onFormSwitch('Login')}>
-        Already have an account? Login here
-      </button>
+      <button onClick={() => props.onFormSwitch('Login')}>已經有帳號了嗎？點擊此處直接登入</button>
     </div>
   );
 };

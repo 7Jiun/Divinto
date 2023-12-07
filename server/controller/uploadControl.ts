@@ -2,17 +2,16 @@ import { Request, Response } from 'express';
 import { BlockContent, BlockTypeEnum, addImageContent } from '../model/cardModel.ts';
 
 export async function uploadImage(req: Request, res: Response) {
-  const { cardId } = req.params;
+  const { whiteboardId, cardId } = req.params;
   try {
     if (req.file) {
-      const basePath = req.file.path.split('/')[0];
-      const filePath = req.file.path.replace(basePath, '');
+      const filePath = `${whiteboardId}/${cardId}/${req.file.originalname}`;
       const addUploadImageInfo: BlockContent = {
         type: BlockTypeEnum.Image,
-        content: `![${req.file.originalname}](${process.env.DOMAIN}${filePath})`,
+        content: `![${req.file.originalname}](${process.env.DOMAIN}/${filePath})`,
       };
       await addImageContent(cardId, addUploadImageInfo);
-      res.status(200).json({ data: 'upload successfully' });
+      res.status(200).json({ data: addUploadImageInfo.content });
     } else {
       res.status(500).json({ data: 'internal server error' });
     }

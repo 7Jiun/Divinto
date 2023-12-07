@@ -29,7 +29,7 @@ export const WhiteboardPage = () => {
   }, []);
 
   const handleAddPageClick = async () => {
-    const pageTitle = prompt('Enter the title for the new page:');
+    const pageTitle = prompt('請輸入白板主題');
     if (pageTitle) {
       try {
         const newWhiteboard = await createWhiteboardInDb(pageTitle);
@@ -64,7 +64,7 @@ export const WhiteboardPage = () => {
         </ul>
         <button className="add-whiteboard-button" onClick={handleAddPageClick}>
           <IoIcons.IoIosAddCircleOutline size="2rem" />
-          Add New Whiteboard
+          點擊新增白板
         </button>
       </div>
     </>

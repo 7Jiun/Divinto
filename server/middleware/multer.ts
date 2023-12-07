@@ -14,24 +14,34 @@ export const uploadToBuffer = multer({
   },
 });
 
-const s3 = new S3Client({ region: process.env.AWS_S3_REGION });
+const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_REGION, BUCKET_NAME } = process.env;
+if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !S3_BUCKET_REGION || !BUCKET_NAME) {
+  throw new Error('Missing required environment variables for S3 configuration');
+}
 
+const s3 = new S3Client({
+  region: S3_BUCKET_REGION,
+  credentials: {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  },
+});
 export const uploadS3 = multer({
   storage: multerS3({
     s3: s3,
-    bucket: 'divinto',
+    bucket: BUCKET_NAME,
     key: function (
-      req: {
-        user: JwtUserPayload;
-        params: { cardId: any; whiteboardId: any };
-      },
+      req: Request,
       file: { originalname: any },
       cb: (arg0: null, arg1: string) => void,
     ) {
-      const user: JwtUserPayload = req.user;
       const { cardId, whiteboardId } = req.params;
-      const key = `${user.id}/${whiteboardId}/${cardId}/${file.originalname}`;
+      const key = `${whiteboardId}/${cardId}/${file.originalname}`;
       cb(null, key);
+    },
+    contentType: function (req, file, cb) {
+      const mimetype = file.mimetype;
+      cb(null, mimetype);
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB

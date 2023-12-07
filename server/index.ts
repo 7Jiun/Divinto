@@ -1,6 +1,6 @@
 import express from 'express';
 import cardRouter from './routes/card.ts';
-import userRoute from './routes/user.ts';
+import userRouter from './routes/user.ts';
 import swaggerRouter from './utils/apiDocs.ts';
 import whiteboardRouter from './routes/whiteboard.ts';
 import markdownRouter from './routes/markdown.ts';
@@ -20,12 +20,14 @@ app.use(express.json());
 app.use(express.static('uploads'));
 app.use(express.static('public/dist'));
 
-app.use(swaggerRouter);
-app.use(userRoute);
-app.use(cardRouter);
-app.use(whiteboardRouter);
-app.use(markdownRouter);
-app.use(agentRouter);
+app.use('/api', [
+  swaggerRouter,
+  userRouter,
+  cardRouter,
+  whiteboardRouter,
+  markdownRouter,
+  agentRouter,
+]);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/dist', 'index.html'));

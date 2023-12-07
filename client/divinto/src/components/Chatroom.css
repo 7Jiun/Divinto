@@ -1,6 +1,11 @@
+html {
+  background-color: #060b26;
+}
+
 .chat-container {
   background-color: #060b26;
   display: flex;
+  max-height: 92vh;
 }
 .chat-room {
   display: flex;
@@ -159,7 +164,7 @@
   padding: 1rem 2rem;
   border: 1px solid #ccc;
   border-radius: 16px;
-  overflow-y: auto; /* 如果內容過多，添加滾動條 */
+  overflow-y: auto;
   /* background-color: #ff000077; */
   color: white;
   position: relative;
@@ -180,8 +185,6 @@
   padding: 1rem 2rem;
   border: 1px solid #ccc;
   border-radius: 16px;
-  /* overflow-y: auto; */
-  /* background-color: #ff000077; */
   color: white;
 }
 

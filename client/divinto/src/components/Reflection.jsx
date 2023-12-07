@@ -11,7 +11,7 @@ const token = localStorage.getItem('jwtToken');
 
 const fetchSearchApi = async (whiteboardId, keyword) => {
   try {
-    const search = await fetch(`${URL}/whiteboard/${whiteboardId}/search?tag=${keyword}`, {
+    const search = await fetch(`${URL}/api/whiteboard/${whiteboardId}/search?tag=${keyword}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -27,7 +27,7 @@ const fetchSearchApi = async (whiteboardId, keyword) => {
 const fetchFullTextSearchApi = async (whiteboardId, keyword) => {
   try {
     const search = await fetch(
-      `${URL}/whiteboard/${whiteboardId}/fullTextSearch?keyword=${keyword}`,
+      `${URL}/api/whiteboard/${whiteboardId}/fullTextSearch?keyword=${keyword}`,
       {
         method: 'GET',
         headers: {
@@ -66,7 +66,7 @@ export function SearchRenderComponent() {
     <div className="search-render">
       <input
         type="text"
-        placeholder="Search your cards..."
+        placeholder="搜尋你的卡片"
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <ul>
@@ -103,7 +103,7 @@ export function Reflection() {
       content: editorContent,
     };
     try {
-      const card = await fetch(`${URL}/card`, {
+      const card = await fetch(`${URL}/api/card`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export function Reflection() {
         <div className="MDeditor">
           <SimpleMDE onChange={handleEditorChange} value={editorContent} />
           <button className="reflection-card-button" onClick={handleSubmit}>
-            submit as a card
+            輸出內容到白板
           </button>
         </div>
       </div>
