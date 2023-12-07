@@ -26,7 +26,6 @@ const sendMessageToServer = async (message, agentId, threadId, setMessages) => {
     if (data && data[0].text.value) {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: message, speaker: 'user', timestamp: new Date() },
         { text: data[0].text.value, speaker: 'agent', timestamp: new Date() },
       ]);
     }
@@ -121,11 +120,30 @@ export const Chatroom = () => {
   const [newDisapprovementPoints, setNewDisapprovementPoints] = useState('');
   const navigate = useNavigate();
 
+  const defaultOptions = [
+    '請協助整理我對這個主題的觀點？',
+    '請協助釐清我對這個主題的感受？',
+    '請針對我的狀況給出具體行動建議？',
+    '請問我該如何持續地挖掘這個主題？',
+  ];
+
+  // 處理預設選項的點擊事件
+  const handleDefaultOptionClick = async (option) => {
+    setMessages([{ text: option, speaker: 'user', timestamp: new Date() }]);
+    setIsMessageSending(true);
+    await sendMessageToServer(option, agentId, threadId, setMessages);
+    setIsMessageSending(false);
+  };
+
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '' && !isMessageSending) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { text: newMessage, speaker: 'user', timestamp: new Date() },
+      ]);
       setIsMessageSending(true);
+      setNewMessage('');
       await sendMessageToServer(newMessage, agentId, threadId, setMessages);
-      setNewMessage(''); // 清空輸入框
       setIsMessageSending(false);
     }
   };
@@ -174,27 +192,58 @@ export const Chatroom = () => {
     <div className="chat-container">
       <div className="chat-room">
         <div className="messages-list">
-          {messages.map((message, index) => (
-            <div key={index} className={`message ${message.speaker}-message`}>
-              <div className="avatar">
-                {message.speaker === 'user' ? <IoIcons.IoMdPerson /> : <IoIcons.IoLogoIonitron />}
-              </div>
-              <div className="text-container">
-                <Markdown>{message.text}</Markdown>
-              </div>
+          {messages.length === 0 ? (
+            <div className="default-options">
+              {defaultOptions.map((option, index) => (
+                <div
+                  key={index}
+                  className="default-option"
+                  onClick={() => handleDefaultOptionClick(option)}
+                >
+                  {option}
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            messages.map((message, index) => (
+              <div key={index} className={`message ${message.speaker}-message`}>
+                <div className="avatar">
+                  {message.speaker === 'user' ? <IoIcons.IoMdPerson /> : <IoIcons.IoLogoIonitron />}
+                </div>
+                <div className="text-container">
+                  <Markdown>{message.text}</Markdown>
+                </div>
+              </div>
+            ))
+          )}
         </div>
+        {isMessageSending ? (
+          <div className="loading-container">
+            <div className="loading-indicator"></div>
+            <div className="loading-word">訊息全力加載中...</div>
+          </div>
+        ) : (
+          <div></div>
+        )}
         <div className="message-input">
           <textarea
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="輸入以開啟對話"
+            placeholder="輸入以開啟對話..."
             onInput={adjustTextareaHeight}
+            disabled={isMessageSending}
           />
           <button onClick={handleSendMessage} disabled={isMessageSending}>
-            {isMessageSending ? <IoIcons.IoMdSquare /> : <IoIcons.IoMdArrowRoundUp />}
+            {isMessageSending ? (
+              <div className="enable-message-button">
+                <IoIcons.IoMdSquare />
+              </div>
+            ) : (
+              <div className="unable-message-button">
+                <IoIcons.IoMdArrowRoundUp />
+              </div>
+            )}
           </button>
         </div>
       </div>
@@ -219,7 +268,7 @@ export const Chatroom = () => {
               type="text"
               value={newApprovementPoints}
               onChange={(e) => setNewApprovementPoints(e.target.value)}
-              placeholder="輸入任何你的想法"
+              placeholder="輸入任何你的想法..."
               onInput={adjustTextareaHeight}
             />
             <button onClick={HandleSendApprovementPoint}>
@@ -241,7 +290,7 @@ export const Chatroom = () => {
               type="text"
               value={newDisapprovementPoints}
               onChange={(e) => setNewDisapprovementPoints(e.target.value)}
-              placeholder="輸入任何你的想法"
+              placeholder="輸入任何你的想法..."
               onInput={adjustTextareaHeight}
             />
             <button onClick={HandleSendDisapprovementPoint}>

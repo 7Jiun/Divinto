@@ -8,12 +8,13 @@ import { Reflection } from './components/reflection';
 import { WhiteboardPage } from './components/WhiteboardPage';
 import { AgentPage } from './components/AgentPage';
 import { LandingPage } from './components/LandingPage';
+import { AgentThreadPage } from './components/AgentThreadPage';
+
 import 'reactflow/dist/style.css';
 import './overview.css';
 import './text-updater-note.css';
 import './updatenode.css';
 import './App.css';
-import { AgentThreadPage } from './components/AgentThreadPage';
 
 export const URL = '';
 
