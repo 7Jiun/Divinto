@@ -29,6 +29,8 @@ html {
 .messages-list {
   flex-grow: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .message {
@@ -117,6 +119,12 @@ html {
 
 .message-input textarea:focus {
   box-shadow: inset 0 0 3px #6db3ff; /* 內部陰影以強調焦點 */
+}
+
+.message-input textarea:disabled {
+  background-color: black; /* 比正常狀態更暗的背景色 */
+  color: #aaa; /* 文字顏色變淺，表示不可輸入 */
+  cursor: not-allowed; /* 禁止符號的鼠標指針 */
 }
 
 .message-input button {
@@ -218,6 +226,75 @@ html {
 
 .export-ai-card-button:hover {
   opacity: 0.5;
+}
+
+/* 預設選項的容器 */
+.default-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* 子元素靠左對齊 */
+  gap: 1rem; /* 選項之間的間距 */
+  margin-top: auto; /* 將容器推到底部 */
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 個別選項樣式 */
+.default-option {
+  flex: 0 1 calc(50% - 10px); /* 每個選項佔用行寬的一半，減去間距 */
+  padding: 0.6rem 0.9rem;
+  background-color: rgba(255, 255, 255, 0.4); /* 半透明背景 */
+  color: #fff; /* 白色字體 */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left; /* 文本靠左對齊 */
+  transition: all 0.1s ease;
+}
+
+.default-option:hover {
+  background-color: rgba(0, 0, 0, 0.138); /* 懸停時背景更暗 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.unable-message-button:hover {
+  opacity: 1;
+}
+
+.loading-container {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: -1rem;
+  margin-left: 0.5rem;
+}
+
+.loading-indicator {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  -webkit-animation: spin 2s ease-in-out infinite;
+}
+
+.loading-word {
+  color: white;
+  font-size: 14px;
+}
+
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {

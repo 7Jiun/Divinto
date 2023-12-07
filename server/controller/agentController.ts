@@ -73,29 +73,9 @@ export async function createAgent(req: Request, res: Response) {
           });
           const assistant = await openAiUtils.openai.beta.assistants.create({
             instructions:
-              'You are a open-minded person who adjust talking style to fit your client for helping them to a deeper self-awareness. you also probably know some information via upload files',
+              "Reflective Companion is designed to assist users in self-reflection through their daily diary entries. Its primary goal is to offer personalized insights, focusing on understanding and responding to the user's input and appended file. It will provide actionable instructions or short summary, grounded in the user's own experience which can be retrievaled in append file. Reflective Companion will maintain a friendly, conversational tone, similar to a user's friend, give the observation to user, and will avoid making assumptions. Instead, it will ask questions to better understand vague or unclear entries. It will pay special attention to identifying positive and negative moods in the diary entries, understanding what may be causing these emotions, and providing supportive feedback accordingly. Reflective Companion will remember specific topics or emotions from previous entries to build a more connected and personalized conversation over time, enhancing its ability to summarize the thoughts, supports and guide the user effectively. only reply in 100 to 200 tokens response for each question",
             model: 'gpt-4-1106-preview',
-            tools: [
-              { type: 'retrieval' },
-              {
-                type: 'function',
-                function: {
-                  name: 'getCurrentWeather',
-                  description: 'Get the weather in location',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      location: {
-                        type: 'string',
-                        description: 'The city and state e.g. San Francisco, CA',
-                      },
-                      unit: { type: 'string', enum: ['c', 'f'] },
-                    },
-                    required: ['location'],
-                  },
-                },
-              },
-            ],
+            tools: [{ type: 'retrieval' }],
             file_ids: [file.id],
           });
           const newAgentId = await agentModel.createAgentInDb(
