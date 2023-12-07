@@ -104,7 +104,6 @@ export const Sidebar = () => {
           alert('請輸入一些字喔！');
           return;
         }
-        console.log(agentName);
         const agentResponse = await fetch(`${URL}/api/agent/${whiteboardId}`, {
           method: 'POST',
           headers: {

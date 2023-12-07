@@ -127,10 +127,7 @@ export const UpdateNode = () => {
 
         try {
           const file = fileInput.files[0];
-          console.log(file);
           const uploadImage = await uploadToServer(file);
-          console.log(uploadImage);
-
           const cm = editor.codemirror;
           cm.replaceSelection(uploadImage);
         } catch (error) {
@@ -160,7 +157,6 @@ export const UpdateNode = () => {
 
     const responseJson = await response.json();
     const markdownExpression = responseJson.data;
-    console.log(markdownExpression);
     return markdownExpression;
   };
 
@@ -283,11 +279,8 @@ export const UpdateNode = () => {
         try {
           const updateContent = node.data.label.props.children[1].props.children;
           updateNodeOnServer(node, updateContent);
-          console.log(updateContent);
         } catch {
           const updateContentChange = node.data.label.props.children.props.children;
-          console.log(updateContentChange);
-
           updateNodeOnServer(node, updateContentChange);
         }
         return node;

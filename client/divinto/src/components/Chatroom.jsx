@@ -58,7 +58,6 @@ const fetchThreadMessages = async (
 
 const postApproveMessage = async (threadId, approvementPoint) => {
   try {
-    console.log(`thread id: ${threadId}, point: ${approvementPoint}`);
     const put = await fetch(`${URL}/api/agent/thread/${threadId}/approvement`, {
       method: 'PUT',
       headers: {
@@ -132,7 +131,6 @@ export const Chatroom = () => {
   };
 
   const HandleSendApprovementPoint = async () => {
-    console.log(threadId);
     if (newApprovementPoints.trim() !== '') {
       try {
         await postApproveMessage(threadId, newApprovementPoints);
