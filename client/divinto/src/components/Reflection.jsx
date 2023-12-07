@@ -36,7 +36,6 @@ const fetchFullTextSearchApi = async (whiteboardId, keyword) => {
       },
     );
     const cards = await search.json();
-    console.log(cards.data);
     return cards.data;
   } catch (error) {
     console.error(error);

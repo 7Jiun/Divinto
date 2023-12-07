@@ -16,7 +16,6 @@ export async function getThreadsByAgent(agentId) {
     },
   });
   const agent = await response.json();
-  console.log(agent);
   return agent.data[0].threads;
 }
 
@@ -28,7 +27,6 @@ export const AgentThreadPage = () => {
     const fetchThreads = async () => {
       try {
         const userThreads = await getThreadsByAgent(agentId);
-        console.log(userThreads);
         const modifiedAgentThreads = userThreads.map((userThread) => ({
           title: userThread.title,
           path: `/agent/${agentId}/thread/${userThread._id}`,
