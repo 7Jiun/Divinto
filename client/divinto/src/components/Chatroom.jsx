@@ -9,7 +9,7 @@ const token = localStorage.getItem('jwtToken');
 
 const sendMessageToServer = async (message, agentId, threadId, setMessages) => {
   try {
-    const response = await fetch(`${URL}/agent/${agentId}/thread/${threadId}/message`, {
+    const response = await fetch(`${URL}/api/agent/${agentId}/thread/${threadId}/message`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -23,13 +23,11 @@ const sendMessageToServer = async (message, agentId, threadId, setMessages) => {
       }),
     });
     const data = await response.json();
-    // 假設伺服器響應包含來自 OpenAI 的消息
-    console.log(data);
     if (data && data[0].text.value) {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: message, speaker: 'user', timestamp: new Date() }, // 用戶發送的消息
-        { text: data[0].text.value, speaker: 'agent', timestamp: new Date() }, // 伺服器響應的消息
+        { text: message, speaker: 'user', timestamp: new Date() },
+        { text: data[0].text.value, speaker: 'agent', timestamp: new Date() },
       ]);
     }
   } catch (error) {
@@ -44,7 +42,7 @@ const fetchThreadMessages = async (
   setDisapprovementPoints,
 ) => {
   try {
-    const response = await fetch(`${URL}/agent/thread/${threadId}`, {
+    const response = await fetch(`${URL}/api/agent/thread/${threadId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -61,7 +59,7 @@ const fetchThreadMessages = async (
 const postApproveMessage = async (threadId, approvementPoint) => {
   try {
     console.log(`thread id: ${threadId}, point: ${approvementPoint}`);
-    const put = await fetch(`${URL}/agent/thread/${threadId}/approvement`, {
+    const put = await fetch(`${URL}/api/agent/thread/${threadId}/approvement`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -72,7 +70,6 @@ const postApproveMessage = async (threadId, approvementPoint) => {
       }),
     });
     const data = await put.json();
-    console.log('fetch approvement success', data);
     return data;
   } catch (error) {
     console.error(error);
@@ -81,7 +78,7 @@ const postApproveMessage = async (threadId, approvementPoint) => {
 
 const postDisapproveMessage = async (threadId, disapprovementPoint) => {
   try {
-    const put = await fetch(`${URL}/agent/thread/${threadId}/disapprovement`, {
+    const put = await fetch(`${URL}/api/agent/thread/${threadId}/disapprovement`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -92,7 +89,6 @@ const postDisapproveMessage = async (threadId, disapprovementPoint) => {
       }),
     });
     const data = await put.json();
-    console.log('fetch disapprovemeny success', data);
     return data;
   } catch (error) {
     console.error(error);
@@ -101,7 +97,7 @@ const postDisapproveMessage = async (threadId, disapprovementPoint) => {
 
 const fetchExportCardApi = async (threadId) => {
   try {
-    const aiCard = await fetch(`${URL}/agent/thread/${threadId}/export`, {
+    const aiCard = await fetch(`${URL}/api/agent/thread/${threadId}/export`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -166,7 +162,6 @@ export const Chatroom = () => {
   const exportThreadAsCard = async () => {
     const result = await fetchExportCardApi(threadId);
     if (result) {
-      console.log('result', result);
       const whiteboardId = result.whiteboardId;
       navigate(`../../../../whiteboard/${whiteboardId}`);
     }
@@ -197,7 +192,7 @@ export const Chatroom = () => {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
+            placeholder="輸入以開啟對話"
             onInput={adjustTextareaHeight}
           />
           <button onClick={handleSendMessage} disabled={isMessageSending}>
@@ -208,7 +203,7 @@ export const Chatroom = () => {
       <div className="sidebar-container">
         <button className="export-ai-card-button" onClick={exportThreadAsCard}>
           <IoIcons.IoMdSync />
-          <p>export as a card</p>
+          <p>匯出對話紀錄到白板</p>
         </button>
         <div className="approvement-points">
           <h3>認同的觀點</h3>
@@ -226,7 +221,7 @@ export const Chatroom = () => {
               type="text"
               value={newApprovementPoints}
               onChange={(e) => setNewApprovementPoints(e.target.value)}
-              placeholder="Type points you AGREE..."
+              placeholder="輸入任何你的想法"
               onInput={adjustTextareaHeight}
             />
             <button onClick={HandleSendApprovementPoint}>
@@ -248,7 +243,7 @@ export const Chatroom = () => {
               type="text"
               value={newDisapprovementPoints}
               onChange={(e) => setNewDisapprovementPoints(e.target.value)}
-              placeholder="Type points you DISAGREE..."
+              placeholder="輸入任何你的想法"
               onInput={adjustTextareaHeight}
             />
             <button onClick={HandleSendDisapprovementPoint}>

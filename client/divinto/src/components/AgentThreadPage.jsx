@@ -8,7 +8,7 @@ const token = localStorage.getItem('jwtToken');
 
 export async function getThreadsByAgent(agentId) {
   const token = localStorage.getItem('jwtToken');
-  const response = await fetch(`${URL}/agent/${agentId}/thread`, {
+  const response = await fetch(`${URL}/api/agent/${agentId}/thread`, {
     method: 'GET',
     headers: {
       'Content-type': 'application/json',

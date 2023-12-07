@@ -14,7 +14,7 @@ const token = localStorage.getItem('jwtToken');
 
 export async function getWhiteboardsByUser() {
   const token = localStorage.getItem('jwtToken');
-  const response = await fetch(`${URL}/user/whiteboards`, {
+  const response = await fetch(`${URL}/api/user/whiteboards`, {
     method: 'GET',
     headers: {
       'Content-type': 'application/json',
@@ -26,7 +26,7 @@ export async function getWhiteboardsByUser() {
 }
 
 export async function createWhiteboardInDb(title) {
-  const result = await fetch(`${URL}/whiteboard`, {
+  const result = await fetch(`${URL}/api/whiteboard`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const Sidebar = () => {
   const [sidebarData, setSidebarData] = useState(
     SidebarData.map((item) => ({
       ...item,
-      show: true, // 假设初始时所有项都显示
+      show: true,
     })),
   );
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ export const Sidebar = () => {
   const isWhiteboardPage = location.pathname.match(/\/whiteboard\/\w+/);
 
   const handleAddPageClick = async () => {
-    const pageTitle = prompt('Enter the title for the new page:');
+    const pageTitle = prompt('請輸入白板主題');
     if (pageTitle) {
       try {
         const newWhiteboard = await createWhiteboardInDb(pageTitle);
@@ -97,15 +97,15 @@ export const Sidebar = () => {
       if (isWhiteboardPage) {
         const whiteboardId = location.pathname.split('/')[2];
 
-        const agentName = prompt('請幫 Agent 取名 :');
+        const agentName = prompt('請幫夥伴取個名字吧 :');
         const threadTitle = prompt('你這次談話的主題 :');
 
         if (!agentName || !threadTitle) {
-          alert('請隨意輸入即可');
+          alert('請輸入一些字喔！');
           return;
         }
         console.log(agentName);
-        const agentResponse = await fetch(`${URL}/agent/${whiteboardId}`, {
+        const agentResponse = await fetch(`${URL}/api/agent/${whiteboardId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export const Sidebar = () => {
         const agentData = await agentResponse.json();
         const agentId = agentData.data;
 
-        const threadResponse = await fetch(`${URL}/agent/thread/${agentId}`, {
+        const threadResponse = await fetch(`${URL}/api/agent/thread/${agentId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ export const Sidebar = () => {
             })}
             <li>
               <button onClick={handleAddPageClick}>
-                <IoIcons.IoIosAddCircle /> Add New Whiteboard
+                <IoIcons.IoIosAddCircle /> 新增白板
               </button>
             </li>
             {isWhiteboardPage && (
@@ -183,13 +183,13 @@ export const Sidebar = () => {
                 <li>
                   <button onClick={handleAgentClick}>
                     <IoIcons.IoLogoIonitron />
-                    Create Agent
+                    和小夥伴聊聊
                   </button>
                 </li>
                 <li>
                   <button onClick={handleReflectionClick}>
                     <IoIcons.IoIosSwitch />
-                    Reflections
+                    反思、整理卡片
                   </button>
                 </li>
               </>
@@ -197,7 +197,7 @@ export const Sidebar = () => {
             <li>
               <button onClick={handleLogoutClick}>
                 <IoIcons.IoIosLogOut />
-                Log out
+                登出
               </button>
             </li>
           </ul>

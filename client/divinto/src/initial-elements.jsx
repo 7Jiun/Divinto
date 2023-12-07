@@ -56,6 +56,7 @@ export function convertCardsToNodes(cards) {
 }
 
 export function getFirstLineAsTitle(cardContent) {
+  if (!cardContent) return;
   const lines = cardContent.split('\n');
   const title = lines[0];
   return title;

@@ -8,11 +8,6 @@
         提供下載
 */
 
-interface CardMarkdown {
-  card: GetCard;
-  markdown: string;
-}
-
 import fs from 'fs';
 import JSZip from 'jszip';
 import path from 'path';
@@ -21,8 +16,7 @@ import { Request, Response } from 'express';
 import { GetCard } from '../routes/card.ts';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 
-export async function transferCardMarkdownById(cardId: string): Promise<CardMarkdown> {
-  const card = await getCardById(cardId);
+export async function transferCardMarkdown(card: GetCard): Promise<string> {
   const mainContent = card.content.main;
   let markdown = '';
   mainContent.forEach((block) => {
@@ -35,7 +29,7 @@ export async function transferCardMarkdownById(cardId: string): Promise<CardMark
       const username = folderDirs[1];
       const whiteboardId = folderDirs[2];
       const updatedImageContent = imageContent.replace(
-        `/${username}/${whiteboardId}/${cardId}/assets/`,
+        `/${username}/${whiteboardId}/${card._id}/assets/`,
         '/assets/',
       );
       markdown += updatedImageContent;
@@ -43,10 +37,7 @@ export async function transferCardMarkdownById(cardId: string): Promise<CardMark
     }
   });
 
-  return {
-    card: card,
-    markdown: markdown,
-  };
+  return markdown;
 }
 
 async function markdownCardToFile(
@@ -56,7 +47,8 @@ async function markdownCardToFile(
   markdown: string,
 ): Promise<string | undefined> {
   const cardId = card._id;
-  const writeUrl = `${process.env.URL}/${userId}/${whiteboardId}/${cardId}/${cardId}.md`;
+  const cardTitle = card.title;
+  const writeUrl = `${process.env.URL}/${userId}/${whiteboardId}/${cardId}/${cardTitle}.md`;
   const dir = path.dirname(writeUrl);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -151,19 +143,20 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
   const userPayload = res.locals.userPayload;
   const userId = userPayload.id.toString();
   const { cardId, whiteboardId } = req.params;
-  console.log(cardId, whiteboardId);
-  // 其實要加個檢查比較合理：卡片有沒有真的在白板裡
-  const cardMarkdown = await transferCardMarkdownById(cardId);
-  const filePath = await markdownCardToFile(
-    userId,
-    whiteboardId,
-    cardMarkdown.card,
-    cardMarkdown.markdown,
+  const whiteboard = await getWhiteboard(whiteboardId);
+  const card = await getCardById(cardId);
+  if (whiteboard.length === 0) return res.status(400).json({ data: 'wrong whiteboard id' });
+  const whiteboardCardIds = whiteboard[0].cards.map((whiteboardCard) =>
+    whiteboardCard._id.toString(),
   );
-  console.log(filePath);
+  console.log(whiteboardCardIds);
+  if (!whiteboardCardIds.includes(cardId))
+    return res.status(400).json({ data: 'wrong whiteboard/card id pair' });
+
+  const cardMarkdown = await transferCardMarkdown(card);
+  const filePath = await markdownCardToFile(userId, whiteboard[0]._id, card, cardMarkdown);
   if (filePath && fs.existsSync(filePath)) {
     const zipPath = await jsZipMarkdown(filePath);
-    console.log(zipPath);
     const zipDirArray = zipPath.split('/');
     const zipFilename = zipDirArray[5];
     res.download(zipPath, zipFilename, (err) => {
@@ -185,8 +178,8 @@ export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
   const whiteboardUrl = `${process.env.URL}/${userId}/${whiteboardId}`;
   if (whiteboard[0] && whiteboard[0].cards) {
     const promises = whiteboard[0].cards.map(async (card) => {
-      const cardMarkdown = await transferCardMarkdownById(card._id);
-      return markdownCardToFile(userId, whiteboardId, cardMarkdown.card, cardMarkdown.markdown);
+      const cardMarkdown = await transferCardMarkdown(card);
+      return markdownCardToFile(userId, whiteboardId, card, cardMarkdown);
     });
     try {
       await Promise.all(promises)
@@ -221,15 +214,4 @@ export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
         用 archive package 壓縮檔案,
         輸出到 S3
         res.download 下載
-*/
-
-/*
-    exportWhiteboardToGPT
-        get cards,
-        get Card>content>main,
-        用 fs 寫成 md 的檔案,
-        get images by fetch or what,
-        用 archive package 壓縮檔案,
-        輸出到 S3,
-        輸入成為知識庫
 */

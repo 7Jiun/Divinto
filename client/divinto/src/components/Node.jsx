@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import ReactFlow, { MiniMap, Controls, Background, useNodesState, useEdgesState } from 'reactflow';
 import { convertCardsToNodes, getFirstLineAsTitle } from '../initial-elements';
 import { URL } from '../App';
@@ -18,7 +18,7 @@ const token = localStorage.getItem('jwtToken');
 
 function updateNodeOnServer(node, updateContent) {
   const title = getFirstLineAsTitle(updateContent);
-  fetch(`${URL}/card`, {
+  fetch(`${URL}/api/card`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ function updateNodeOnServer(node, updateContent) {
 }
 
 function deleteNodeOnServer(nodeId) {
-  fetch(`/card/${nodeId}`, {
+  fetch(`/api/card/${nodeId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -85,6 +85,84 @@ export const UpdateNode = () => {
   const menuRef = useRef();
   const reactFlowWrapper = useRef(null);
   const controlsRef = useRef(null);
+
+  const Options = useMemo(() => {
+    return {
+      autofocus: true,
+      spellChecker: false,
+      lineWrapping: true,
+      toolbar: [
+        'bold',
+        'italic',
+        'heading',
+        'unordered-list',
+        'ordered-list',
+        'link',
+        '|',
+        {
+          name: 'upload-image',
+          action: (editor) => uploadImage(editor),
+          className: 'fa fa-upload',
+          title: '上傳圖片',
+        },
+        '|',
+        'image',
+        'preview',
+        'side-by-side',
+        'fullscreen',
+        'guide',
+      ],
+    };
+  }, [selectNodeId]);
+
+  const uploadImage = async (editor) => {
+    const fileInput = document.createElement('input');
+    fileInput.setAttribute('type', 'file');
+    fileInput.setAttribute('accept', 'image/png, image/jpeg');
+    fileInput.click();
+
+    fileInput.onchange = async function () {
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+
+        try {
+          const file = fileInput.files[0];
+          console.log(file);
+          const uploadImage = await uploadToServer(file);
+          console.log(uploadImage);
+
+          const cm = editor.codemirror;
+          cm.replaceSelection(uploadImage);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+  };
+
+  const uploadToServer = async (file) => {
+    const whiteboardId = id;
+    const cardId = selectNodeId;
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${URL}/api/upload/${whiteboardId}/${cardId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('圖片上傳失敗');
+    }
+
+    const responseJson = await response.json();
+    const markdownExpression = responseJson.data;
+    console.log(markdownExpression);
+    return markdownExpression;
+  };
 
   const onNodeDragStart = (event, node) => {};
   const onNodeDragStop = (event, node) => {
@@ -132,7 +210,7 @@ export const UpdateNode = () => {
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       };
-      fetch(`${URL}/card`, {
+      fetch(`${URL}/api/card`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,8 +220,8 @@ export const UpdateNode = () => {
           title: '',
           whiteboardId: id,
           position: position,
-          content: '# a wonderful new card',
-          tags: ['excited'],
+          content: '# 點擊開始編輯卡片',
+          tags: [],
         }),
       })
         .then((response) => response.json())
@@ -173,7 +251,7 @@ export const UpdateNode = () => {
   };
 
   useEffect(() => {
-    fetch(`${URL}/whiteboard/${id}`, {
+    fetch(`${URL}/api/whiteboard/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -205,8 +283,11 @@ export const UpdateNode = () => {
         try {
           const updateContent = node.data.label.props.children[1].props.children;
           updateNodeOnServer(node, updateContent);
+          console.log(updateContent);
         } catch {
           const updateContentChange = node.data.label.props.children.props.children;
+          console.log(updateContentChange);
+
           updateNodeOnServer(node, updateContentChange);
         }
         return node;
@@ -218,34 +299,12 @@ export const UpdateNode = () => {
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === selectNodeId) {
-          // it's important that you create a new object here
-          // in order to notify react flow about the change
           node.style = { ...node.style, backgroundColor: nodeBg };
         }
         return node;
       }),
     );
   }, [nodeBg, setNodes]);
-
-  useEffect(() => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === selectNodeId) {
-          // when you update a simple type you can just update the value
-          node.hidden = nodeHidden;
-        }
-        return node;
-      }),
-    );
-    setEdges((eds) =>
-      eds.map((edge) => {
-        if (edge.id === 'e1-2') {
-          edge.hidden = nodeHidden;
-        }
-        return edge;
-      }),
-    );
-  }, [nodeHidden, setNodes, setEdges]);
 
   return (
     <>
@@ -270,7 +329,12 @@ export const UpdateNode = () => {
         >
           {showControls && (
             <div ref={controlsRef} className="updatenode__controls">
-              <SimpleMDE className="myCustomMDE" value={nodeContent} onChange={setNodeContent} />
+              <SimpleMDE
+                className="myCustomMDE"
+                options={Options}
+                value={nodeContent}
+                onChange={setNodeContent}
+              />
             </div>
           )}
           <Background color="#000" />

@@ -81,7 +81,7 @@ export function EditableNode({ data, id }) {
     // 當 label 變化時，發送更新到服務器
     const updateNode = async () => {
       try {
-        await fetch(`/card`, {
+        await fetch(`/api/card`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

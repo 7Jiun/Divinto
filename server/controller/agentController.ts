@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Request, Response } from 'express';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
-import { transferCardMarkdownById } from './exportMd.ts';
+import { transferCardMarkdown } from './exportMd.ts';
 import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
 import * as cardModel from '../model/cardModel.ts';
@@ -50,8 +50,8 @@ export async function createAgent(req: Request, res: Response) {
   if (whiteboard[0] && whiteboard[0].cards) {
     let whiteboardCardsWithTags = '';
     const promises = whiteboard[0].cards.map(async (card) => {
-      const cardMarkdown = await transferCardMarkdownById(card._id);
-      const tagsMarkdownPair = `${card.tags}: ${cardMarkdown.markdown}`;
+      const cardMarkdown = await transferCardMarkdown(card);
+      const tagsMarkdownPair = `${card.tags}: ${cardMarkdown}`;
       whiteboardCardsWithTags = whiteboardCardsWithTags + tagsMarkdownPair + '/n/n';
     });
     try {

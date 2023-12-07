@@ -10,7 +10,7 @@ export const Login = (props) => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      const response = await fetch(`${URL}/user/signin`, {
+      const response = await fetch(`${URL}/api/user/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,17 +33,17 @@ export const Login = (props) => {
   return (
     <div className="auth-form-container">
       <form>
-        <label htmlFor="email">email</label>
+        <label htmlFor="email">電子信箱</label>
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
-          placeholder="Please enter your email"
+          placeholder="請輸入電子信箱"
           id="email"
           name="email"
           required
         ></input>
-        <label htmlFor="password">password</label>
+        <label htmlFor="password">密碼</label>
         <input
           value={pass}
           onChange={(e) => setPass(e.target.value)}
@@ -53,10 +53,10 @@ export const Login = (props) => {
           name="password"
           required
         ></input>
-        <button onClick={handleSubmit}>Log In</button>
+        <button onClick={handleSubmit}>登入</button>
       </form>
       <button className="secondary-button" onClick={() => props.onFormSwitch('Register')}>
-        Don't have an account? Register here
+        還沒有註冊過帳號？點選此處註冊
       </button>
     </div>
   );

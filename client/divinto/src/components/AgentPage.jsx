@@ -8,7 +8,7 @@ const token = localStorage.getItem('jwtToken');
 
 export async function getAgentsByUser() {
   const token = localStorage.getItem('jwtToken');
-  const response = await fetch(`${URL}/user/agents`, {
+  const response = await fetch(`${URL}/api/user/agents`, {
     method: 'GET',
     headers: {
       'Content-type': 'application/json',
@@ -16,7 +16,6 @@ export async function getAgentsByUser() {
     },
   });
   const user = await response.json();
-  console.log(user);
   return user.data[0].agents;
 }
 
@@ -27,7 +26,6 @@ export const AgentPage = () => {
     const fetchAgents = async () => {
       try {
         const userAgents = await getAgentsByUser();
-        console.log(userAgents);
         const modifiedUserAgents = userAgents.map((userAgent) => ({
           title: userAgent.name,
           path: `/agent/${userAgent._id}`,

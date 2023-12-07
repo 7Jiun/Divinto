@@ -33,7 +33,6 @@ export async function createAgentInDb(
     whiteboardResource: whiteboardResourceUrl,
     openAifileId: openAiFileId,
   });
-  console.log(insertId);
   await User.findByIdAndUpdate(
     user.id.toString(),
     {
