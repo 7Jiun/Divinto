@@ -164,11 +164,21 @@ export async function getCardsByTextSearch(keyword: string | null, whiteboardId:
   const targetWhiteboard = await getWhiteboard(whiteboardId);
   if (!targetWhiteboard) return null;
   const cardIds = targetWhiteboard[0].cards.map((cards) => cards._id);
-  const cardsWithTextSearch = await Card.find({
-    $text: { $search: keyword },
-    _id: { $in: cardIds },
-  });
-
+  const cardsWithTextSearch = await Card.aggregate([
+    {
+      $search: {
+        text: {
+          query: keyword,
+          path: 'content.main.content',
+        },
+      },
+    },
+    {
+      $match: {
+        _id: { $in: cardIds },
+      },
+    },
+  ]);
   return cardsWithTextSearch;
 }
 

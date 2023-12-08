@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import ReactFlow, { MiniMap, Controls, Background, useNodesState, useEdgesState } from 'reactflow';
+import { useParams } from 'react-router-dom';
+import ReactFlow, { MiniMap, Background, useNodesState, useEdgesState } from 'reactflow';
 import { convertCardsToNodes, getFirstLineAsTitle } from '../initial-elements';
 import { URL } from '../App';
 import 'reactflow/dist/style.css';
@@ -45,7 +45,7 @@ function updateNodeOnServer(node, updateContent) {
 }
 
 function deleteNodeOnServer(nodeId) {
-  fetch(`/api/card/${nodeId}`, {
+  fetch(`${URL}/api/card/${nodeId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -68,7 +68,16 @@ const NodeType = { CustomNode: CustomNode };
 
 const initialNodes = [];
 const initialEdges = [];
-const defaultViewport = { x: 80, y: 40, zoom: 0.5 };
+
+// const params = new URLSearchParams(window.location.search);
+// const x = params.get('x');
+// const y = params.get('y');
+let defaultViewport = { x: 80, y: 40, zoom: 0.5 };
+// if (x && y) {
+//   defaultViewport = { x: parseInt(x), y: parseInt(y), zoom: 0.5 };
+//   console.log(x, y, defaultViewport);
+// }
+// console.log(x, y, defaultViewport);
 
 export const UpdateNode = () => {
   const { id } = useParams();
@@ -314,9 +323,9 @@ export const UpdateNode = () => {
           onNodeDragStart={onNodeDragStart}
           onNodeDragStop={onNodeDragStop}
           style={{ backgroundColor: '	#ADADAD	', height: '100vh' }}
+          defaultViewport={defaultViewport}
           onPaneClick={onPaneClick}
           onNodeContextMenu={onNodeContextMenu}
-          defaultViewport={defaultViewport}
           minZoom={0.2}
           maxZoom={4}
         >
