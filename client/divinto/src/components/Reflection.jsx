@@ -46,6 +46,7 @@ export function SearchRenderComponent() {
   const { id } = useParams();
   const [cards, setCards] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   useEffect(() => {
     async function fetchData() {
       try {
@@ -71,7 +72,12 @@ export function SearchRenderComponent() {
       <ul>
         {cards &&
           cards.map((card) => (
-            <li key={card._id}>
+            <li
+              key={card._id}
+              onDoubleClick={() =>
+                navigate(`/whiteboard/${id}?x=${card.position.x}&y=${card.position.y}`)
+              }
+            >
               <Markdown>{mergeCardContents(card)}</Markdown>
             </li>
           ))}

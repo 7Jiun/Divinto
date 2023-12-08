@@ -69,6 +69,7 @@
   overflow: auto; /* 防止內容溢出 */
   word-wrap: break-word; /* 在长单词或URL不会溢出容器 */
   word-break: break-word; /* 在适当的地方断开 */
+  cursor: pointer;
 }
 
 .search-render img {

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 mongoose.connect(
-  `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@divinto-cluster.q51ep5x.mongodb.net/?retryWrites=true&w=majority`,
+  `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@divinto-cluster.q51ep5x.mongodb.net/divinto?retryWrites=true&w=majority`,
 );
 
 mongoose.connection.on('error', (err) => {
@@ -40,6 +40,7 @@ const cardSchema = new mongoose.Schema({
   },
 });
 cardSchema.index({ tags: 1 });
+cardSchema.index({ 'content.main.content': 'text' }, { default_language: 'chinese' });
 
 const whiteboardSchema = new mongoose.Schema({
   id: String,

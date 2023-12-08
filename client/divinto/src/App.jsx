@@ -16,7 +16,7 @@ import './text-updater-note.css';
 import './updatenode.css';
 import './App.css';
 
-export const URL = '';
+export const URL = 'http://localhost:3000';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -44,6 +44,7 @@ const App = () => {
             isLoggedIn ? (
               <MainLayout>
                 <WhiteboardPage />
+                <AgentPage />
               </MainLayout>
             ) : (
               <LandingPage />

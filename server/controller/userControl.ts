@@ -89,7 +89,7 @@ export async function getUserProfile(req: Request, res: Response) {
   const userPayload = res.locals.userPayload;
   const userId = userPayload.id.toString();
   const profile = await userModel.getUserProfile(userId);
-  if (!profile) return res.status(400).json({ data: 'get users whiteboard wrong' });
+  if (!profile) return res.status(400).json({ data: 'get user profile wrong' });
   res.status(200).json({ data: profile });
 }
 
