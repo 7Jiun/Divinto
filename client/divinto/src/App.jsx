@@ -16,7 +16,7 @@ import './text-updater-note.css';
 import './updatenode.css';
 import './App.css';
 
-export const URL = '';
+export const URL = 'http://18.177.185.171';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
