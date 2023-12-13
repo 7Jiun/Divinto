@@ -6,7 +6,7 @@ on:
       - main
       - develop
     paths:
-      - 'client/divinto/src/*'
+      - 'Divinto/client/divinto/src/*'
 
 jobs:
   build:
@@ -14,8 +14,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: npm install
-      - run: npm run build
+      - run: |
+          cd Divinto/client/divinto
+          npm install
+          npm run build
 
       - uses: shinyinc/action-aws-cli@v1.2
       - run: aws s3 sync build s3://${{ secrets.AWS_S3_BUCKET_NAME }}/
