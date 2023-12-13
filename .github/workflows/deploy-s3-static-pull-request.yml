@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          cd Divinto/client/divinto
+          cd client/divinto
           npm install
           npm run build
 
