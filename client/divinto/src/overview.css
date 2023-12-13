@@ -90,3 +90,7 @@
   width: 50vw; /* 根据需要设置宽度 */
   height: auto; /* 高度自动，根据内容调整 */
 }
+
+.test {
+  /*for test cicd*/
+}
