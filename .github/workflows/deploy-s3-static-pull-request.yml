@@ -6,7 +6,7 @@ on:
       - main
       - develop
     paths:
-      - 'Divinto/client/divinto/src/**/*'
+      - 'client/divinto/src/**/*'
 
 jobs:
   build:

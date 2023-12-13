@@ -2,7 +2,7 @@ name: Deploy to EC2 on PR
 on:
   pull_request:
     paths:
-      - 'Divinto/server/**/*'
+      - 'server/**/*'
 jobs:
   build_and_preview:
     runs-on: ubuntu-latest
