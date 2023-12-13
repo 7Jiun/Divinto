@@ -4,7 +4,7 @@ import { LoginPage } from './components/LoginPage';
 import { UpdateNode } from './components/Node';
 import { Sidebar } from './components/Sidebar';
 import { Chatroom } from './components/Chatroom';
-import { Reflection } from './components/reflection';
+import { Reflection } from './components/Reflection';
 import { WhiteboardPage } from './components/WhiteboardPage';
 import { AgentPage } from './components/AgentPage';
 import { LandingPage } from './components/LandingPage';
