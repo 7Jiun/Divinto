@@ -21,4 +21,4 @@ jobs:
             git pull
             git switch $BRANCH
             bun install
-            bun run index.ts
+            pm2 restart "bun index"
