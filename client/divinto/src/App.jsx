@@ -16,7 +16,7 @@ import './text-updater-note.css';
 import './updatenode.css';
 import './App.css';
 
-export const URL = '';
+export const URL = 'https://api.divinto.me';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
