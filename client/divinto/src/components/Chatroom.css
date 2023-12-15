@@ -258,8 +258,8 @@ html {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.unable-message-button:hover {
-  opacity: 1;
+.no-hover {
+  pointer-events: none; /* 這將取消所有的滑鼠事件，包括 hover */
 }
 
 .loading-container {

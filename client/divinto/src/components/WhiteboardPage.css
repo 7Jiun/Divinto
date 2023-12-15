@@ -72,3 +72,16 @@
   background-color: #f0f0f0; /* 背景顏色，可根據需要調整 */
   height: 92vh;
 }
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 確保覆蓋在其他內容之上 */
+}

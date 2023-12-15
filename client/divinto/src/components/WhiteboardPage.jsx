@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { getWhiteboardsByUser, createWhiteboardInDb } from './Sidebar';
-import * as IoIcons from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import * as IoIcons from 'react-icons/io';
+import LoadingAnimation from './LoadingAnimation';
 import './WhiteboardPage.css';
 
 export const WhiteboardPage = () => {
+  const [isWhiteboardCreating, setIsWhiteboardCreating] = useState(false);
   const [whiteboardItems, setWhiteboardItems] = useState([]);
   const navigate = useNavigate();
 
@@ -30,7 +32,16 @@ export const WhiteboardPage = () => {
 
   const handleAddPageClick = async () => {
     const pageTitle = prompt('請輸入白板主題');
+
+    const maxInputLength = 20;
+
+    if (pageTitle.length > maxInputLength) {
+      alert('請輸入 20 個字元以內');
+      return;
+    }
+
     if (pageTitle) {
+      setIsWhiteboardCreating(true);
       try {
         const newWhiteboard = await createWhiteboardInDb(pageTitle);
         const newAddedWhiteboard = {
@@ -44,11 +55,18 @@ export const WhiteboardPage = () => {
       } catch (error) {
         console.error(error);
       }
+      setIsWhiteboardCreating(false);
     }
   };
 
   return (
     <>
+      {isWhiteboardCreating && (
+        <div className="overlay">
+          <LoadingAnimation />
+        </div>
+      )}
+
       <div className="whiteboard-page-container">
         <ul className="whiteboard-ul">
           {whiteboardItems.map((item, index) => {

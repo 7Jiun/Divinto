@@ -234,13 +234,17 @@ export const Chatroom = () => {
             onInput={adjustTextareaHeight}
             disabled={isMessageSending}
           />
-          <button onClick={handleSendMessage} disabled={isMessageSending}>
+          <button
+            onClick={handleSendMessage}
+            disabled={isMessageSending}
+            className={isMessageSending ? 'no-hover' : ''}
+          >
             {isMessageSending ? (
-              <div className="enable-message-button">
+              <div className="unable-message-button">
                 <IoIcons.IoMdSquare />
               </div>
             ) : (
-              <div className="unable-message-button">
+              <div className="enable-message-button">
                 <IoIcons.IoMdArrowRoundUp />
               </div>
             )}

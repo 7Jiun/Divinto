@@ -49,13 +49,23 @@ export const Sidebar = () => {
     })),
   );
   const [isAgentLoading, setIsAgentLoading] = useState(false);
+  const [isWhiteboardCreating, setIsWhiteboardCreating] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const isWhiteboardPage = location.pathname.match(/\/whiteboard\/\w+/);
 
   const handleAddPageClick = async () => {
     const pageTitle = prompt('請輸入白板主題');
+    const maxInputLength = 20;
+
+    if (pageTitle.length > maxInputLength) {
+      alert('請輸入 20 個字元以內');
+      return;
+    }
+
     if (pageTitle) {
+      setIsWhiteboardCreating(true);
       try {
         const newWhiteboard = await createWhiteboardInDb(pageTitle);
         const newPage = {
@@ -69,6 +79,7 @@ export const Sidebar = () => {
       } catch (error) {
         console.error(error);
       }
+      setIsWhiteboardCreating(false);
     }
   };
 
@@ -94,10 +105,10 @@ export const Sidebar = () => {
   }, []);
 
   const handleAgentClick = async () => {
-    setIsAgentLoading(true);
     try {
       if (isWhiteboardPage) {
         const whiteboardId = location.pathname.split('/')[2];
+        const maxInputLength = 20;
 
         const agentName = prompt('請幫夥伴取個名字吧 :');
         const threadTitle = prompt('你這次談話的主題 :');
@@ -106,6 +117,14 @@ export const Sidebar = () => {
           alert('請輸入一些字喔！');
           return;
         }
+
+        if (agentName.length > maxInputLength || threadTitle.length > maxInputLength) {
+          alert('請輸入 20 個字元以內');
+          return;
+        }
+
+        setIsAgentLoading(true);
+
         const agentResponse = await fetch(`${URL}/api/agent/${whiteboardId}`, {
           method: 'POST',
           headers: {
@@ -153,6 +172,12 @@ export const Sidebar = () => {
   return (
     <>
       {isAgentLoading && (
+        <div className="overlay">
+          <LoadingAnimation />
+        </div>
+      )}
+
+      {isWhiteboardCreating && (
         <div className="overlay">
           <LoadingAnimation />
         </div>
