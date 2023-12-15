@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import * as IoIcons from 'react-icons/io';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-
+import LoadingAnimation from './LoadingAnimation';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { SidebarData } from './SidebarData';
-import './Sidebar.css';
 import { IconContext } from 'react-icons';
 import { URL } from '../App';
+import './Sidebar.css';
 
 const token = localStorage.getItem('jwtToken');
 
@@ -48,6 +48,7 @@ export const Sidebar = () => {
       show: true,
     })),
   );
+  const [isAgentLoading, setIsAgentLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isWhiteboardPage = location.pathname.match(/\/whiteboard\/\w+/);
@@ -93,6 +94,7 @@ export const Sidebar = () => {
   }, []);
 
   const handleAgentClick = async () => {
+    setIsAgentLoading(true);
     try {
       if (isWhiteboardPage) {
         const whiteboardId = location.pathname.split('/')[2];
@@ -131,6 +133,7 @@ export const Sidebar = () => {
         const threadId = threadData._id;
 
         navigate(`/agent/${agentId}/thread/${threadId}`);
+        setIsAgentLoading(false);
       }
     } catch (error) {
       console.error('Error occurred:', error);
@@ -149,6 +152,12 @@ export const Sidebar = () => {
 
   return (
     <>
+      {isAgentLoading && (
+        <div className="overlay">
+          <LoadingAnimation />
+        </div>
+      )}
+
       <IconContext.Provider value={{ color: 'fff' }}>
         <div className="navbar">
           <Link to="#" className="menu-bars">
