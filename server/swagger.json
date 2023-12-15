@@ -1,0 +1,247 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "card APIs",
+    "description": "about get card api",
+    "version": "1.0"
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/card/{cardId}": {
+      "get": {
+        "summary": "Return content of card.",
+        "responses": {
+          "200": {
+            "description": "A content of a card by id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "1123e"
+                    },
+                    "title": {
+                      "type": "string",
+                      "example": "about today's work"
+                    },
+                    "position": {
+                      "type": "object",
+                      "properties": {
+                        "x": {
+                          "type": "number",
+                          "example": 200
+                        },
+                        "y": {
+                          "type": "number",
+                          "example": 600
+                        }
+                      }
+                    },
+                    "content": {
+                      "type": "string",
+                      "example": "I think today is not goes well"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["sad", "frustrated"]
+                    },
+                    "createTime": {
+                      "type": "string",
+                      "example": "2023-11-16T15:45:30.000Z"
+                    }
+                  },
+                  "examples": {
+                    "card": {
+                      "value": {
+                        "id": "1123e",
+                        "title": "about today's work",
+                        "position": {
+                          "x": 200,
+                          "y": 600
+                        },
+                        "content": "I think today is not goes well",
+                        "tags": ["sad", "frustrated"],
+                        "createTime": "2023-11-16T15:45:30.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "wrong request type"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "unknown request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not authorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/whiteboard/{whiteboardId}": {
+      "get": {
+        "summary": "return whiteboard data",
+        "responses": {
+          "200": {
+            "description": "A content of a card by id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "1123e"
+                    },
+                    "title": {
+                      "type": "string",
+                      "example": "about today's work"
+                    },
+                    "cards": {
+                      "type": "array",
+                      "items": "string",
+                      "example": ["123e", "123f"]
+                    },
+                    "createTime": {
+                      "type": "string",
+                      "example": "2023-11-16T15:45:30.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "wrong request type"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "unknown request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not authorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

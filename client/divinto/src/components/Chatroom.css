@@ -1,0 +1,307 @@
+html {
+  background-color: #060b26;
+}
+
+.chat-container {
+  background-color: #060b26;
+  display: flex;
+  max-height: 92vh;
+}
+.chat-room {
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+  height: 90vh;
+  margin-left: auto;
+  margin-right: auto;
+  border-left: 2px solid #dddddd8d;
+  border-right: 2px solid #dddddd8d;
+  border-bottom: 2px solid #dddddd8d;
+  border-radius: 0px 0px 20px 20px;
+  background-color: #060b26;
+  padding-top: 3rem;
+  padding-left: 1rem;
+  padding-right: 0.8rem;
+  padding-bottom: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.messages-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  display: flex;
+  justify-content: flex-end; /* 預設靠右對齊 */
+  margin-bottom: 2vh;
+}
+
+.avatar {
+  width: 2vw; /* 大頭貼的寬度 */
+  height: 2vw; /* 大頭貼的高度 */
+  border-radius: 50%; /* 圓形大頭貼 */
+  background-color: white; /* 暫時的背景顏色，可以替換為圖片 */
+  margin-right: 10px; /* 與文本容器之間的間隔 */
+  display: flex; /* 啟用 Flexbox */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  margin-top: 1vh;
+}
+
+.message .text-container {
+  width: auto;
+  min-width: 40%;
+  max-width: 90%; /* 最大寬度限制 */
+  text-align: end;
+  color: white;
+  padding: 10px 20px; /* 內邊距 */
+  border-top: solid 1px #ffffff77;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 輕微陰影 */
+  flex-grow: 1;
+  line-height: 2;
+}
+
+.user-message .avatar {
+  order: 2; /* 將大頭貼放在文本容器的右邊 */
+  margin-right: 0.5rem;
+}
+
+.agent-message {
+  justify-content: flex-start; /* agent 消息靠左對齊 */
+}
+
+.agent-message .text-container {
+  text-align: start;
+}
+
+.user-message .text-container {
+  order: 1;
+}
+
+.timestamp {
+  font-size: 0.7em;
+  color: #666;
+}
+
+.message-input {
+  display: flex;
+  margin-top: 2vh;
+  align-items: center; /* 確保按鈕和輸入框垂直對齊 */
+  background-color: #060b26;
+  border: 1px solid rgba(245, 245, 245, 0.601); /* 移除邊框 */
+  border-radius: 15px; /* 整體圓角邊框 */
+  padding-right: 1vw; /* 統一右側內邊距 */
+  letter-spacing: 0.5px;
+}
+
+.message-input textarea {
+  flex-grow: 1; /* 使輸入框占滿剩餘空間 */
+  display: flex; /* 啟用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  text-align: start;
+  font-size: 16px;
+  color: white; /* 文字顏色為白色 */
+  outline: none;
+  background-color: #060b26; /* 深色背景 */
+  border: none;
+  border-radius: 15px; /* 圓角邊框 */
+  padding-top: 0.5rem;
+  padding-left: 1rem;
+  margin-right: auto; /* 移除外邊距 */
+  height: 40px; /* 初始高度 */
+  max-height: 20vh; /* 最大高度 */
+  overflow-y: hidden;
+  z-index: 5;
+}
+
+.message-input textarea:focus {
+  box-shadow: inset 0 0 3px #6db3ff; /* 內部陰影以強調焦點 */
+}
+
+.message-input textarea:disabled {
+  background-color: black; /* 比正常狀態更暗的背景色 */
+  color: #aaa; /* 文字顏色變淺，表示不可輸入 */
+  cursor: not-allowed; /* 禁止符號的鼠標指針 */
+}
+
+.message-input button {
+  border: none;
+  border-radius: 50%; /* 圓形按鈕 */
+  background-color: #060b26;
+  color: white;
+  font-size: 24px;
+  font-weight: bold; /* 加粗字體 */
+  cursor: pointer;
+  box-shadow: none; /* 移除陰影 */
+  line-height: 1; /* 使文字垂直居中 */
+  display: flex; /* 使用 Flexbox */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  width: 2em; /* 固定寬度 */
+  height: 2em; /* 固定高度 */
+  padding-left: 1rem;
+}
+
+.message-input button:hover {
+  opacity: 0.5; /* 滑鼠懸停時的透明度 */
+}
+
+.sidebar-container {
+  width: 40%;
+  display: flex;
+  flex-direction: column; /* 讓子元素上下排列 */
+  margin-top: 4vh;
+}
+
+.recorded-points {
+  height: 64%;
+  letter-spacing: 0.05rem;
+  font-size: 16px;
+  margin-top: 2vh;
+  overflow-y: auto;
+}
+
+.approvement-points {
+  height: 40vh; /* 設定高度為視窗高度的 40% */
+  margin-top: 2vh; /* 添加一些底部外邊距 */
+  margin-bottom: 2vh; /* 添加一些底部外邊距 */
+  margin-right: 4vw;
+  padding: 1rem 2rem;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  overflow-y: auto;
+  /* background-color: #ff000077; */
+  color: white;
+  position: relative;
+}
+
+.approvement-points h3 {
+  position: sticky;
+  left: 1rem; /* 置於容器左側 */
+  top: 0.2rem;
+  width: 100%;
+}
+
+.disapprovement-points {
+  height: 40vh; /* 設定高度為視窗高度的 40% */
+  margin-top: 2vh; /* 添加一些底部外邊距 */
+  margin-bottom: 3vh; /* 添加一些底部外邊距 */
+  margin-right: 4vw;
+  padding: 1rem 2rem;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  color: white;
+}
+
+.disapprovement-points h3 {
+  position: sticky;
+  left: 1rem; /* 置於容器左側 */
+  top: 0.2rem;
+  width: 100%;
+}
+
+.export-ai-card-button {
+  height: fit-content; /* 按鈕高度 */
+  width: fit-content; /* 按鈕寬度 */
+  position: absolute; /* 使用絕對定位 */
+  top: 8vh; /* 置於容器頂部 */
+  right: 4vw; /* 置於容器右側 */
+  font-size: 24px;
+  display: flex; /* 啟用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+  background-color: #060b26;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.export-ai-card-button p {
+  padding-bottom: 0.2rem;
+  margin-left: 0.4rem;
+}
+
+.export-ai-card-button:hover {
+  opacity: 0.5;
+}
+
+/* 預設選項的容器 */
+.default-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* 子元素靠左對齊 */
+  gap: 1rem; /* 選項之間的間距 */
+  margin-top: auto; /* 將容器推到底部 */
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 個別選項樣式 */
+.default-option {
+  flex: 0 1 calc(50% - 10px); /* 每個選項佔用行寬的一半，減去間距 */
+  padding: 0.6rem 0.9rem;
+  background-color: rgba(255, 255, 255, 0.4); /* 半透明背景 */
+  color: #fff; /* 白色字體 */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left; /* 文本靠左對齊 */
+  transition: all 0.1s ease;
+}
+
+.default-option:hover {
+  background-color: rgba(0, 0, 0, 0.138); /* 懸停時背景更暗 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.unable-message-button:hover {
+  opacity: 1;
+}
+
+.loading-container {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: -1rem;
+  margin-left: 0.5rem;
+}
+
+.loading-indicator {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  -webkit-animation: spin 2s ease-in-out infinite;
+}
+
+.loading-word {
+  color: white;
+  font-size: 14px;
+}
+
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

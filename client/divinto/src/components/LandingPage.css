@@ -1,0 +1,61 @@
+.landing-page-container {
+  background: linear-gradient(to bottom, #060b26, #004085, rgb(33, 46, 120));
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  text-align: center;
+}
+
+.landing-page-logo {
+  width: 150px;
+  height: auto;
+  margin-top: -10vh;
+  margin-bottom: 2rem;
+  margin-left: 0;
+  margin-right: 0;
+  animation: fadeIn 700ms ease-in;
+}
+
+.landing-page-text {
+  font-size: 1.2em;
+  color: white;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  opacity: 0;
+  animation: fadeIn 700ms ease-in-out;
+  animation-delay: 700ms;
+  animation-fill-mode: forwards;
+}
+
+.landing-page-button {
+  background-color: #060b2680;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1em;
+  border-radius: 32px;
+  cursor: pointer;
+  text-decoration: none;
+  opacity: 0;
+  animation: fadeIn 700ms ease-in-out;
+  animation-delay: 1500ms;
+  animation-fill-mode: forwards;
+}
+.landing-page-button:hover {
+  background-color: #0056b3;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
