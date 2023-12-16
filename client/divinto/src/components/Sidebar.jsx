@@ -110,6 +110,30 @@ export const Sidebar = () => {
         const whiteboardId = location.pathname.split('/')[2];
         const maxInputLength = 20;
 
+        const isCardAmountsEnough = await fetch(`${URL}/api/whiteboard/${whiteboardId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((whiteboard) => {
+            const cards = whiteboard.data[0].cards;
+            if (cards.length < 3) {
+              alert('一張必須要有至少三張卡片才可以使用此功能！');
+              return false;
+            } else {
+              return true;
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            return false;
+          });
+
+        if (!isCardAmountsEnough) return;
+
         const agentName = prompt('請幫夥伴取個名字吧 :');
         const threadTitle = prompt('你這次談話的主題 :');
 
@@ -135,6 +159,7 @@ export const Sidebar = () => {
             agentName: agentName,
           }),
         });
+
         const agentData = await agentResponse.json();
         const agentId = agentData.data;
 
@@ -156,6 +181,7 @@ export const Sidebar = () => {
       }
     } catch (error) {
       console.error('Error occurred:', error);
+      alert('創建失敗，請稍後再試！');
     }
   };
 

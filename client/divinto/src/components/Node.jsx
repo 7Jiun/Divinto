@@ -3,16 +3,16 @@ import { useParams } from 'react-router-dom';
 import ReactFlow, { MiniMap, Background, useNodesState, useEdgesState } from 'reactflow';
 import { convertCardsToNodes, getFirstLineAsTitle } from '../initial-elements';
 import { URL } from '../App';
+import CustomNode from './CustomNode';
+import ContextMenu from './ContextMenu';
+import Markdown from 'react-markdown';
+import SimpleMDE from 'react-simplemde-editor';
 import 'reactflow/dist/style.css';
 import '../overview.css';
 import '../text-updater-note.css';
 import '../updatenode.css';
-import Markdown from 'react-markdown';
-import SimpleMDE from 'react-simplemde-editor';
 import './MDEditor.css';
 import './CustomNode.css';
-import CustomNode from './CustomNode';
-import ContextMenu from './ContextMenu';
 
 const token = localStorage.getItem('jwtToken');
 
@@ -63,21 +63,12 @@ function deleteNodeOnServer(nodeId) {
       console.error('Error updating node:', error);
     });
 }
-
 const NodeType = { CustomNode: CustomNode };
 
 const initialNodes = [];
 const initialEdges = [];
 
-// const params = new URLSearchParams(window.location.search);
-// const x = params.get('x');
-// const y = params.get('y');
 let defaultViewport = { x: 80, y: 40, zoom: 0.5 };
-// if (x && y) {
-//   defaultViewport = { x: parseInt(x), y: parseInt(y), zoom: 0.5 };
-//   console.log(x, y, defaultViewport);
-// }
-// console.log(x, y, defaultViewport);
 
 export const UpdateNode = () => {
   const { id } = useParams();
@@ -243,6 +234,7 @@ export const UpdateNode = () => {
     },
     [setNodes, id, showControls],
   );
+
   const handleNodeClick = (event, node) => {
     setShowControls(true);
     try {

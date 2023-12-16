@@ -47,7 +47,7 @@ export async function createAgent(req: Request, res: Response) {
   const { whiteboardId } = req.params;
   const agentName = req.body.agentName;
   const whiteboard = await getWhiteboard(whiteboardId);
-  if (whiteboard[0] && whiteboard[0].cards) {
+  if (whiteboard[0] && whiteboard[0].cards.length > 0) {
     let whiteboardCardsWithTags = '';
     const promises = whiteboard[0].cards.map(async (card) => {
       const cardMarkdown = await transferCardMarkdown(card);
