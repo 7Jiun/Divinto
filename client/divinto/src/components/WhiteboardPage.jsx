@@ -1,12 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { driver } from 'driver.js';
-import 'driver.js/dist/driver.css';
 import { getWhiteboardsByUser, createWhiteboardInDb } from './Sidebar';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { URL } from '../App';
 import * as IoIcons from 'react-icons/io';
 import LoadingAnimation from './LoadingAnimation';
 import './WhiteboardPage.css';
+import 'driver.js/dist/driver.css';
+
+const token = localStorage.getItem('jwtToken');
+
+function deleteWhiteboardOnServer(whiteboardId) {
+  fetch(`${URL}/api/whiteboard/${whiteboardId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then((data) => {})
+    .catch((error) => {
+      console.error('Error delete whiteboard', error);
+    });
+}
 
 export const WhiteboardPage = () => {
   const [isWhiteboardCreating, setIsWhiteboardCreating] = useState(false);
@@ -80,6 +103,32 @@ export const WhiteboardPage = () => {
     }
   };
 
+  const handleDeleteWhiteboardClick = (whiteboardId) => async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const userConfirmation = prompt(
+      '此操作不可回復，請輸入[刪除]以刪除白板，若不要刪除，請輸入確認以外的內容',
+    );
+    if (userConfirmation === '刪除') {
+      deleteWhiteboardOnServer(whiteboardId);
+      alert('刪除成功！');
+      try {
+        const whiteboards = await getWhiteboardsByUser();
+        const userWhiteboardItems = whiteboards.map((whiteboard) => ({
+          title: whiteboard.title,
+          path: `/whiteboard/${whiteboard._id}`,
+          icon: <IoIcons.IoIosPaper />,
+          cName: 'whiteboard-text',
+        }));
+        setWhiteboardItems(userWhiteboardItems);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      alert('刪除失敗');
+    }
+  };
+
   return (
     <>
       {isWhiteboardCreating && (
@@ -96,6 +145,12 @@ export const WhiteboardPage = () => {
                 <Link to={item.path}>
                   {item.icon}
                   <span>{item.title}</span>
+                  <button
+                    className="whiteboard-text-button"
+                    onClick={handleDeleteWhiteboardClick(item.path.split('/')[2])}
+                  >
+                    <IoIcons.IoIosClose />
+                  </button>
                 </Link>
               </li>
             );
