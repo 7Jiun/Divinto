@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 import { getWhiteboardsByUser, createWhiteboardInDb } from './Sidebar';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +30,22 @@ export const WhiteboardPage = () => {
     };
 
     fetchWhiteboards();
+  }, []);
+
+  useEffect(() => {
+    const driverObj = driver({
+      showProgress: true,
+      steps: [
+        {
+          element: '#first-step',
+          popover: {
+            title: '點擊以新增白板',
+            description: '輸入討論的主題，跳轉至紀錄該主題的頁面',
+          },
+        },
+      ],
+    });
+    driverObj.drive();
   }, []);
 
   const handleAddPageClick = async () => {
@@ -80,7 +98,7 @@ export const WhiteboardPage = () => {
             );
           })}
         </ul>
-        <button className="add-whiteboard-button" onClick={handleAddPageClick}>
+        <button id="first-step" className="add-whiteboard-button" onClick={handleAddPageClick}>
           <IoIcons.IoIosAddCircleOutline size="2rem" />
           點擊新增白板
         </button>

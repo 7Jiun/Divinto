@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import ReactFlow, { MiniMap, Background, useNodesState, useEdgesState } from 'reactflow';
 import { convertCardsToNodes, getFirstLineAsTitle } from '../initial-elements';
 import { URL } from '../App';
+import { driver } from 'driver.js';
 import CustomNode from './CustomNode';
 import ContextMenu from './ContextMenu';
 import Markdown from 'react-markdown';
@@ -13,6 +14,7 @@ import '../text-updater-note.css';
 import '../updatenode.css';
 import './MDEditor.css';
 import './CustomNode.css';
+import { Sidebar } from './Sidebar';
 
 const token = localStorage.getItem('jwtToken');
 
@@ -71,6 +73,51 @@ const initialEdges = [];
 let defaultViewport = { x: 80, y: 40, zoom: 0.5 };
 
 export const UpdateNode = () => {
+  useEffect(() => {
+    const driverObj = driver({
+      showProgress: true,
+      steps: [
+        {
+          element: '#first-step',
+          popover: {
+            title: '新增卡片',
+            description: '點擊白板任意地方以新增空白卡片',
+          },
+        },
+        {
+          element: '#second-step',
+          popover: {
+            title: '編輯卡片內容',
+            description: '透過編輯器可以輸入文字、上傳照片、嵌入連結',
+          },
+        },
+        {
+          element: '#third-step',
+          popover: {
+            title: '側邊欄功能',
+            description: '點擊查看更多功能',
+          },
+        },
+        {
+          element: '#sidebar-search-step',
+          popover: {
+            title: '搜尋功能',
+            description: '點擊跳轉至卡片搜尋頁面，幫助你找到帶有特定關鍵字的卡片',
+          },
+        },
+        {
+          element: '#sidebar-chat-step',
+          popover: {
+            title: 'AI 功能',
+            description: `透過 AI 協助整理、反思白板內卡片的內容。
+              該白板必須要至少有三張卡片才可以觸發此功能。`,
+          },
+        },
+      ],
+    });
+    driverObj.drive();
+  }, []);
+
   const { id } = useParams();
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -302,6 +349,9 @@ export const UpdateNode = () => {
 
   return (
     <>
+      <div id="third-step">
+        <Sidebar />
+      </div>
       <div style={{ width: '100vw', height: '92vh' }} ref={reactFlowWrapper}>
         <ReactFlow
           ref={menuRef}
@@ -320,9 +370,10 @@ export const UpdateNode = () => {
           onNodeContextMenu={onNodeContextMenu}
           minZoom={0.2}
           maxZoom={4}
+          id="first-step"
         >
           {showControls && (
-            <div ref={controlsRef} className="updatenode__controls">
+            <div ref={controlsRef} id="second-step" className="updatenode__controls">
               <SimpleMDE
                 className="myCustomMDE"
                 options={Options}

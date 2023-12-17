@@ -240,15 +240,15 @@ export const Sidebar = () => {
             {isWhiteboardPage && (
               <>
                 <li>
-                  <button onClick={handleAgentClick}>
-                    <IoIcons.IoLogoIonitron />
-                    和小夥伴聊聊
+                  <button id="sidebar-search-step" onClick={handleReflectionClick}>
+                    <IoIcons.IoIosSwitch />
+                    反思、整理卡片
                   </button>
                 </li>
                 <li>
-                  <button onClick={handleReflectionClick}>
-                    <IoIcons.IoIosSwitch />
-                    反思、整理卡片
+                  <button id="sidebar-chat-step" onClick={handleAgentClick}>
+                    <IoIcons.IoLogoIonitron />
+                    和小夥伴聊聊
                   </button>
                 </li>
               </>

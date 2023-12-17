@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import SimpleMDE from 'react-simplemde-editor';
 import './Reflection.css';
 import './ReflectionMDEditor.css';
+import { driver } from 'driver.js';
 import { URL } from '../App';
 import { mergeCardContents } from '../initial-elements';
+import SimpleMDE from 'react-simplemde-editor';
 import Markdown from 'react-markdown';
 
 const token = localStorage.getItem('jwtToken');
@@ -48,6 +49,35 @@ export function SearchRenderComponent() {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   useEffect(() => {
+    const driverObj = driver({
+      showProgress: true,
+      steps: [
+        {
+          element: '#first-step',
+          popover: {
+            title: '搜尋卡片欄',
+            description: '輸入關鍵字以找尋相關的卡片',
+          },
+        },
+        {
+          element: '#second-step',
+          popover: {
+            title: '編輯卡片',
+            description: '若針對卡片內容有反思，可在此處紀錄相關的想法',
+          },
+        },
+        {
+          element: '#third-step',
+          popover: {
+            title: '匯出反思內容',
+            description: `點擊按鈕，將反思的內容作為卡片匯出、並跳轉至回原白板。`,
+          },
+        },
+      ],
+    });
+    driverObj.drive();
+  }, []);
+  useEffect(() => {
     async function fetchData() {
       try {
         setCards([]);
@@ -65,6 +95,7 @@ export function SearchRenderComponent() {
   return (
     <div className="search-render">
       <input
+        id="first-step"
         type="text"
         placeholder="搜尋你的卡片"
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -127,9 +158,9 @@ export function Reflection() {
     <>
       <div className="reflection-container">
         <SearchRenderComponent />
-        <div className="MDeditor">
+        <div id="second-step" className="MDeditor">
           <SimpleMDE onChange={handleEditorChange} value={editorContent} />
-          <button className="reflection-card-button" onClick={handleSubmit}>
+          <button id="third-step" className="reflection-card-button" onClick={handleSubmit}>
             輸出內容到白板
           </button>
         </div>

@@ -1,11 +1,12 @@
 .updatenode__controls {
   /* width: auto;
   min-width: 200px; */
-  width: 50vw;
+  width: 48.6vw;
   position: absolute;
   right: 10px;
   top: 10px;
   z-index: 4;
+  height: 92vh;
   font-size: 12px;
 }
 

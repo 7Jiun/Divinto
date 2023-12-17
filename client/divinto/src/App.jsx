@@ -65,15 +65,7 @@ const App = () => {
         ></Route>
         <Route
           path="/whiteboard/:id"
-          element={
-            isLoggedIn ? (
-              <MainLayout>
-                <UpdateNode />{' '}
-              </MainLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isLoggedIn ? <UpdateNode /> : <Navigate to="/login" />}
         />
         <Route
           path="/whiteboard/:id/reflection"
