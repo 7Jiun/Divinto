@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import './Chatroom.css';
 import Markdown from 'react-markdown';
 import * as IoIcons from 'react-icons/io';
 import { useParams, useNavigate } from 'react-router-dom';
 import { URL } from '../App';
+import { driver } from 'driver.js';
+import './Chatroom.css';
 
 const token = localStorage.getItem('jwtToken');
 
@@ -120,11 +121,52 @@ export const Chatroom = () => {
   const [newDisapprovementPoints, setNewDisapprovementPoints] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedChatroomPage');
+    if (hasVisited) return;
+    const driverObj = driver({
+      showProgress: true,
+      steps: [
+        {
+          element: '#first-step',
+          popover: {
+            title: '常用對話',
+            description: '可以點擊按鈕，請助理協助整理白板的內容，或是給予建議',
+          },
+        },
+        {
+          element: '#second-step',
+          popover: {
+            title: '對話輸入框',
+            description: '可由此處自行輸入對話，點擊右方箭頭以發送訊息',
+          },
+        },
+        {
+          element: '#third-step',
+          popover: {
+            title: '對話梳理區',
+            description:
+              '可以將過程中的對話複製貼上，或是輸入梳理出來的想法，分別整理到認同或是不認同的區塊',
+          },
+        },
+        {
+          element: '#fourth-step',
+          popover: {
+            title: '匯出梳理內容',
+            description: '點擊按鈕，將筆記區中整理的內容作為卡片匯出、並跳轉至回原白板。',
+          },
+        },
+      ],
+    });
+    driverObj.drive();
+    localStorage.setItem('hasVisitedChatroomPage', 'true');
+  }, []);
+
   const defaultOptions = [
-    '請協助整理我對這個主題的觀點？',
-    '請協助釐清我對這個主題的感受？',
+    '請協助整理我的觀點？',
+    '請協助釐清我的感受？',
     '請針對我的狀況給出具體行動建議？',
-    '請問我該如何持續地挖掘這個主題？',
+    '請問我該如何持續地深入這個主題？',
   ];
 
   // 處理預設選項的點擊事件
@@ -193,7 +235,7 @@ export const Chatroom = () => {
       <div className="chat-room">
         <div className="messages-list">
           {messages.length === 0 ? (
-            <div className="default-options">
+            <div id="first-step" className="default-options">
               {defaultOptions.map((option, index) => (
                 <div
                   key={index}
@@ -225,7 +267,7 @@ export const Chatroom = () => {
         ) : (
           <div></div>
         )}
-        <div className="message-input">
+        <div id="second-step" className="message-input">
           <textarea
             type="text"
             value={newMessage}
@@ -252,54 +294,56 @@ export const Chatroom = () => {
         </div>
       </div>
       <div className="sidebar-container">
-        <button className="export-ai-card-button" onClick={exportThreadAsCard}>
+        <button id="fourth-step" className="export-ai-card-button" onClick={exportThreadAsCard}>
           <IoIcons.IoMdSync />
-          <p>匯出對話紀錄到白板</p>
+          <p>匯出梳理筆記到白板</p>
         </button>
-        <div className="approvement-points">
-          <h3>認同的觀點</h3>
-          <div className="recorded-points">
-            <ul>
-              {approvementPoints.map((point, index) => (
-                <li key={index}>
-                  <Markdown>{`${point}\n\n`}</Markdown>
-                </li>
-              ))}
-            </ul>
+        <div id="third-step">
+          <div className="approvement-points">
+            <h3>認同的觀點</h3>
+            <div className="recorded-points">
+              <ul>
+                {approvementPoints.map((point, index) => (
+                  <li key={index}>
+                    <Markdown>{`${point}\n\n`}</Markdown>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="message-input">
+              <textarea
+                type="text"
+                value={newApprovementPoints}
+                onChange={(e) => setNewApprovementPoints(e.target.value)}
+                placeholder="輸入任何你的想法..."
+                onInput={adjustTextareaHeight}
+              />
+              <button onClick={HandleSendApprovementPoint}>
+                <IoIcons.IoMdArrowRoundUp />
+              </button>
+            </div>
           </div>
-          <div className="message-input">
-            <textarea
-              type="text"
-              value={newApprovementPoints}
-              onChange={(e) => setNewApprovementPoints(e.target.value)}
-              placeholder="輸入任何你的想法..."
-              onInput={adjustTextareaHeight}
-            />
-            <button onClick={HandleSendApprovementPoint}>
-              <IoIcons.IoMdArrowRoundUp />
-            </button>
-          </div>
-        </div>
-        <div className="disapprovement-points">
-          <h3>不認同的觀點</h3>
-          <div className="recorded-points">
-            <ul>
-              {disapprovementPoints.map((point, index) => (
-                <li key={index}>{point}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="message-input">
-            <textarea
-              type="text"
-              value={newDisapprovementPoints}
-              onChange={(e) => setNewDisapprovementPoints(e.target.value)}
-              placeholder="輸入任何你的想法..."
-              onInput={adjustTextareaHeight}
-            />
-            <button onClick={HandleSendDisapprovementPoint}>
-              <IoIcons.IoMdArrowRoundUp />
-            </button>
+          <div className="disapprovement-points">
+            <h3>不認同的觀點</h3>
+            <div className="recorded-points">
+              <ul>
+                {disapprovementPoints.map((point, index) => (
+                  <li key={index}>{point}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="message-input">
+              <textarea
+                type="text"
+                value={newDisapprovementPoints}
+                onChange={(e) => setNewDisapprovementPoints(e.target.value)}
+                placeholder="輸入任何你的想法..."
+                onInput={adjustTextareaHeight}
+              />
+              <button onClick={HandleSendDisapprovementPoint}>
+                <IoIcons.IoMdArrowRoundUp />
+              </button>
+            </div>
           </div>
         </div>
       </div>

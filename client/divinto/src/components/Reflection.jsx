@@ -49,6 +49,8 @@ export function SearchRenderComponent() {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedReflectionPage');
+    if (hasVisited) return;
     const driverObj = driver({
       showProgress: true,
       steps: [
@@ -76,6 +78,7 @@ export function SearchRenderComponent() {
       ],
     });
     driverObj.drive();
+    localStorage.setItem('hasVisitedReflectionPage', 'true');
   }, []);
   useEffect(() => {
     async function fetchData() {

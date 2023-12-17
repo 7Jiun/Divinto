@@ -33,6 +33,8 @@ export const WhiteboardPage = () => {
   }, []);
 
   useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedWhiteboardPage');
+    if (hasVisited) return;
     const driverObj = driver({
       showProgress: true,
       steps: [
@@ -46,6 +48,7 @@ export const WhiteboardPage = () => {
       ],
     });
     driverObj.drive();
+    localStorage.setItem('hasVisitedWhiteboardPage', 'true');
   }, []);
 
   const handleAddPageClick = async () => {

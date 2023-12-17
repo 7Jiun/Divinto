@@ -74,6 +74,8 @@ let defaultViewport = { x: 80, y: 40, zoom: 0.5 };
 
 export const UpdateNode = () => {
   useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedNodePage');
+    if (hasVisited) return;
     const driverObj = driver({
       showProgress: true,
       steps: [
@@ -116,6 +118,7 @@ export const UpdateNode = () => {
       ],
     });
     driverObj.drive();
+    localStorage.setItem('hasVisitedNodePage', 'true');
   }, []);
 
   const { id } = useParams();
