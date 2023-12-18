@@ -44,18 +44,26 @@ export const AgentPage = () => {
   return (
     <>
       <div className="whiteboard-page-container">
-        <ul className="whiteboard-ul">
-          {agents.map((item, index) => {
-            return (
-              <li key={index} className={item.cName}>
-                <Link to={item.path}>
-                  {item.icon}
-                  <span>{item.title}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div>
+          {agents.length === 0 ? (
+            <div className="hint-container">
+              <h3 className="agent-hint">
+                目前還没有任何對話紀錄喔，請到白板頁記錄至少三張卡片後才可以創建助理並開啟對話
+              </h3>
+            </div>
+          ) : (
+            <ul className="whiteboard-ul">
+              {agents.map((item, index) => (
+                <li key={index} className={item.cName}>
+                  <Link to={item.path}>
+                    {item.icon}
+                    <span>{item.title}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </>
   );

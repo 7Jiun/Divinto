@@ -46,8 +46,8 @@ function updateNodeOnServer(node, updateContent) {
     });
 }
 
-function deleteNodeOnServer(nodeId) {
-  fetch(`${URL}/api/card/${nodeId}`, {
+export async function deleteNodeOnServer(nodeId) {
+  return fetch(`${URL}/api/card/${nodeId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -89,8 +89,15 @@ export const UpdateNode = () => {
         {
           element: '#second-step',
           popover: {
-            title: '編輯卡片內容',
+            title: '卡片編輯器',
             description: '透過編輯器可以輸入文字、上傳照片、嵌入連結',
+          },
+        },
+        {
+          element: '.custom-node',
+          popover: {
+            title: '卡片動作',
+            description: '在卡片點擊右鍵，可以新增卡片標籤，下載卡片內容，或是刪除卡片',
           },
         },
         {
@@ -226,18 +233,15 @@ export const UpdateNode = () => {
 
   const onNodeContextMenu = useCallback(
     (event, node) => {
-      // Prevent native context menu from showing
       event.preventDefault();
-
-      // Calculate position of the context menu. We want to make sure it
-      // doesn't get positioned off-screen.
-      const pane = menuRef.current.getBoundingClientRect();
+      const nodeElement = event.target.closest('.custom-node');
+      const { right, top } = nodeElement.getBoundingClientRect();
       setMenu({
         id: node.id,
-        top: event.clientY < pane.height - 500 && event.clientY,
-        left: event.clientX < pane.width - 500 && event.clientX,
-        right: event.clientX >= pane.width - 500 && pane.width - event.clientX,
-        bottom: event.clientY >= pane.height - 500 && pane.height - event.clientY,
+        top: top - 80, // 菜单顶部与节点顶部对齐
+        left: right, // 菜单左边与节点右边对齐
+        right: null, // 不需要使用 right 和 bottom
+        bottom: null,
       });
     },
     [setMenu],
@@ -355,7 +359,7 @@ export const UpdateNode = () => {
       <div id="third-step">
         <Sidebar />
       </div>
-      <div style={{ width: '100vw', height: '92vh' }} ref={reactFlowWrapper}>
+      <div id="first-step" style={{ width: '100vw', height: '92vh' }} ref={reactFlowWrapper}>
         <ReactFlow
           ref={menuRef}
           nodes={nodes}
@@ -373,7 +377,6 @@ export const UpdateNode = () => {
           onNodeContextMenu={onNodeContextMenu}
           minZoom={0.2}
           maxZoom={4}
-          id="first-step"
         >
           {showControls && (
             <div ref={controlsRef} id="second-step" className="updatenode__controls">

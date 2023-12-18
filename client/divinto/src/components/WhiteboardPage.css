@@ -108,3 +108,20 @@
   align-items: center;
   z-index: 1000; /* 確保覆蓋在其他內容之上 */
 }
+
+.hint-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  text-align: center;
+}
+
+.agent-hint {
+  font-size: 1.5rem; /* 字体大小 */
+  color: #4a4a4a; /* 字体颜色 */
+  padding: 1rem; /* 内边距 */
+  margin: 1rem 0; /* 外边距 */
+  border-radius: 8px; /* 边框圆角 */
+  text-align: center; /* 文字居中 */
+}
