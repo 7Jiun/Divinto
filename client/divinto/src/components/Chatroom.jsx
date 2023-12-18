@@ -310,7 +310,7 @@ export const Chatroom = () => {
                 ))}
               </ul>
             </div>
-            <div className="message-input">
+            <div className="approvement-message-input">
               <textarea
                 type="text"
                 value={newApprovementPoints}
@@ -332,7 +332,7 @@ export const Chatroom = () => {
                 ))}
               </ul>
             </div>
-            <div className="message-input">
+            <div className="disapprovement-message-input">
               <textarea
                 type="text"
                 value={newDisapprovementPoints}
