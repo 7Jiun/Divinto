@@ -107,16 +107,23 @@ export default function ContextMenu({ id, top, left, right, bottom, ...props }) 
   });
 
   const deleteNode = useCallback(() => {
-    deleteNodeOnServer(id)
-      .then(() => {
-        setNodes((prevNodes) => {
-          const updatedNodes = prevNodes.filter((node) => node.id !== id);
-          return updatedNodes;
+    const userConfirmation = prompt(
+      '此操作不可回復，請輸入[刪除]以刪除該卡片，若不要刪除，請輸入確認以外的內容',
+    );
+    if (userConfirmation === '刪除') {
+      deleteNodeOnServer(id)
+        .then(() => {
+          setNodes((prevNodes) => {
+            const updatedNodes = prevNodes.filter((node) => node.id !== id);
+            return updatedNodes;
+          });
+        })
+        .catch((error) => {
+          console.error('刪除卡片失敗', error);
         });
-      })
-      .catch((error) => {
-        console.error('刪除失敗', error);
-      });
+    } else {
+      alert('刪除卡片失敗');
+    }
   });
 
   const cancelClick = useCallback(() => {

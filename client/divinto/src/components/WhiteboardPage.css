@@ -61,9 +61,7 @@
 }
 
 .whiteboard-text-button:active {
-  background-color: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px #666; /* 按钮按下时的阴影效果 */
-  transform: translateY(2px); /* 按钮按下时的位移效果 */
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .add-whiteboard-button {

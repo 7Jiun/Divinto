@@ -78,12 +78,13 @@ export const UpdateNode = () => {
     if (hasVisited) return;
     const driverObj = driver({
       showProgress: true,
+      allowClose: false,
       steps: [
         {
           element: '#first-step',
           popover: {
             title: '新增卡片',
-            description: '點擊白板任意地方以新增空白卡片',
+            description: '點擊白板任意地方以新增空白卡片，點擊卡片本身可以開啟編輯器',
           },
         },
         {
@@ -94,7 +95,7 @@ export const UpdateNode = () => {
           },
         },
         {
-          element: '.custom-node',
+          element: '#first-step',
           popover: {
             title: '卡片動作',
             description: '在卡片點擊右鍵，可以新增卡片標籤，下載卡片內容，或是刪除卡片',
@@ -134,7 +135,6 @@ export const UpdateNode = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [nodeContent, setNodeContent] = useState();
   const [nodeBg, setNodeBg] = useState('#000000');
-  const [nodeHidden, setNodeHidden] = useState(false);
   const [selectNodeId, setSelectNodeId] = useState();
   const [menu, setMenu] = useState(false);
   const [showControls, setShowControls] = useState(false);
@@ -313,7 +313,38 @@ export const UpdateNode = () => {
       .then((whiteboard) => {
         const cards = whiteboard.data[0].cards;
         const nodes = convertCardsToNodes(cards);
-        setNodes(nodes);
+        if (nodes.length === 0) {
+          fetch(`${URL}/api/card`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              title: '',
+              whiteboardId: id,
+              position: {
+                x: 1400,
+                y: 600,
+              },
+              content: '# 請點擊以開啟卡片編輯器',
+              tags: [],
+            }),
+          })
+            .then((response) => response.json())
+            .then((newCard) => {
+              const newNode = {
+                ...convertCardsToNodes([newCard])[0],
+                type: 'CustomNode',
+              };
+              setNodes([newNode]);
+            })
+            .catch((error) => {
+              console.error('Error creating card:', error);
+            });
+        } else {
+          setNodes(nodes);
+        }
       })
       .catch((err) => console.error(err));
   }, [id]);

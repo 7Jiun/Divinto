@@ -64,8 +64,9 @@ export const WhiteboardPage = () => {
         {
           element: '#first-step',
           popover: {
-            title: '點擊以新增白板',
-            description: '輸入討論的主題，跳轉至紀錄該主題的頁面',
+            title: '新增白板',
+            description:
+              '點擊開啟一個白板，可以在白板上透過卡片的方式，視覺化整理想法。輸入討論的主題後，即可跳轉至紀錄該主題的頁面',
           },
         },
       ],
