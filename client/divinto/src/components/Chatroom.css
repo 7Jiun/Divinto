@@ -11,8 +11,9 @@ html {
   display: flex;
   flex-direction: column;
   width: 50vw;
-  height: 90vh;
-  margin-left: auto;
+  height: 86vh;
+  margin-top: 2vh;
+  margin-left: 6vw;
   margin-right: auto;
   border-left: 2px solid #dddddd8d;
   border-right: 2px solid #dddddd8d;
@@ -152,16 +153,9 @@ html {
 .sidebar-container {
   width: 40%;
   display: flex;
+  padding: 0px 0.2vw;
   flex-direction: column; /* 讓子元素上下排列 */
   margin-top: 4vh;
-}
-
-.recorded-points {
-  height: 64%;
-  letter-spacing: 0.05rem;
-  font-size: 16px;
-  margin-top: 2vh;
-  overflow-y: auto;
 }
 
 .approvement-points {
@@ -172,10 +166,84 @@ html {
   padding: 1rem 2rem;
   border: 1px solid #ccc;
   border-radius: 16px;
-  overflow-y: auto;
   /* background-color: #ff000077; */
   color: white;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.recorded-points {
+  letter-spacing: 0.08rem;
+  height: 76%;
+  font-size: 16px;
+  margin-top: 1.5vh;
+  margin-bottom: 1.5vh;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.approvement-message-input {
+  display: flex;
+  align-items: center; /* 確保按鈕和輸入框垂直對齊 */
+  background-color: #060b26;
+  border: 1px solid rgba(245, 245, 245, 0.601); /* 移除邊框 */
+  border-radius: 15px; /* 整體圓角邊框 */
+  padding-right: 1vw; /* 統一右側內邊距 */
+  letter-spacing: 0.5px;
+  overflow-y: none;
+}
+
+.approvement-message-input textarea {
+  flex-grow: 1; /* 使輸入框占滿剩餘空間 */
+  display: flex; /* 啟用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  text-align: start;
+  font-size: 16px;
+  color: white; /* 文字顏色為白色 */
+  outline: none;
+  background-color: #060b26; /* 深色背景 */
+  border: none;
+  border-radius: 15px; /* 圓角邊框 */
+  padding-top: 0.5rem;
+  padding-left: 1rem;
+  margin-right: auto; /* 移除外邊距 */
+  height: 40px; /* 初始高度 */
+  max-height: 20vh; /* 最大高度 */
+  overflow-y: hidden;
+  z-index: 5;
+}
+
+.approvement-message-input textarea:focus {
+  box-shadow: inset 0 0 3px #6db3ff; /* 內部陰影以強調焦點 */
+}
+
+.approvement-message-input textarea:disabled {
+  background-color: black; /* 比正常狀態更暗的背景色 */
+  color: #aaa; /* 文字顏色變淺，表示不可輸入 */
+  cursor: not-allowed; /* 禁止符號的鼠標指針 */
+}
+
+.approvement-message-input button {
+  border: none;
+  border-radius: 50%; /* 圓形按鈕 */
+  background-color: #060b26;
+  color: white;
+  font-size: 24px;
+  font-weight: bold; /* 加粗字體 */
+  cursor: pointer;
+  box-shadow: none; /* 移除陰影 */
+  line-height: 1; /* 使文字垂直居中 */
+  display: flex; /* 使用 Flexbox */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  width: 2em; /* 固定寬度 */
+  height: 2em; /* 固定高度 */
+  padding-left: 1rem;
+}
+
+.approvement-message-input button:hover {
+  opacity: 0.5; /* 滑鼠懸停時的透明度 */
 }
 
 .approvement-points h3 {
@@ -194,6 +262,8 @@ html {
   border: 1px solid #ccc;
   border-radius: 16px;
   color: white;
+  display: flex;
+  flex-direction: column;
 }
 
 .disapprovement-points h3 {
@@ -203,13 +273,76 @@ html {
   width: 100%;
 }
 
+.disapprovement-message-input {
+  display: flex;
+  align-items: center; /* 確保按鈕和輸入框垂直對齊 */
+  background-color: #060b26;
+  border: 1px solid rgba(245, 245, 245, 0.601); /* 移除邊框 */
+  border-radius: 15px; /* 整體圓角邊框 */
+  padding-right: 1vw; /* 統一右側內邊距 */
+  letter-spacing: 0.5px;
+  overflow-y: none;
+}
+
+.disapprovement-message-input textarea {
+  flex-grow: 1; /* 使輸入框占滿剩餘空間 */
+  display: flex; /* 啟用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  text-align: start;
+  font-size: 16px;
+  color: white; /* 文字顏色為白色 */
+  outline: none;
+  background-color: #060b26; /* 深色背景 */
+  border: none;
+  border-radius: 15px; /* 圓角邊框 */
+  padding-top: 0.5rem;
+  padding-left: 1rem;
+  margin-right: auto; /* 移除外邊距 */
+  height: 40px; /* 初始高度 */
+  max-height: 20vh; /* 最大高度 */
+  overflow-y: hidden;
+  z-index: 5;
+}
+
+.disapprovement-message-input textarea:focus {
+  box-shadow: inset 0 0 3px #6db3ff; /* 內部陰影以強調焦點 */
+}
+
+.disapprovement-message-input textarea:disabled {
+  background-color: black; /* 比正常狀態更暗的背景色 */
+  color: #aaa; /* 文字顏色變淺，表示不可輸入 */
+  cursor: not-allowed; /* 禁止符號的鼠標指針 */
+}
+
+.disapprovement-message-input button {
+  border: none;
+  border-radius: 50%; /* 圓形按鈕 */
+  background-color: #060b26;
+  color: white;
+  font-size: 24px;
+  font-weight: bold; /* 加粗字體 */
+  cursor: pointer;
+  box-shadow: none; /* 移除陰影 */
+  line-height: 1; /* 使文字垂直居中 */
+  display: flex; /* 使用 Flexbox */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  width: 2em; /* 固定寬度 */
+  height: 2em; /* 固定高度 */
+  padding-left: 1rem;
+}
+
+.disapprovement-message-input button:hover {
+  opacity: 0.5; /* 滑鼠懸停時的透明度 */
+}
+
 .export-ai-card-button {
   height: fit-content; /* 按鈕高度 */
   width: fit-content; /* 按鈕寬度 */
   position: absolute; /* 使用絕對定位 */
   top: 8vh; /* 置於容器頂部 */
-  right: 4vw; /* 置於容器右側 */
-  font-size: 24px;
+  right: 4.8vw; /* 置於容器右側 */
+  font-size: 20px;
   display: flex; /* 啟用 Flexbox */
   align-items: center; /* 垂直居中 */
   justify-content: center; /* 水平居中 */
@@ -258,8 +391,8 @@ html {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.unable-message-button:hover {
-  opacity: 1;
+.no-hover {
+  pointer-events: none; /* 這將取消所有的滑鼠事件，包括 hover */
 }
 
 .loading-container {

@@ -9,6 +9,7 @@ import { WhiteboardPage } from './components/WhiteboardPage';
 import { AgentPage } from './components/AgentPage';
 import { LandingPage } from './components/LandingPage';
 import { AgentThreadPage } from './components/AgentThreadPage';
+import { NotFoundPage } from './components/NotFoundPage';
 
 import 'reactflow/dist/style.css';
 import './overview.css';
@@ -65,15 +66,7 @@ const App = () => {
         ></Route>
         <Route
           path="/whiteboard/:id"
-          element={
-            isLoggedIn ? (
-              <MainLayout>
-                <UpdateNode />{' '}
-              </MainLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={isLoggedIn ? <UpdateNode /> : <Navigate to="/login" />}
         />
         <Route
           path="/whiteboard/:id/reflection"
@@ -127,6 +120,7 @@ const App = () => {
             )
           }
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

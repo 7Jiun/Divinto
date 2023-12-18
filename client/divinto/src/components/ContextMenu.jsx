@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useReactFlow } from 'reactflow';
+import { deleteNodeOnServer } from './Node';
 import { getFirstLineAsTitle } from '../initial-elements';
 import { URL } from '../App';
 
@@ -34,7 +35,8 @@ function updateNodeTagsOnServer(node, updateContent) {
 }
 
 export default function ContextMenu({ id, top, left, right, bottom, ...props }) {
-  const { setNodes } = useReactFlow();
+  const { setNodes, onNodesDelete } = useReactFlow();
+  const [isContextMenuVisible, setIsContextMenuVisible] = useState(true);
   const addNodeTags = useCallback(() => {
     const newTag = prompt('請輸入新標籤:');
     if (newTag) {
@@ -51,7 +53,6 @@ export default function ContextMenu({ id, top, left, right, bottom, ...props }) 
             : node,
         );
 
-        // 在這裡找到更新後的節點並發送到後端
         const updatedNode = updatedNodes.find((node) => node.id === id);
 
         try {
@@ -99,17 +100,47 @@ export default function ContextMenu({ id, top, left, right, bottom, ...props }) 
     // 获取 Markdown 内容并触发下载
     try {
       const markdownBlob = await markdown();
-      triggerDownload(markdownBlob, 'download.zip');
+      triggerDownload(markdownBlob, 'card-download.zip');
     } catch (error) {
       console.error('下载失败:', error);
     }
   });
 
+  const deleteNode = useCallback(() => {
+    const userConfirmation = prompt(
+      '此操作不可回復，請輸入[刪除]以刪除該卡片，若不要刪除，請輸入確認以外的內容',
+    );
+    if (userConfirmation === '刪除') {
+      deleteNodeOnServer(id)
+        .then(() => {
+          setNodes((prevNodes) => {
+            const updatedNodes = prevNodes.filter((node) => node.id !== id);
+            return updatedNodes;
+          });
+        })
+        .catch((error) => {
+          console.error('刪除卡片失敗', error);
+        });
+    } else {
+      alert('刪除卡片失敗');
+    }
+  });
+
+  const cancelClick = useCallback(() => {
+    setIsContextMenuVisible(false);
+  });
+
   return (
-    <div style={{ top, left, right, bottom }} className="context-menu" {...props}>
-      <p style={{ margin: '0.5em' }}></p>
-      <button onClick={addNodeTags}>add tags</button>
-      <button onClick={exportCardMarkdown}> export card </button>
+    <div>
+      {isContextMenuVisible && (
+        <div style={{ top, left, right, bottom }} className="context-menu" {...props}>
+          <p style={{ margin: '0.5em' }}></p>
+          <button onClick={addNodeTags}>新增標籤</button>
+          <button onClick={exportCardMarkdown}>輸出卡片</button>
+          <button onClick={deleteNode}>刪除卡片</button>
+          <button onClick={cancelClick}>取消</button>
+        </div>
+      )}
     </div>
   );
 }

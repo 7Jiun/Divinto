@@ -6,9 +6,17 @@ export const Register = (props) => {
   const [pass, setPass] = useState('');
   const [name, setName] = useState('');
   const navigate = useNavigate();
+  const validateEmail = (email) => {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return re.test(email);
+  };
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
+      if (!validateEmail(email)) {
+        alert('請輸入有效的電子郵件地址。');
+        return;
+      }
       const response = await fetch(`${URL}/api/user/signup`, {
         method: 'POST',
         headers: {
@@ -41,6 +49,7 @@ export const Register = (props) => {
           placeholder="請輸入暱稱"
           id="name"
           name="name"
+          maxLength={50}
         ></input>
         <label htmlFor="email">電子信箱</label>
         <input
@@ -50,6 +59,7 @@ export const Register = (props) => {
           placeholder="請輸入電子信箱"
           id="email"
           name="email"
+          maxLength={50}
         ></input>
         <label htmlFor="password">密碼</label>
         <input
@@ -59,6 +69,7 @@ export const Register = (props) => {
           placeholder="********"
           id="password"
           name="password"
+          maxLength={20}
         ></input>
         <button onClick={handleSubmit}>註冊</button>
       </form>

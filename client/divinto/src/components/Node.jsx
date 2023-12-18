@@ -3,16 +3,18 @@ import { useParams } from 'react-router-dom';
 import ReactFlow, { MiniMap, Background, useNodesState, useEdgesState } from 'reactflow';
 import { convertCardsToNodes, getFirstLineAsTitle } from '../initial-elements';
 import { URL } from '../App';
+import { driver } from 'driver.js';
+import CustomNode from './CustomNode';
+import ContextMenu from './ContextMenu';
+import Markdown from 'react-markdown';
+import SimpleMDE from 'react-simplemde-editor';
 import 'reactflow/dist/style.css';
 import '../overview.css';
 import '../text-updater-note.css';
 import '../updatenode.css';
-import Markdown from 'react-markdown';
-import SimpleMDE from 'react-simplemde-editor';
 import './MDEditor.css';
 import './CustomNode.css';
-import CustomNode from './CustomNode';
-import ContextMenu from './ContextMenu';
+import { Sidebar } from './Sidebar';
 
 const token = localStorage.getItem('jwtToken');
 
@@ -44,8 +46,8 @@ function updateNodeOnServer(node, updateContent) {
     });
 }
 
-function deleteNodeOnServer(nodeId) {
-  fetch(`${URL}/api/card/${nodeId}`, {
+export async function deleteNodeOnServer(nodeId) {
+  return fetch(`${URL}/api/card/${nodeId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -63,30 +65,76 @@ function deleteNodeOnServer(nodeId) {
       console.error('Error updating node:', error);
     });
 }
-
 const NodeType = { CustomNode: CustomNode };
 
 const initialNodes = [];
 const initialEdges = [];
 
-// const params = new URLSearchParams(window.location.search);
-// const x = params.get('x');
-// const y = params.get('y');
 let defaultViewport = { x: 80, y: 40, zoom: 0.5 };
-// if (x && y) {
-//   defaultViewport = { x: parseInt(x), y: parseInt(y), zoom: 0.5 };
-//   console.log(x, y, defaultViewport);
-// }
-// console.log(x, y, defaultViewport);
 
 export const UpdateNode = () => {
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedNodePage');
+    if (hasVisited) return;
+    const driverObj = driver({
+      showProgress: true,
+      allowClose: false,
+      steps: [
+        {
+          element: '#first-step',
+          popover: {
+            title: '新增卡片',
+            description: '點擊白板任意地方以新增空白卡片，點擊卡片本身可以開啟編輯器',
+          },
+        },
+        {
+          element: '#second-step',
+          popover: {
+            title: '卡片編輯器',
+            description: '透過編輯器可以輸入文字、上傳照片、嵌入連結',
+          },
+        },
+        {
+          element: '#first-step',
+          popover: {
+            title: '卡片動作',
+            description: '在卡片點擊右鍵，可以新增卡片標籤，下載卡片內容，或是刪除卡片',
+          },
+        },
+        {
+          element: '#third-step',
+          popover: {
+            title: '側邊欄功能',
+            description: '點擊查看更多功能',
+          },
+        },
+        {
+          element: '#sidebar-search-step',
+          popover: {
+            title: '搜尋功能',
+            description: '點擊跳轉至卡片搜尋頁面，幫助你找到帶有特定關鍵字的卡片',
+          },
+        },
+        {
+          element: '#sidebar-chat-step',
+          popover: {
+            title: 'AI 功能',
+            description: `透過 AI 協助整理、反思白板內卡片的內容。
+              該白板必須要至少有三張卡片才可以觸發此功能。`,
+          },
+        },
+      ],
+    });
+    driverObj.drive();
+    localStorage.setItem('hasVisitedNodePage', 'true');
+  }, []);
+
   const { id } = useParams();
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [nodeContent, setNodeContent] = useState();
   const [nodeBg, setNodeBg] = useState('#000000');
-  const [nodeHidden, setNodeHidden] = useState(false);
   const [selectNodeId, setSelectNodeId] = useState();
   const [menu, setMenu] = useState(false);
   const [showControls, setShowControls] = useState(false);
@@ -185,18 +233,15 @@ export const UpdateNode = () => {
 
   const onNodeContextMenu = useCallback(
     (event, node) => {
-      // Prevent native context menu from showing
       event.preventDefault();
-
-      // Calculate position of the context menu. We want to make sure it
-      // doesn't get positioned off-screen.
-      const pane = menuRef.current.getBoundingClientRect();
+      const nodeElement = event.target.closest('.custom-node');
+      const { right, top } = nodeElement.getBoundingClientRect();
       setMenu({
         id: node.id,
-        top: event.clientY < pane.height - 500 && event.clientY,
-        left: event.clientX < pane.width - 500 && event.clientX,
-        right: event.clientX >= pane.width - 500 && pane.width - event.clientX,
-        bottom: event.clientY >= pane.height - 500 && pane.height - event.clientY,
+        top: top - 80, // 菜单顶部与节点顶部对齐
+        left: right, // 菜单左边与节点右边对齐
+        right: null, // 不需要使用 right 和 bottom
+        bottom: null,
       });
     },
     [setMenu],
@@ -243,6 +288,7 @@ export const UpdateNode = () => {
     },
     [setNodes, id, showControls],
   );
+
   const handleNodeClick = (event, node) => {
     setShowControls(true);
     try {
@@ -267,7 +313,38 @@ export const UpdateNode = () => {
       .then((whiteboard) => {
         const cards = whiteboard.data[0].cards;
         const nodes = convertCardsToNodes(cards);
-        setNodes(nodes);
+        if (nodes.length === 0) {
+          fetch(`${URL}/api/card`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              title: '',
+              whiteboardId: id,
+              position: {
+                x: 1400,
+                y: 600,
+              },
+              content: '# 請點擊以開啟卡片編輯器',
+              tags: [],
+            }),
+          })
+            .then((response) => response.json())
+            .then((newCard) => {
+              const newNode = {
+                ...convertCardsToNodes([newCard])[0],
+                type: 'CustomNode',
+              };
+              setNodes([newNode]);
+            })
+            .catch((error) => {
+              console.error('Error creating card:', error);
+            });
+        } else {
+          setNodes(nodes);
+        }
       })
       .catch((err) => console.error(err));
   }, [id]);
@@ -310,7 +387,10 @@ export const UpdateNode = () => {
 
   return (
     <>
-      <div style={{ width: '100vw', height: '92vh' }} ref={reactFlowWrapper}>
+      <div id="third-step">
+        <Sidebar />
+      </div>
+      <div id="first-step" style={{ width: '100vw', height: '92vh' }} ref={reactFlowWrapper}>
         <ReactFlow
           ref={menuRef}
           nodes={nodes}
@@ -330,7 +410,7 @@ export const UpdateNode = () => {
           maxZoom={4}
         >
           {showControls && (
-            <div ref={controlsRef} className="updatenode__controls">
+            <div ref={controlsRef} id="second-step" className="updatenode__controls">
               <SimpleMDE
                 className="myCustomMDE"
                 options={Options}
