@@ -158,7 +158,7 @@ export function SearchRenderComponent() {
       }
     }
 
-    if (searchTerm !== ' ') {
+    if (searchTerm !== '') {
       fetchData();
     } else if (selectedTag !== '無' || !selectedTag) {
       fetchTagsData();
