@@ -1,14 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { Request, Response } from 'express';
+import { Message } from '../model/agentModel.ts';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 import { transferCardMarkdown } from './exportMd.ts';
 import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
-
-import { Message } from '../model/agentModel.ts';
 
 async function markdownWhiteboardToFile(
   userId: string,
