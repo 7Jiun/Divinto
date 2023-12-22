@@ -2,20 +2,41 @@ import { Request, Response } from 'express';
 import { CardInput, UpdateCard, JwtUserPayload } from '../utils/shape.ts';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
+import { sleep } from 'bun';
+import mongoose from 'mongoose';
 
 export async function createCard(req: Request<{}, {}, CardInput>, res: Response) {
   const user: JwtUserPayload = res.locals.userPayload;
   const card: CardInput = req.body;
-  try {
-    const newCard = await cardModel.createCard(user, card);
-    await whiteboardModel.addWhiteboardCards(newCard._id, card.whiteboardId);
-    res.status(200).json(newCard);
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(`error: ${error.message}`);
+  const createCardSession = await mongoose.startSession();
+  let retryCount = 0;
+  const maxRetries = 5;
+  while (retryCount < maxRetries) {
+    try {
+      createCardSession.startTransaction();
+      const newCard = await cardModel.createCard(user, card, createCardSession);
+      await whiteboardModel.addWhiteboardCards(newCard._id, card.whiteboardId, createCardSession);
+      await createCardSession.commitTransaction();
+      res.status(200).json(newCard);
+      return;
+    } catch (error) {
+      await createCardSession.abortTransaction();
+      if (
+        error instanceof Error &&
+        error.message ===
+          'WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.'
+      ) {
+        retryCount++;
+        await sleep(200);
+      } else {
+        console.error(error);
+        res.status(500).json({ data: 'create card failed' });
+        return;
+      }
     }
-    res.status(500).json({ data: 'create card failed' });
   }
+  res.status(500).json({ data: 'create card failed due to retry limit' });
+  await createCardSession.endSession();
 }
 
 export async function getCard(req: Request, res: Response) {

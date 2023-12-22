@@ -1,14 +1,23 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import { Card, Whiteboard } from './schema.ts';
 import { createId } from './cardModel.ts';
 import { JwtUserPayload, GetWhiteboard, Iwhiteboard } from '../utils/shape.ts';
 
-export async function createWhiteboard(user: JwtUserPayload, title: string) {
+export async function createWhiteboard(
+  user: JwtUserPayload,
+  title: string,
+  session: ClientSession,
+) {
   const whiteboardId: string = createId(user);
-  const insertId = await Whiteboard.create({
-    id: whiteboardId,
-    title: title,
-  });
+  const [insertId] = await Whiteboard.create(
+    [
+      {
+        id: whiteboardId,
+        title: title,
+      },
+    ],
+    { session: session },
+  );
   return insertId;
 }
 
@@ -53,14 +62,18 @@ export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard
   return whiteboard as unknown as GetWhiteboard[];
 }
 
-export async function addWhiteboardCards(cardId: string, whiteboardId: string) {
+export async function addWhiteboardCards(
+  cardId: string,
+  whiteboardId: string,
+  session: ClientSession,
+) {
   await Whiteboard.findByIdAndUpdate(
     whiteboardId,
     {
       $push: { cards: cardId },
       $set: { updateAt: Date.now() },
     },
-    { new: true },
+    { new: true, session: session },
   );
 }
 

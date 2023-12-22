@@ -2,21 +2,31 @@ import { Request, Response } from 'express';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
 import * as userModel from '../model/userModel.ts';
 import { JwtUserPayload } from '../utils/shape.ts';
+import mongoose from 'mongoose';
 
 export async function createWhiteboard(req: Request, res: Response) {
   const user: JwtUserPayload = res.locals.userPayload;
   const userId = user.id.toString();
   const { title } = req.body;
+  const createWhiteboardSession = await mongoose.startSession();
   try {
-    const insert = await whiteboardModel.createWhiteboard(user, title);
-    const whiteboardId = insert._id.toString();
-    const addWhiteboardInUser = await userModel.addWhiteboardInUser(userId, whiteboardId);
-    if (!addWhiteboardInUser) return res.status(500).json({ data: 'user whiteboard wrong' });
-    res.status(200).json({ whiteboard: insert });
+    createWhiteboardSession.startTransaction();
+    const newWhiteboard = await whiteboardModel.createWhiteboard(
+      user,
+      title,
+      createWhiteboardSession,
+    );
+    const whiteboardId = newWhiteboard._id.toString();
+    await userModel.addWhiteboardInUser(userId, whiteboardId, createWhiteboardSession);
+    await createWhiteboardSession.commitTransaction();
+    res.status(200).json({ whiteboard: newWhiteboard });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`error:${error.message}`);
     }
+    await createWhiteboardSession.abortTransaction();
+  } finally {
+    await createWhiteboardSession.endSession();
   }
 }
 

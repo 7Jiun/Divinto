@@ -8,6 +8,7 @@ import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
+import mongoose from 'mongoose';
 
 async function markdownWhiteboardToFile(
   userId: string,
@@ -246,6 +247,7 @@ export async function deleteThread(req: Request, res: Response) {
 export async function exportAiCard(req: Request, res: Response) {
   const userPayload = res.locals.userPayload;
   const { threadId } = req.params;
+  const addAiCardSession = await mongoose.startSession();
   try {
     const thread = await agentModel.getThread(threadId);
     if (!thread) return res.status(400).json({ data: 'wrong thread input' });
@@ -265,16 +267,20 @@ export async function exportAiCard(req: Request, res: Response) {
       approvement: totalApprovement,
       disapprovement: totalDisapprovement,
     };
-    const aiCard = await cardModel.createAiCard(userPayload, aiCardInput);
-    await whiteboardModel.addWhiteboardCards(aiCard._id, thread.whiteboardId);
-
+    addAiCardSession.startTransaction();
+    const aiCard = await cardModel.createAiCard(userPayload, aiCardInput, addAiCardSession);
+    await whiteboardModel.addWhiteboardCards(aiCard._id, thread.whiteboardId, addAiCardSession);
+    await addAiCardSession.commitTransaction();
     if (aiCard) {
       res.status(200).json({ data: aiCard, whiteboardId: thread.whiteboardId });
     }
   } catch (error) {
     if (error instanceof Error) {
       console.error(`create AI card error: ${error.message}`);
-      res.status(500).json({ data: 'create card unsuccessfully' });
     }
+    await addAiCardSession.abortTransaction();
+    res.status(500).json({ data: 'create card unsuccessfully' });
+  } finally {
+    addAiCardSession.endSession();
   }
 }

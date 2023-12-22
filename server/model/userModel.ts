@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import { CheckedUser, IUser } from '../utils/shape.ts';
 import { User } from './schema.ts';
 
@@ -108,14 +108,18 @@ export async function getWhiteboardsByUser(userId: string) {
   return whiteboards;
 }
 
-export async function addWhiteboardInUser(userId: string, whiteboardId: string) {
+export async function addWhiteboardInUser(
+  userId: string,
+  whiteboardId: string,
+  session: ClientSession,
+) {
   const updateWhiteboard = await User.findByIdAndUpdate(
     userId,
     {
       $push: { whiteboards: whiteboardId },
       $set: { updateAt: Date.now() },
     },
-    { new: true },
+    { new: true, session: session },
   );
   return updateWhiteboard;
 }

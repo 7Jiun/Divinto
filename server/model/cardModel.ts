@@ -8,6 +8,7 @@ import {
   BlockContent,
   AiCardInput,
 } from '../utils/shape.ts';
+import { ClientSession } from 'mongoose';
 
 export function createId(user: JwtUserPayload): string {
   const userId = user.id.toString();
@@ -66,37 +67,51 @@ export async function getCardById(cardId: string): Promise<GetCard> {
   return card as unknown as GetCard;
 }
 
-export async function createCard(user: JwtUserPayload, card: CardInput) {
+export async function createCard(user: JwtUserPayload, card: CardInput, session: ClientSession) {
   const cardId = createId(user);
   const blockContents = classifyContent(card.content);
-  const insertCard = await Card.create({
-    id: cardId,
-    title: card.title,
-    position: card.position,
-    content: {
-      main: blockContents,
-    },
-    tags: card.tags,
-  });
+  const [insertCard] = await Card.create(
+    [
+      {
+        id: cardId,
+        title: card.title,
+        position: card.position,
+        content: {
+          main: blockContents,
+        },
+        tags: card.tags,
+      },
+    ],
+    { session: session },
+  );
   return insertCard as unknown as GetCard;
 }
 
-export async function createAiCard(user: JwtUserPayload, card: AiCardInput) {
+export async function createAiCard(
+  user: JwtUserPayload,
+  card: AiCardInput,
+  session: ClientSession,
+) {
   const cardId = createId(user);
   const approvement = card.approvement;
   const disapprovement = card.disapprovement;
-  const insertCard = await Card.create({
-    id: cardId,
-    title: card.title,
-    position: {
-      x: 100,
-      y: 100,
-    },
-    content: {
-      approvement: approvement,
-      disapprovement: disapprovement,
-    },
-  });
+  const [insertCard] = await Card.create(
+    [
+      {
+        id: cardId,
+        title: card.title,
+        position: {
+          x: 100,
+          y: 100,
+        },
+        content: {
+          approvement: approvement,
+          disapprovement: disapprovement,
+        },
+      },
+    ],
+    { session: session },
+  );
   return insertCard as unknown as GetCard;
 }
 
