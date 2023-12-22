@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
 import * as userModel from '../model/userModel.ts';
-import { JwtUserPayload } from '../utils/signJWT.ts';
+import { JwtUserPayload } from '../utils/shape.ts';
 
 export async function createWhiteboard(req: Request, res: Response) {
   const user: JwtUserPayload = res.locals.userPayload;

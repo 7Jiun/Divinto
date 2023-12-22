@@ -1,23 +1,6 @@
 import mongoose from 'mongoose';
-import { JwtUserPayload } from '../utils/signJWT.ts';
+import { CheckedUser, IUser } from '../utils/shape.ts';
 import { User } from './schema.ts';
-
-interface CheckedUser {
-  userPayload: JwtUserPayload | null;
-  isVerified: Boolean;
-}
-
-interface IUser {
-  whiteboards: string[] | undefined | null;
-  agents: string[] | undefined | null;
-  createdAt: string | undefined | null;
-  updateAt: string | undefined | null;
-  removeAt: string | undefined | null;
-  provider?: string | null | undefined;
-  name?: string | null | undefined;
-  email?: string | null | undefined;
-  password?: string | null | undefined;
-}
 
 export async function nativeUserSignUp(email: string, name: string, password: string) {
   const isEmailExist = await User.findOne({ email: email });

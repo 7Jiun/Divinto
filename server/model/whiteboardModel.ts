@@ -1,28 +1,7 @@
 import mongoose from 'mongoose';
 import { Card, Whiteboard } from './schema.ts';
 import { createId } from './cardModel.ts';
-import { GetCard } from '../routes/card.ts';
-import { JwtUserPayload } from '../utils/signJWT.ts';
-
-export interface GetWhiteboard {
-  id: string;
-  _id: string;
-  title: string;
-  cards: GetCard[];
-  createdAt: string;
-  updateAt: string;
-  removeAt: string;
-}
-
-export interface Iwhiteboard {
-  id: string;
-  _id: string;
-  title: string;
-  cards: string[];
-  createdAt: string;
-  updateAt: string;
-  removeAt: string;
-}
+import { JwtUserPayload, GetWhiteboard, Iwhiteboard } from '../utils/shape.ts';
 
 export async function createWhiteboard(user: JwtUserPayload, title: string) {
   const whiteboardId: string = createId(user);

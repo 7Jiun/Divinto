@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Request, Response } from 'express';
-import { Message } from '../model/agentModel.ts';
+import { Message, AiCardInput } from '../utils/shape.ts';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 import { transferCardMarkdown } from './exportMd.ts';
 import * as agentModel from '../model/agentModel.ts';
@@ -259,7 +259,7 @@ export async function exportAiCard(req: Request, res: Response) {
       totalDisapprovement += disapprovement;
       totalDisapprovement += '\n';
     });
-    const aiCardInput: cardModel.AiCardInput = {
+    const aiCardInput: AiCardInput = {
       title: thread.title,
       whiteboardId: thread.whiteboardId,
       approvement: totalApprovement,

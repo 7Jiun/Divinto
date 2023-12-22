@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { JwtUserPayload } from '../utils/signJWT.ts';
+import { JwtUserPayload } from '../utils/shape.ts';
 import { Agent, Thread, User } from './schema.ts';
 
 export interface Message {

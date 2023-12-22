@@ -1,34 +1,13 @@
 import { Card } from './schema.ts';
-import { CardInput } from '../controller/cardControl.ts';
-import { GetCard, UpdateCard } from '../routes/card.ts';
-import { JwtUserPayload } from '../utils/signJWT.ts';
-
-// 定義 enum
-export enum BlockTypeEnum {
-  Text = 'text',
-  Image = 'image',
-  Video = 'video',
-  Audio = 'audio',
-}
-
-export interface BlockContent {
-  type: BlockTypeEnum;
-  content: String;
-}
-
-export interface CardContent {
-  main: BlockContent[];
-  summary: BlockContent[] | null;
-  approvement: BlockContent[] | null;
-  disapprovement: BlockContent[] | null;
-}
-
-export interface AiCardInput {
-  title: string;
-  whiteboardId: string;
-  approvement: string | null;
-  disapprovement: string | null;
-}
+import {
+  CardInput,
+  GetCard,
+  UpdateCard,
+  JwtUserPayload,
+  BlockTypeEnum,
+  BlockContent,
+  AiCardInput,
+} from '../utils/shape.ts';
 
 export function createId(user: JwtUserPayload): string {
   const userId = user.id.toString();

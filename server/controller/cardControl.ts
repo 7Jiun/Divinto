@@ -1,16 +1,7 @@
 import { Request, Response } from 'express';
+import { CardInput, UpdateCard, JwtUserPayload } from '../utils/shape.ts';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
-import { UpdateCard } from '../routes/card.ts';
-import { JwtUserPayload } from '../utils/signJWT.ts';
-
-export interface CardInput {
-  title: string;
-  whiteboardId: string;
-  position: Position;
-  content: string;
-  tags: Array<string>;
-}
 
 export async function createCard(req: Request<{}, {}, CardInput>, res: Response) {
   const user: JwtUserPayload = res.locals.userPayload;
