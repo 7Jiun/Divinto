@@ -21,8 +21,8 @@ export async function createWhiteboard(
   return insertId;
 }
 
-export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard[]> {
-  const whiteboard = await Whiteboard.aggregate([
+export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard> {
+  const [whiteboard] = await Whiteboard.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(whiteboardId) } },
     {
       $addFields: {
@@ -59,7 +59,7 @@ export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard
       },
     },
   ]);
-  return whiteboard as unknown as GetWhiteboard[];
+  return whiteboard as unknown as GetWhiteboard;
 }
 
 export async function addWhiteboardCards(
@@ -155,7 +155,7 @@ export async function getCardsByTextSearch(keyword: string | null, whiteboardId:
   if (!keyword) return null;
   const targetWhiteboard = await getWhiteboard(whiteboardId);
   if (!targetWhiteboard) return null;
-  const cardIds = targetWhiteboard[0].cards.map((cards) => cards._id);
+  const cardIds = targetWhiteboard.cards.map((cards) => cards._id);
   const cardsWithTextSearch = await Card.aggregate([
     {
       $search: {

@@ -108,7 +108,7 @@ export function SearchRenderComponent() {
     })
       .then((res) => res.json())
       .then((whiteboard) => {
-        const cards = whiteboard.data[0].cards;
+        const cards = whiteboard.data.cards;
         let tagsArray = [];
         cards.forEach((card) => {
           card.tags.forEach((tag) => {

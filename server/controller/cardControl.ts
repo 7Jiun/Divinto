@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { CardInput, UpdateCard, JwtUserPayload } from '../utils/shape.ts';
+import { sleep } from 'bun';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
-import { sleep } from 'bun';
 import mongoose from 'mongoose';
 
 export async function createCard(req: Request<{}, {}, CardInput>, res: Response) {
