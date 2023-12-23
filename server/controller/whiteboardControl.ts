@@ -48,8 +48,7 @@ export async function updateWhiteboardTitle(req: Request, res: Response) {
   const { title } = req.body;
   try {
     const updateWhiteboard = await whiteboardModel.updateWhiteboardTitle(whiteboardId, title);
-    // const addWhiteboardInUser;
-    if (!updateWhiteboard) return res.status(400).json({ data: 'no this ID 喔' });
+    if (!updateWhiteboard) return res.status(400).json({ data: 'wrong Id, please retry' });
     res.status(200).json({ data: 'update title successfully' });
   } catch (error) {
     if (error instanceof Error) {
@@ -62,17 +61,36 @@ export async function updateWhiteboardTitle(req: Request, res: Response) {
 export async function deleteWhiteboard(req: Request, res: Response) {
   const userId = res.locals.userPayload.id.toString();
   const { whiteboardId } = req.params;
+  const deleteWhiteboardSession = await mongoose.startSession();
   try {
-    const updateWhiteboard = await whiteboardModel.deleteWhiteboard(whiteboardId);
-    if (!updateWhiteboard) return res.status(400).json({ data: 'no this ID 喔' });
-    const deleteWhiteboardInUser = await userModel.deleteWhiteboardInUser(userId, whiteboardId);
-    if (!deleteWhiteboardInUser) return res.status(500).json({ data: 'user db update failed' });
+    deleteWhiteboardSession.startTransaction();
+    const isDeleteWhiteboard = await whiteboardModel.deleteWhiteboard(
+      whiteboardId,
+      deleteWhiteboardSession,
+    );
+    if (!isDeleteWhiteboard) {
+      await deleteWhiteboardSession.abortTransaction();
+      return res.status(400).json({ data: 'wrong Id, please retry' });
+    }
+    const deleteWhiteboardInUser = await userModel.deleteWhiteboardInUser(
+      userId,
+      whiteboardId,
+      deleteWhiteboardSession,
+    );
+    if (!deleteWhiteboardInUser) {
+      await deleteWhiteboardSession.abortTransaction();
+      return res.status(500).json({ data: 'user db update failed' });
+    }
+    await deleteWhiteboardSession.commitTransaction();
     res.status(200).json({ data: 'delete whiteboard successfully' });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`whiteboard update error: ${error.message}`);
+      await deleteWhiteboardSession.abortTransaction();
       res.status(500).json({ data: 'server error' });
     }
+  } finally {
+    deleteWhiteboardSession.endSession();
   }
 }
 

@@ -88,14 +88,13 @@ export async function updateWhiteboardTitle(whiteboardId: string, title: string)
     },
     { new: true },
   );
-  if (updateWhiteboard) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!updateWhiteboard;
 }
 
-export async function deleteWhiteboard(whiteboardId: string): Promise<Boolean> {
+export async function deleteWhiteboard(
+  whiteboardId: string,
+  session: ClientSession,
+): Promise<Boolean> {
   const removeWhiteboard = await Whiteboard.findByIdAndUpdate(
     whiteboardId,
     {
@@ -103,13 +102,9 @@ export async function deleteWhiteboard(whiteboardId: string): Promise<Boolean> {
         removeAt: Date.now(),
       },
     },
-    { new: true },
+    { new: true, session: session },
   );
-  if (removeWhiteboard) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!removeWhiteboard;
 }
 
 export async function getCardsByTag(tag: string | null, whiteboardId: string) {

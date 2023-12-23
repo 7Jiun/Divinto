@@ -1,21 +1,6 @@
 import mongoose from 'mongoose';
-import { JwtUserPayload } from '../utils/shape.ts';
+import { JwtUserPayload, Message, IThread } from '../utils/shape.ts';
 import { Agent, Thread, User } from './schema.ts';
-
-export interface Message {
-  speaker: 'user' | 'agent';
-  text: string;
-}
-
-interface IThread {
-  _id: any;
-  openAiThreadId: any;
-  title: string;
-  messages: Message[];
-  createdAt: Date;
-  updateAt: Date;
-  removeAt: Date | null;
-}
 
 export async function createAgentInDb(
   user: JwtUserPayload,
@@ -53,11 +38,7 @@ export async function deleteAgent(agentId: string): Promise<Boolean> {
     },
     { new: true },
   );
-  if (removeAgent) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!removeAgent;
 }
 
 export async function getAgentId(agentId: string) {
@@ -71,7 +52,6 @@ export async function createThread(agentId: string, threadTitle: string, openAiT
     title: threadTitle,
     openAiThreadId: openAiThreadId,
   });
-  console.log(thread);
   if (!thread) return false;
   const threadId = thread._id.toString();
   const agent = await Agent.findByIdAndUpdate(
@@ -83,7 +63,6 @@ export async function createThread(agentId: string, threadTitle: string, openAiT
     { new: true },
   );
   if (!agent) return false;
-  console.log(agent);
   const newThread = await Thread.findByIdAndUpdate(
     threadId,
     {
@@ -154,11 +133,7 @@ export async function updateThreadTitle(threadId: string, newTitle: string): Pro
     },
     { new: true },
   );
-  if (updateThread) {
-    return updateThread;
-  } else {
-    return false;
-  }
+  return !!updateThread;
 }
 
 export async function updateThreadMessage(
@@ -203,11 +178,7 @@ export async function updateThreadApprovement(
     },
     { new: true },
   );
-  if (updateThread) {
-    return updateThread;
-  } else {
-    return false;
-  }
+  return !!updateThread;
 }
 
 export async function updateThreadDisapprovement(
@@ -226,11 +197,7 @@ export async function updateThreadDisapprovement(
     },
     { new: true },
   );
-  if (updateThread) {
-    return updateThread;
-  } else {
-    return false;
-  }
+  return !!updateThread;
 }
 
 export async function deleteThread(threadId: string): Promise<Boolean> {
@@ -243,9 +210,5 @@ export async function deleteThread(threadId: string): Promise<Boolean> {
     },
     { new: true },
   );
-  if (removeAgent) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!removeAgent;
 }

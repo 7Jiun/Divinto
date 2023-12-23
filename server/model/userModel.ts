@@ -127,6 +127,7 @@ export async function addWhiteboardInUser(
 export async function deleteWhiteboardInUser(
   userId: string,
   whiteboardId: string,
+  session: ClientSession,
 ): Promise<Boolean> {
   const deleteWhiteboard = await User.findByIdAndUpdate(
     userId,
@@ -134,13 +135,12 @@ export async function deleteWhiteboardInUser(
       $pull: { whiteboards: whiteboardId },
       $set: { updateAt: Date.now() },
     },
-    { new: true },
+    {
+      new: true,
+      session: session,
+    },
   );
-  if (deleteWhiteboard) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!deleteWhiteboard;
 }
 
 export async function getAgentsByUser(userId: string) {

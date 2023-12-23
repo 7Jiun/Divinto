@@ -45,7 +45,6 @@ const App = () => {
             isLoggedIn ? (
               <MainLayout>
                 <WhiteboardPage />
-                <AgentPage />
               </MainLayout>
             ) : (
               <LandingPage />
