@@ -18,7 +18,7 @@ export function createId(user: JwtUserPayload): string {
   return uniqueId;
 }
 
-function classifyContent(content: string): BlockContent[] {
+export function classifyContent(content: string): BlockContent[] {
   const lines = content.split('\n');
   const blockContents: BlockContent[] = [];
   const imageRegex = /!\[.*?\]\(.*?\)/; // 要根據前端找到的編輯器格式做調整

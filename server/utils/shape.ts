@@ -33,7 +33,7 @@ export interface CardContent {
 }
 
 export interface GetCard {
-  whiteboardId: string;
+  whiteboardId: string | null;
   _id: string;
   id: string;
   title: string;
