@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import * as userModel from '../model/userModel.ts';
 import signJWT, { EXPIRE_TIME } from '../utils/signJWT.ts';
+import * as userModel from '../model/userModel.ts';
 
 async function createHashPassword(password: string): Promise<string | null> {
   try {

@@ -311,7 +311,7 @@ export const UpdateNode = () => {
     })
       .then((res) => res.json())
       .then((whiteboard) => {
-        const cards = whiteboard.data[0].cards;
+        const cards = whiteboard.data.cards;
         const nodes = convertCardsToNodes(cards);
         if (nodes.length === 0) {
           fetch(`${URL}/api/card`, {

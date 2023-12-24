@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { BlockContent, BlockTypeEnum, addImageContent } from '../model/cardModel.ts';
-
+import { BlockContent, BlockTypeEnum } from '../utils/shape.ts';
+import { addImageContent } from '../model/cardModel.ts';
 export async function uploadImage(req: Request, res: Response) {
   const { whiteboardId, cardId } = req.params;
   try {

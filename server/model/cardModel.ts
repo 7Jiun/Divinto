@@ -1,34 +1,14 @@
 import { Card } from './schema.ts';
-import { CardInput } from '../controller/cardControl.ts';
-import { GetCard, UpdateCard } from '../routes/card.ts';
-import { JwtUserPayload } from '../utils/signJWT.ts';
-
-// 定義 enum
-export enum BlockTypeEnum {
-  Text = 'text',
-  Image = 'image',
-  Video = 'video',
-  Audio = 'audio',
-}
-
-export interface BlockContent {
-  type: BlockTypeEnum;
-  content: String;
-}
-
-export interface CardContent {
-  main: BlockContent[];
-  summary: BlockContent[] | null;
-  approvement: BlockContent[] | null;
-  disapprovement: BlockContent[] | null;
-}
-
-export interface AiCardInput {
-  title: string;
-  whiteboardId: string;
-  approvement: string | null;
-  disapprovement: string | null;
-}
+import {
+  CardInput,
+  GetCard,
+  UpdateCard,
+  JwtUserPayload,
+  BlockTypeEnum,
+  BlockContent,
+  AiCardInput,
+} from '../utils/shape.ts';
+import { ClientSession } from 'mongoose';
 
 export function createId(user: JwtUserPayload): string {
   const userId = user.id.toString();
@@ -38,7 +18,7 @@ export function createId(user: JwtUserPayload): string {
   return uniqueId;
 }
 
-function classifyContent(content: string): BlockContent[] {
+export function classifyContent(content: string): BlockContent[] {
   const lines = content.split('\n');
   const blockContents: BlockContent[] = [];
   const imageRegex = /!\[.*?\]\(.*?\)/; // 要根據前端找到的編輯器格式做調整
@@ -87,37 +67,51 @@ export async function getCardById(cardId: string): Promise<GetCard> {
   return card as unknown as GetCard;
 }
 
-export async function createCard(user: JwtUserPayload, card: CardInput) {
+export async function createCard(user: JwtUserPayload, card: CardInput, session: ClientSession) {
   const cardId = createId(user);
   const blockContents = classifyContent(card.content);
-  const insertCard = await Card.create({
-    id: cardId,
-    title: card.title,
-    position: card.position,
-    content: {
-      main: blockContents,
-    },
-    tags: card.tags,
-  });
+  const [insertCard] = await Card.create(
+    [
+      {
+        id: cardId,
+        title: card.title,
+        position: card.position,
+        content: {
+          main: blockContents,
+        },
+        tags: card.tags,
+      },
+    ],
+    { session: session },
+  );
   return insertCard as unknown as GetCard;
 }
 
-export async function createAiCard(user: JwtUserPayload, card: AiCardInput) {
+export async function createAiCard(
+  user: JwtUserPayload,
+  card: AiCardInput,
+  session: ClientSession,
+) {
   const cardId = createId(user);
   const approvement = card.approvement;
   const disapprovement = card.disapprovement;
-  const insertCard = await Card.create({
-    id: cardId,
-    title: card.title,
-    position: {
-      x: 100,
-      y: 100,
-    },
-    content: {
-      approvement: approvement,
-      disapprovement: disapprovement,
-    },
-  });
+  const [insertCard] = await Card.create(
+    [
+      {
+        id: cardId,
+        title: card.title,
+        position: {
+          x: 100,
+          y: 100,
+        },
+        content: {
+          approvement: approvement,
+          disapprovement: disapprovement,
+        },
+      },
+    ],
+    { session: session },
+  );
   return insertCard as unknown as GetCard;
 }
 

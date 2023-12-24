@@ -119,7 +119,7 @@ export const Sidebar = () => {
         })
           .then((res) => res.json())
           .then((whiteboard) => {
-            const cards = whiteboard.data[0].cards;
+            const cards = whiteboard.data.cards;
             if (cards.length < 3) {
               alert(' 白板上至少需要三張卡片才可以使用此功能！');
               return false;

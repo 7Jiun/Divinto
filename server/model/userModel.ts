@@ -1,23 +1,6 @@
-import mongoose from 'mongoose';
-import { JwtUserPayload } from '../utils/signJWT.ts';
+import mongoose, { ClientSession } from 'mongoose';
+import { CheckedUser, IUser } from '../utils/shape.ts';
 import { User } from './schema.ts';
-
-interface CheckedUser {
-  userPayload: JwtUserPayload | null;
-  isVerified: Boolean;
-}
-
-interface IUser {
-  whiteboards: string[] | undefined | null;
-  agents: string[] | undefined | null;
-  createdAt: string | undefined | null;
-  updateAt: string | undefined | null;
-  removeAt: string | undefined | null;
-  provider?: string | null | undefined;
-  name?: string | null | undefined;
-  email?: string | null | undefined;
-  password?: string | null | undefined;
-}
 
 export async function nativeUserSignUp(email: string, name: string, password: string) {
   const isEmailExist = await User.findOne({ email: email });
@@ -125,14 +108,18 @@ export async function getWhiteboardsByUser(userId: string) {
   return whiteboards;
 }
 
-export async function addWhiteboardInUser(userId: string, whiteboardId: string) {
+export async function addWhiteboardInUser(
+  userId: string,
+  whiteboardId: string,
+  session: ClientSession,
+) {
   const updateWhiteboard = await User.findByIdAndUpdate(
     userId,
     {
       $push: { whiteboards: whiteboardId },
       $set: { updateAt: Date.now() },
     },
-    { new: true },
+    { new: true, session: session },
   );
   return updateWhiteboard;
 }
@@ -140,6 +127,7 @@ export async function addWhiteboardInUser(userId: string, whiteboardId: string) 
 export async function deleteWhiteboardInUser(
   userId: string,
   whiteboardId: string,
+  session: ClientSession,
 ): Promise<Boolean> {
   const deleteWhiteboard = await User.findByIdAndUpdate(
     userId,
@@ -147,13 +135,12 @@ export async function deleteWhiteboardInUser(
       $pull: { whiteboards: whiteboardId },
       $set: { updateAt: Date.now() },
     },
-    { new: true },
+    {
+      new: true,
+      session: session,
+    },
   );
-  if (deleteWhiteboard) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!deleteWhiteboard;
 }
 
 export async function getAgentsByUser(userId: string) {
