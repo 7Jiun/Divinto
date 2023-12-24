@@ -138,9 +138,16 @@ export async function getThread(req: Request, res: Response) {
 
 export async function getThreadsByAgent(req: Request, res: Response) {
   const { agentId } = req.params;
-  const threads = await agentModel.getThreadsByAgent(agentId);
-  if (!threads) return res.status(400).json({ data: 'get agent threads wrong' });
-  res.status(200).json({ data: threads });
+  try {
+    const threads = await agentModel.getThreadsByAgent(agentId);
+    if (!threads) return res.status(400).json({ data: 'get agent threads wrong' });
+    res.status(200).json({ data: threads });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+      res.status(500).json({ data: 'internal server error' });
+    }
+  }
 }
 
 export async function updateThreadTitle(req: Request, res: Response) {
@@ -234,7 +241,7 @@ export async function deleteThread(req: Request, res: Response) {
 }
 
 export async function exportAiCard(req: Request, res: Response) {
-  const userPayload = res.locals.userPayload;
+  const { userPayload } = res.locals;
   const { threadId } = req.params;
   const addAiCardSession = await mongoose.startSession();
   try {
