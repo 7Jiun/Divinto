@@ -124,8 +124,8 @@ describe('getCard api test', () => {
       __v: 0,
     };
     const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
+      method: 'GET',
       headers: {
-        method: 'GET',
         authorization:
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Nzk3ZDg5NzdjMmNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
       },
@@ -138,8 +138,8 @@ describe('getCard api test', () => {
   test('with remove card Id and correct request setup', async () => {
     const testCardId = '655dcd0b3a8d31a6d8792008';
     const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
+      method: 'GET',
       headers: {
-        method: 'GET',
         authorization:
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Nzk3ZDg5NzdjMmNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
       },

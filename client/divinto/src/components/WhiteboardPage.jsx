@@ -11,7 +11,7 @@ import 'driver.js/dist/driver.css';
 
 const token = localStorage.getItem('jwtToken');
 
-function deleteWhiteboardOnServer(whiteboardId) {
+export function deleteWhiteboardOnServer(whiteboardId) {
   fetch(`${URL}/api/whiteboard/${whiteboardId}`, {
     method: 'DELETE',
     headers: {

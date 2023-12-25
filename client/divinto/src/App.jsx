@@ -5,6 +5,7 @@ import { UpdateNode } from './components/Node';
 import { Sidebar } from './components/Sidebar';
 import { Chatroom } from './components/Chatroom';
 import { Reflection } from './components/Reflection';
+import { ProfilePage } from './components/ProfilePage';
 import { WhiteboardPage } from './components/WhiteboardPage';
 import { AgentPage } from './components/AgentPage';
 import { LandingPage } from './components/LandingPage';
@@ -44,7 +45,7 @@ const App = () => {
           element={
             isLoggedIn ? (
               <MainLayout>
-                <WhiteboardPage />
+                <ProfilePage />
               </MainLayout>
             ) : (
               <LandingPage />
