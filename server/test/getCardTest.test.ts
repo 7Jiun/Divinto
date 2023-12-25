@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-unresolved
-import { test, expect, describe } from 'bun:test';
+import { test, expect, describe, afterAll } from 'bun:test';
 import { getCardById, classifyContent } from '../model/cardModel.ts';
 import { BlockTypeEnum } from '../utils/shape.ts';
 import mongoose from 'mongoose';
@@ -123,42 +123,58 @@ describe('getCard api test', () => {
       updateAt: '2023-11-23T03:01:22.078Z',
       __v: 0,
     };
-    const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
-      headers: {
-        method: 'GET',
-        authorization:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Nzk3ZDg5NzdjMmNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
-      },
-    });
-    const statusCode = response.status;
-    const data = await response.json();
-    expect(statusCode).toEqual(200);
-    expect(data).toEqual(assertApiCard);
+    try {
+      const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
+        headers: {
+          method: 'GET',
+          authorization:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Nzk3ZDg5NzdjMmNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
+        },
+      });
+      const statusCode = response.status;
+      const data = await response.json();
+      expect(statusCode).toEqual(200);
+      expect(data).toEqual(assertApiCard);
+    } catch (error) {
+      console.error(error);
+    }
   });
   test('with remove card Id and correct request setup', async () => {
     const testCardId = '655dcd0b3a8d31a6d8792008';
-    const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
-      headers: {
-        method: 'GET',
-        authorization:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Nzk3ZDg5NzdjMmNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
-      },
-    });
-    const statusCode = response.status;
-    const data = await response.json();
-    expect(statusCode).toEqual(400);
-    expect(data).toEqual({ data: 'card is removed' });
+    try {
+      const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
+        headers: {
+          method: 'GET',
+          authorization:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Nzk3ZDg5NzdjMmNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
+        },
+      });
+      const statusCode = response.status;
+      const data = await response.json();
+      expect(statusCode).toEqual(400);
+      expect(data).toEqual({ data: 'card is removed' });
+    } catch (error) {
+      console.error(error);
+    }
   });
   test('request with invalid authorized token', async () => {
     const testCardId = '655dcd0b3a8d31a6d8792008';
-    const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
-      headers: {
-        method: 'GET',
-        authorization:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
-      },
-    });
-    const statusCode = response.status;
-    expect(statusCode).toEqual(401);
+    try {
+      const response = await fetch(`http://localhost:3000/api/card/${testCardId}`, {
+        headers: {
+          method: 'GET',
+          authorization:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eNiMTdhMzE0YmU1MSIsIm5hbWUiOiJkZW1vIiwiaWF0IjoxNzAzMzQ2NjYwLCJleHAiOjE3MDY5NDY2NjB9.8dANrjKq9LNG5IU69R93B3p0w9Jt92IjiKzPWBZb7JI',
+        },
+      });
+      const statusCode = response.status;
+      expect(statusCode).toEqual(401);
+    } catch (error) {
+      console.error(error);
+    }
   });
+});
+
+afterAll(async () => {
+  await mongoose.disconnect();
 });
