@@ -5,6 +5,7 @@ import swaggerRouter from './utils/apiDocs.ts';
 import whiteboardRouter from './routes/whiteboard.ts';
 import markdownRouter from './routes/markdown.ts';
 import agentRouter from './routes/agent.ts';
+import rateLimiter from './middleware/rateLimiter.ts';
 import cors from 'cors';
 import path from 'path';
 
@@ -14,13 +15,14 @@ const corsOptions = {
   origin: ['http://localhost:5173', 'https://divinto.me'],
   optionsSuccessStatus: 200,
 };
+app.set('trust proxy', true);
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static('uploads'));
 app.use(express.static('public/dist'));
 
-app.use('/api', [
+app.use('/api', rateLimiter, [
   swaggerRouter,
   userRouter,
   cardRouter,
