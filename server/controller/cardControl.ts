@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { CardInput, UpdateCard, JwtUserPayload } from '../utils/shape.ts';
+// eslint-disable-next-line import/no-unresolved
 import { sleep } from 'bun';
 import { redisClient } from '../utils/redis.ts';
 import * as cardModel from '../model/cardModel.ts';

@@ -2,8 +2,8 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export let options = {
-  vus: 10, // 虛擬用戶數量
-  duration: '2s', // 測試持續時間
+  vus: 400, // 虛擬用戶數量
+  duration: '300s', // 測試持續時間
 };
 
 const testToken =
@@ -16,7 +16,7 @@ export default function () {
       Authorization: `Bearer ${testToken}`,
     },
   };
-  const res = http.get(`http://localhost:3000/api/whiteboard/${whiteboardId}`, params);
+  const res = http.get(`https://api.divinto.me/api/whiteboard/${whiteboardId}`, params);
   check(res, { 'status was 200': (r) => r.status == 200 });
   sleep(1);
 }
