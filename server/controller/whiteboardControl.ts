@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
 import * as userModel from '../model/userModel.ts';
 import { JwtUserPayload } from '../utils/shape.ts';
+import { redisClient } from '../utils/redis.ts';
 import mongoose from 'mongoose';
 
 export async function createWhiteboard(req: Request, res: Response) {
@@ -33,7 +34,12 @@ export async function createWhiteboard(req: Request, res: Response) {
 export async function getWhiteboard(req: Request, res: Response) {
   const { whiteboardId } = req.params;
   try {
+    const whiteboardCache = await redisClient.get(`${whiteboardId}`);
+    if (whiteboardCache) {
+      return res.status(200).json({ data: JSON.parse(whiteboardCache) });
+    }
     const whiteboard = await whiteboardModel.getWhiteboard(whiteboardId);
+    await redisClient.set(`${whiteboardId}`, `${JSON.stringify(whiteboard)}`);
     res.status(200).json({ data: whiteboard });
   } catch (error) {
     if (error instanceof Error) {
@@ -48,6 +54,7 @@ export async function updateWhiteboardTitle(req: Request, res: Response) {
   const { title } = req.body;
   try {
     const updateWhiteboard = await whiteboardModel.updateWhiteboardTitle(whiteboardId, title);
+    await redisClient.del(`${whiteboardId}`);
     if (!updateWhiteboard) return res.status(400).json({ data: 'wrong Id, please retry' });
     res.status(200).json({ data: 'update title successfully' });
   } catch (error) {
@@ -82,6 +89,7 @@ export async function deleteWhiteboard(req: Request, res: Response) {
       return res.status(500).json({ data: 'user db update failed' });
     }
     await deleteWhiteboardSession.commitTransaction();
+    await redisClient.del(`${whiteboardId}`);
     res.status(200).json({ data: 'delete whiteboard successfully' });
   } catch (error) {
     if (error instanceof Error) {
