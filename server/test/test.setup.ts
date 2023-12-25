@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+// eslint-disable-next-line import/no-unresolved
 import { beforeAll } from 'bun:test';
 
 beforeAll(async () => {

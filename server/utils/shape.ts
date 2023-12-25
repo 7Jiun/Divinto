@@ -47,6 +47,7 @@ export interface GetCard {
 
 export interface UpdateCard {
   _id: string;
+  whiteboardId: string | null;
   id: string;
   title: string;
   position: Position;

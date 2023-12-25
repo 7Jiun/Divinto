@@ -67,13 +67,19 @@ export async function getCardById(cardId: string): Promise<GetCard> {
   return card as unknown as GetCard;
 }
 
-export async function createCard(user: JwtUserPayload, card: CardInput, session: ClientSession) {
+export async function createCard(
+  user: JwtUserPayload,
+  card: CardInput,
+  whiteboardId: string,
+  session: ClientSession,
+) {
   const cardId = createId(user);
   const blockContents = classifyContent(card.content);
   const [insertCard] = await Card.create(
     [
       {
         id: cardId,
+        whiteboardId: whiteboardId,
         title: card.title,
         position: card.position,
         content: {
@@ -132,7 +138,7 @@ export async function updateCard(card: UpdateCard) {
     createdAt: card.createdAt,
     updateAt: Date.now().toString(),
     removeAt: card.removeAt,
-    whiteboardId: '',
+    whiteboardId: card.whiteboardId,
   };
 
   await Card.findByIdAndUpdate(card._id, updatedCard);

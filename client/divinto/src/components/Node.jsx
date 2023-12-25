@@ -18,7 +18,7 @@ import { Sidebar } from './Sidebar';
 
 const token = localStorage.getItem('jwtToken');
 
-function updateNodeOnServer(node, updateContent) {
+function updateNodeOnServer(node, updateContent, whiteboardId) {
   const title = getFirstLineAsTitle(updateContent);
   fetch(`${URL}/api/card`, {
     method: 'PUT',
@@ -28,6 +28,7 @@ function updateNodeOnServer(node, updateContent) {
     },
     body: JSON.stringify({
       _id: node.id,
+      whiteboardId: whiteboardId,
       title: title,
       content: updateContent,
       position: node.position,
@@ -221,10 +222,10 @@ export const UpdateNode = () => {
   const onNodeDragStop = (event, node) => {
     try {
       const updateContent = node.data.label.props.children[1].props.children;
-      updateNodeOnServer(node, updateContent);
+      updateNodeOnServer(node, updateContent, id);
     } catch {
       const updateContentChange = node.data.label.props.children.props.children;
-      updateNodeOnServer(node, updateContentChange);
+      updateNodeOnServer(node, updateContentChange, id);
     }
   };
   const onNodesDelete = (event) => {
@@ -364,10 +365,10 @@ export const UpdateNode = () => {
         }
         try {
           const updateContent = node.data.label.props.children[1].props.children;
-          updateNodeOnServer(node, updateContent);
+          updateNodeOnServer(node, updateContent, id);
         } catch {
           const updateContentChange = node.data.label.props.children.props.children;
-          updateNodeOnServer(node, updateContentChange);
+          updateNodeOnServer(node, updateContentChange, id);
         }
         return node;
       }),

@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { Message, AiCardInput, GetCard } from '../utils/shape.ts';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 import { transferCardMarkdown } from './exportMd.ts';
+import { redisClient } from '../utils/redis.ts';
 import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
 import * as cardModel from '../model/cardModel.ts';
@@ -268,6 +269,7 @@ export async function exportAiCard(req: Request, res: Response) {
     await whiteboardModel.addWhiteboardCards(aiCard._id, thread.whiteboardId, addAiCardSession);
     await addAiCardSession.commitTransaction();
     if (aiCard) {
+      await redisClient.del(`${thread.whiteboardId}`);
       res.status(200).json({ data: aiCard, whiteboardId: thread.whiteboardId });
     }
   } catch (error) {

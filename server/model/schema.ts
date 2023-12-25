@@ -14,6 +14,7 @@ const cardContentBlockSchema = new mongoose.Schema({
 
 const cardSchema = new mongoose.Schema({
   id: String,
+  whiteboardId: String || null || undefined,
   title: String,
   position: {
     x: Number,
