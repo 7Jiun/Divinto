@@ -17,6 +17,7 @@
   height: auto;
   margin-top: -10vh;
   margin-bottom: 2rem;
+  border-radius: 50%; /* 使頭像成圓形 */
   margin-left: 0;
   margin-right: 0;
   animation: fadeIn 700ms ease-in;

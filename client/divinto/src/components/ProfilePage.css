@@ -1,0 +1,95 @@
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  height: 92vh; /* 佔滿整個視窗高度 */
+  padding-top: 8vh;
+  text-align: center;
+  background-color: #f5f5f5;
+}
+
+.avatar img {
+  border-radius: 50%; /* 使頭像成圓形 */
+  width: 10vw; /* 設定頭像大小 */
+  height: 10vw; /* 設定頭像大小 */
+  object-fit: cover; /* 保持圖片比例 */
+  border: 3px solid #ccc; /* 可選的邊框 */
+}
+
+.name {
+  margin-top: 8vh; /* 名字與頭像之間的距離 */
+  font-size: 1.5em; /* 名字的字體大小 */
+  color: #333; /* 名字的顏色 */
+}
+
+/* Whiteboard 容器樣式 */
+.whiteboard-container {
+  display: flex;
+  margin-top: 2vh;
+  align-items: center;
+  background-color: #f5f5f5;
+}
+
+.whiteboard-container h3 {
+  padding-bottom: 1vh;
+}
+
+hr {
+  border: 2px;
+  height: 1px;
+  background-color: #333; /* 分隔線顏色 */
+  margin: 20px 2vw; /* 分隔線的上下邊距 */
+  padding: 0.1vh 36vw;
+}
+
+.whiteboard-pages-container {
+  width: 92vw;
+  background-color: #f5f5f5;
+}
+
+.whiteboard-page-container .whiteboard-ul {
+  display: flex;
+  flex-wrap: wrap;
+  list-style-type: none; /* 移除默認的列表樣式 */
+  padding: 0; /* 移除默認的填充 */
+  justify-content: flex-start; /* 元素間均勻分布 */
+  margin-left: 2vw;
+  margin-right: 2vw;
+}
+
+.whiteboard-ul li {
+  flex: 1 0 calc(33.33% - 1px);
+  margin: 0.5rem 0.2rem;
+  max-width: calc(33.33% - 10px);
+}
+
+.whiteboard-text {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  padding: 8px 0px 8px 16px;
+  margin: 1rem 1rem;
+  list-style: none;
+  height: 60px;
+  flex-grow: 1;
+}
+
+.whiteboard-text a {
+  text-decoration: none;
+  background-color: white;
+  color: #060b26;
+  font-size: 18px;
+  width: 95%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 1.8rem 2rem;
+  border-radius: 10px;
+  margin-top: 5vh;
+  border: 1px solid #060b26;
+}
+
+.whiteboard-text a:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
