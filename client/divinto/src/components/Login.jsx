@@ -28,7 +28,7 @@ export const Login = (props) => {
       const data = await response.json();
       if (data.data.access_token) {
         localStorage.setItem('jwtToken', data.data.access_token);
-        navigate('/whiteboard');
+        navigate('/');
       } else {
         alert('wrong email or password');
       }

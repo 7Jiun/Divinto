@@ -4,32 +4,26 @@ import * as userModel from '../model/userModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
 import * as cardModel from '../model/cardModel.ts';
 
-const onboardingWhiteboardTitle = 'onboarding';
+const onboardingWhiteboardTitle = 'for feature test';
 
-function createOnboardingCard(whiteboardId: string): CardInput[] {
-  const cardData = [
-    {
-      title: 'onboarding',
+async function createOnboardingCard(whiteboardId: string): Promise<CardInput[]> {
+  const templateId = '6580f6a0d8766d6813baf19e';
+  const onboardingWhiteboardTemplate = await whiteboardModel.getWhiteboard(templateId);
+  const templateCardData = onboardingWhiteboardTemplate.cards.map((card) => {
+    let cardContent = '';
+    card.content.main.forEach((block) => {
+      cardContent += block.content;
+    });
+    const transferCardInput = {
+      title: card.title,
       whiteboardId: whiteboardId,
-      position: {
-        x: 100,
-        y: 150,
-      },
-      content: '# joewjo',
-      tags: [''],
-    },
-    {
-      title: 'onboarding2',
-      whiteboardId: whiteboardId,
-      position: {
-        x: 600,
-        y: 150,
-      },
-      content: '# cool',
-      tags: ['cool'],
-    },
-  ];
-  return cardData;
+      position: card.position,
+      content: cardContent,
+      tags: card.tags,
+    };
+    return transferCardInput;
+  });
+  return templateCardData;
 }
 
 export async function createOnboardingData(
@@ -42,7 +36,6 @@ export async function createOnboardingData(
       onboardingWhiteboardTitle,
       session,
     );
-    console.log('stage1', onboardingWhiteboard);
     if (!onboardingWhiteboard._id) {
       return false;
     }
@@ -52,18 +45,17 @@ export async function createOnboardingData(
       onboardingWhiteboardId,
       session,
     );
-    console.log('stage2', isAddWhiteboard);
 
     if (!isAddWhiteboard) {
       return false;
     }
-    const onboradingCards = createOnboardingCard(onboardingWhiteboardId);
+    const onboradingCards = await createOnboardingCard(onboardingWhiteboardId);
+    console.log(onboradingCards);
     const createOnboardingCardPromises = onboradingCards.map((onboardingCard) => {
       const card = cardModel.createCard(user, onboardingCard, onboardingWhiteboardId, session);
       return card;
     });
     const createdOnboardingCards = await Promise.all(createOnboardingCardPromises);
-    console.log('stage3', createdOnboardingCards);
 
     const addCardsInOnboardingWhiteboard = createdOnboardingCards.map((card) =>
       whiteboardModel.addWhiteboardCards(card._id, onboardingWhiteboardId, session),
