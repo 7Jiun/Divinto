@@ -50,7 +50,6 @@ export async function createOnboardingData(
       return false;
     }
     const onboradingCards = await createOnboardingCard(onboardingWhiteboardId);
-    console.log(onboradingCards);
     const createOnboardingCardPromises = onboradingCards.map((onboardingCard) => {
       const card = cardModel.createCard(user, onboardingCard, onboardingWhiteboardId, session);
       return card;
