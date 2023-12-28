@@ -18,7 +18,8 @@ jobs:
           script: |
             echo "Hello from github action, start deploy main to ec2"
             cd /home/ubuntu/Divinto/server
+            git restore bun.lockb
             git switch main
-            git pull
+            git pull origin main
             bun install
             pm2 restart "bun index"
