@@ -6,10 +6,18 @@ export const Login = (props) => {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const navigate = useNavigate();
+  const validateEmail = (email) => {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return re.test(email);
+  };
 
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
+      if (!validateEmail(email)) {
+        alert('請輸入有效的電子郵件地址。');
+        return;
+      }
       const response = await fetch(`${URL}/api/user/signin`, {
         method: 'POST',
         headers: {
@@ -20,7 +28,7 @@ export const Login = (props) => {
       const data = await response.json();
       if (data.data.access_token) {
         localStorage.setItem('jwtToken', data.data.access_token);
-        navigate('/whiteboard');
+        navigate('/');
       } else {
         alert('wrong email or password');
       }
@@ -41,6 +49,7 @@ export const Login = (props) => {
           placeholder="請輸入電子信箱"
           id="email"
           name="email"
+          maxLength={50}
           required
         ></input>
         <label htmlFor="password">密碼</label>
@@ -51,6 +60,7 @@ export const Login = (props) => {
           placeholder="********"
           id="password"
           name="password"
+          maxLength={20}
           required
         ></input>
         <button onClick={handleSubmit}>登入</button>

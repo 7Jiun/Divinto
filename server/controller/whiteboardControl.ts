@@ -1,29 +1,45 @@
 import { Request, Response } from 'express';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
 import * as userModel from '../model/userModel.ts';
-import { JwtUserPayload } from '../utils/signJWT.ts';
+import { JwtUserPayload } from '../utils/shape.ts';
+import { redisClient } from '../utils/redis.ts';
+import mongoose from 'mongoose';
 
 export async function createWhiteboard(req: Request, res: Response) {
   const user: JwtUserPayload = res.locals.userPayload;
   const userId = user.id.toString();
   const { title } = req.body;
+  const createWhiteboardSession = await mongoose.startSession();
   try {
-    const insert = await whiteboardModel.createWhiteboard(user, title);
-    const whiteboardId = insert._id.toString();
-    const addWhiteboardInUser = await userModel.addWhiteboardInUser(userId, whiteboardId);
-    if (!addWhiteboardInUser) return res.status(500).json({ data: 'user whiteboard wrong' });
-    res.status(200).json({ whiteboard: insert });
+    createWhiteboardSession.startTransaction();
+    const newWhiteboard = await whiteboardModel.createWhiteboard(
+      user,
+      title,
+      createWhiteboardSession,
+    );
+    const whiteboardId = newWhiteboard._id.toString();
+    await userModel.addWhiteboardInUser(userId, whiteboardId, createWhiteboardSession);
+    await createWhiteboardSession.commitTransaction();
+    res.status(200).json({ whiteboard: newWhiteboard });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`error:${error.message}`);
     }
+    await createWhiteboardSession.abortTransaction();
+  } finally {
+    await createWhiteboardSession.endSession();
   }
 }
 
 export async function getWhiteboard(req: Request, res: Response) {
   const { whiteboardId } = req.params;
   try {
+    const whiteboardCache = await redisClient.get(`${whiteboardId}`);
+    if (whiteboardCache) {
+      return res.status(200).json({ data: JSON.parse(whiteboardCache) });
+    }
     const whiteboard = await whiteboardModel.getWhiteboard(whiteboardId);
+    await redisClient.set(`${whiteboardId}`, `${JSON.stringify(whiteboard)}`);
     res.status(200).json({ data: whiteboard });
   } catch (error) {
     if (error instanceof Error) {
@@ -38,8 +54,8 @@ export async function updateWhiteboardTitle(req: Request, res: Response) {
   const { title } = req.body;
   try {
     const updateWhiteboard = await whiteboardModel.updateWhiteboardTitle(whiteboardId, title);
-    // const addWhiteboardInUser;
-    if (!updateWhiteboard) return res.status(400).json({ data: 'no this ID 喔' });
+    await redisClient.del(`${whiteboardId}`);
+    if (!updateWhiteboard) return res.status(400).json({ data: 'wrong Id, please retry' });
     res.status(200).json({ data: 'update title successfully' });
   } catch (error) {
     if (error instanceof Error) {
@@ -52,17 +68,37 @@ export async function updateWhiteboardTitle(req: Request, res: Response) {
 export async function deleteWhiteboard(req: Request, res: Response) {
   const userId = res.locals.userPayload.id.toString();
   const { whiteboardId } = req.params;
+  const deleteWhiteboardSession = await mongoose.startSession();
   try {
-    const updateWhiteboard = await whiteboardModel.deleteWhiteboard(whiteboardId);
-    if (!updateWhiteboard) return res.status(400).json({ data: 'no this ID 喔' });
-    const deleteWhiteboardInUser = await userModel.deleteWhiteboardInUser(userId, whiteboardId);
-    if (!deleteWhiteboardInUser) return res.status(500).json({ data: 'user db update failed' });
+    deleteWhiteboardSession.startTransaction();
+    const isDeleteWhiteboard = await whiteboardModel.deleteWhiteboard(
+      whiteboardId,
+      deleteWhiteboardSession,
+    );
+    if (!isDeleteWhiteboard) {
+      await deleteWhiteboardSession.abortTransaction();
+      return res.status(400).json({ data: 'wrong Id, please retry' });
+    }
+    const deleteWhiteboardInUser = await userModel.deleteWhiteboardInUser(
+      userId,
+      whiteboardId,
+      deleteWhiteboardSession,
+    );
+    if (!deleteWhiteboardInUser) {
+      await deleteWhiteboardSession.abortTransaction();
+      return res.status(500).json({ data: 'user db update failed' });
+    }
+    await deleteWhiteboardSession.commitTransaction();
+    await redisClient.del(`${whiteboardId}`);
     res.status(200).json({ data: 'delete whiteboard successfully' });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`whiteboard update error: ${error.message}`);
+      await deleteWhiteboardSession.abortTransaction();
       res.status(500).json({ data: 'server error' });
     }
+  } finally {
+    deleteWhiteboardSession.endSession();
   }
 }
 

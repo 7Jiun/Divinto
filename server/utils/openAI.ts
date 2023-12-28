@@ -1,9 +1,27 @@
+import fs from 'fs';
 import OpenAi from 'openai';
-import { Message } from '../model/agentModel.ts';
+import { Message } from './shape.ts';
 
 export const openai = new OpenAi({
   apiKey: process.env.OPEN_AI_KEY,
 });
+
+export async function uploadFileToOpenAi(agentKnowledgeFile: string) {
+  return openai.files.create({
+    file: fs.createReadStream(`${agentKnowledgeFile}`),
+    purpose: 'assistants',
+  });
+}
+
+export async function createAgentByOpenAi(file: any) {
+  return openai.beta.assistants.create({
+    instructions:
+      "Reflective Companion is designed to assist users in self-reflection through their daily diary entries. Its primary goal is to offer personalized insights, focusing on understanding and responding to the user's input and appended file. It will provide actionable instructions or short summary, grounded in the user's own experience which can be retrievaled in append file. Reflective Companion will maintain a friendly, conversational tone, similar to a user's friend, give the observation to user, and will avoid making assumptions. Instead, it will ask questions to better understand vague or unclear entries. It will pay special attention to identifying positive and negative moods in the diary entries, understanding what may be causing these emotions, and providing supportive feedback accordingly. Reflective Companion will remember specific topics or emotions from previous entries to build a more connected and personalized conversation over time, enhancing its ability to summarize the thoughts, supports and guide the user effectively. only reply in 100 to 200 tokens response for each question",
+    model: 'gpt-4-1106-preview',
+    tools: [{ type: 'retrieval' }],
+    file_ids: [file.id],
+  });
+}
 
 export async function createOpenAiThread() {
   const thread = await openai.beta.threads.create();
@@ -28,12 +46,7 @@ export async function runOpenAiThread(openAiThreadId: string, assistantId: strin
 export async function isRunCompleted(threadId: string, runId: string): Promise<Boolean> {
   try {
     const run = await openai.beta.threads.runs.retrieve(threadId, runId);
-    console.log(run);
-    if (run.completed_at || run.failed_at) {
-      return true;
-    } else {
-      return false;
-    }
+    return !!(run.completed_at || run.failed_at);
   } catch (error) {
     console.error('Fetch error:', error);
     return true;
@@ -47,7 +60,6 @@ export async function createThreadAndRun(assistantId: string, message: Message) 
       messages: [{ role: 'user', content: message.text }],
     },
   });
-  console.log(run);
   return run;
 }
 
@@ -56,9 +68,6 @@ export async function getOpenAiMessage(openAiThreadId: string) {
   const messages = response.data;
 
   const assistantMessages = messages.filter((msg) => msg.role === 'assistant');
-  if (assistantMessages[0].content[0].type === 'text') {
-    console.log(`this is message from open ai: ${assistantMessages[0].content[0].text.value}`);
-  }
   return assistantMessages.length > 0
     ? assistantMessages[0].content
     : 'No response from assistant.';

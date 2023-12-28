@@ -1,0 +1,24 @@
+name: Deploy to EC2 on merge
+'on':
+  push:
+    branches:
+      - develop
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: oven-sh/setup-bun@v1
+      - name: deploy to ec2
+        uses: appleboy/ssh-action@master
+        with:
+          host: '${{ secrets.HOST_DNS }}'
+          username: '${{ secrets.EC2_USERNAME }}'
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Hello from github action, start deploy main to ec2"
+            cd /home/ubuntu/Divinto/server
+            git switch develop
+            git pull
+            bun install
+            pm2 restart "bun index"

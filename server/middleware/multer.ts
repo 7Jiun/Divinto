@@ -5,7 +5,7 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { S3Client } from '@aws-sdk/client-s3';
 import { Request, Response, NextFunction } from 'express';
-import { JwtUserPayload } from '../utils/signJWT.ts';
+import { JwtUserPayload } from '../utils/shape.ts';
 
 export const uploadToBuffer = multer({
   storage: multer.memoryStorage(),

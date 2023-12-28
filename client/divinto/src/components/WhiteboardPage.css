@@ -22,6 +22,7 @@
   margin: 1rem 1rem;
   list-style: none;
   height: 60px;
+  flex-grow: 1;
 }
 
 .whiteboard-text a {
@@ -40,7 +41,27 @@
 }
 
 .whiteboard-text a:hover {
-  background-color: #7f8dda;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.whiteboard-text-button {
+  margin-left: auto;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  border-radius: 12px;
+  margin-right: -1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1rem;
+  z-index: 20;
+}
+
+.whiteboard-text-button:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.whiteboard-text-button:active {
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .add-whiteboard-button {
@@ -71,4 +92,34 @@
   position: relative; /* 父容器使用相對定位 */
   background-color: #f0f0f0; /* 背景顏色，可根據需要調整 */
   height: 92vh;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 確保覆蓋在其他內容之上 */
+}
+
+.hint-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  text-align: center;
+}
+
+.agent-hint {
+  font-size: 1.5rem; /* 字体大小 */
+  color: #4a4a4a; /* 字体颜色 */
+  padding: 1rem; /* 内边距 */
+  margin: 1rem 0; /* 外边距 */
+  border-radius: 8px; /* 边框圆角 */
+  text-align: center; /* 文字居中 */
 }

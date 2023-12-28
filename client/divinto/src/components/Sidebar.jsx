@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import * as IoIcons from 'react-icons/io';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-
+import LoadingAnimation from './LoadingAnimation';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { SidebarData } from './SidebarData';
-import './Sidebar.css';
 import { IconContext } from 'react-icons';
 import { URL } from '../App';
+import './Sidebar.css';
 
 const token = localStorage.getItem('jwtToken');
 
@@ -48,13 +48,24 @@ export const Sidebar = () => {
       show: true,
     })),
   );
+  const [isAgentLoading, setIsAgentLoading] = useState(false);
+  const [isWhiteboardCreating, setIsWhiteboardCreating] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const isWhiteboardPage = location.pathname.match(/\/whiteboard\/\w+/);
 
   const handleAddPageClick = async () => {
     const pageTitle = prompt('請輸入白板主題');
+    const maxInputLength = 20;
+
+    if (pageTitle.length > maxInputLength) {
+      alert('請輸入 20 個字元以內');
+      return;
+    }
+
     if (pageTitle) {
+      setIsWhiteboardCreating(true);
       try {
         const newWhiteboard = await createWhiteboardInDb(pageTitle);
         const newPage = {
@@ -68,6 +79,7 @@ export const Sidebar = () => {
       } catch (error) {
         console.error(error);
       }
+      setIsWhiteboardCreating(false);
     }
   };
 
@@ -96,6 +108,31 @@ export const Sidebar = () => {
     try {
       if (isWhiteboardPage) {
         const whiteboardId = location.pathname.split('/')[2];
+        const maxInputLength = 20;
+
+        const isCardAmountsEnough = await fetch(`${URL}/api/whiteboard/${whiteboardId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((whiteboard) => {
+            const cards = whiteboard.data.cards;
+            if (cards.length < 3) {
+              alert(' 白板上至少需要三張卡片才可以使用此功能！');
+              return false;
+            } else {
+              return true;
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            return false;
+          });
+
+        if (!isCardAmountsEnough) return;
 
         const agentName = prompt('請幫夥伴取個名字吧 :');
         const threadTitle = prompt('你這次談話的主題 :');
@@ -104,6 +141,14 @@ export const Sidebar = () => {
           alert('請輸入一些字喔！');
           return;
         }
+
+        if (agentName.length > maxInputLength || threadTitle.length > maxInputLength) {
+          alert('請輸入 20 個字元以內');
+          return;
+        }
+
+        setIsAgentLoading(true);
+
         const agentResponse = await fetch(`${URL}/api/agent/${whiteboardId}`, {
           method: 'POST',
           headers: {
@@ -114,6 +159,7 @@ export const Sidebar = () => {
             agentName: agentName,
           }),
         });
+
         const agentData = await agentResponse.json();
         const agentId = agentData.data;
 
@@ -131,9 +177,11 @@ export const Sidebar = () => {
         const threadId = threadData._id;
 
         navigate(`/agent/${agentId}/thread/${threadId}`);
+        setIsAgentLoading(false);
       }
     } catch (error) {
       console.error('Error occurred:', error);
+      alert('創建失敗，請稍後再試！');
     }
   };
 
@@ -149,6 +197,18 @@ export const Sidebar = () => {
 
   return (
     <>
+      {isAgentLoading && (
+        <div className="overlay">
+          <LoadingAnimation />
+        </div>
+      )}
+
+      {isWhiteboardCreating && (
+        <div className="overlay">
+          <LoadingAnimation />
+        </div>
+      )}
+
       <IconContext.Provider value={{ color: 'fff' }}>
         <div className="navbar">
           <Link to="#" className="menu-bars">
@@ -180,15 +240,15 @@ export const Sidebar = () => {
             {isWhiteboardPage && (
               <>
                 <li>
-                  <button onClick={handleAgentClick}>
-                    <IoIcons.IoLogoIonitron />
-                    和小夥伴聊聊
+                  <button id="sidebar-search-step" onClick={handleReflectionClick}>
+                    <IoIcons.IoIosSwitch />
+                    反思、整理卡片
                   </button>
                 </li>
                 <li>
-                  <button onClick={handleReflectionClick}>
-                    <IoIcons.IoIosSwitch />
-                    反思、整理卡片
+                  <button id="sidebar-chat-step" onClick={handleAgentClick}>
+                    <IoIcons.IoLogoIonitron />
+                    和小夥伴聊聊
                   </button>
                 </li>
               </>

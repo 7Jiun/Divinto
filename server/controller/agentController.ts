@@ -1,14 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { Request, Response } from 'express';
+import { Message, AiCardInput, GetCard } from '../utils/shape.ts';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 import { transferCardMarkdown } from './exportMd.ts';
+import { redisClient } from '../utils/redis.ts';
 import * as agentModel from '../model/agentModel.ts';
 import * as openAiUtils from '../utils/openAI.ts';
 import * as cardModel from '../model/cardModel.ts';
 import * as whiteboardModel from '../model/whiteboardModel.ts';
-
-import { Message } from '../model/agentModel.ts';
+import mongoose from 'mongoose';
 
 async function markdownWhiteboardToFile(
   userId: string,
@@ -41,64 +42,53 @@ async function waitForRunCompletion() {
   return new Promise((resolve) => setTimeout(resolve, 5000));
 }
 
+async function processCards(cards: GetCard[]) {
+  const cardPromises = cards.map((card) => {
+    const cardMarkdown = transferCardMarkdown(card);
+    return `${card.tags}: ${cardMarkdown}/n/n`;
+  });
+
+  const cardsMarkdown = await Promise.all(cardPromises);
+  return cardsMarkdown.join('');
+}
+
 export async function createAgent(req: Request, res: Response) {
-  const userPayload = res.locals.userPayload;
+  const { userPayload } = res.locals;
   const userId = userPayload.id.toString();
   const { whiteboardId } = req.params;
-  const agentName = req.body.agentName;
-  const whiteboard = await getWhiteboard(whiteboardId);
-  if (whiteboard[0] && whiteboard[0].cards) {
-    let whiteboardCardsWithTags = '';
-    const promises = whiteboard[0].cards.map(async (card) => {
-      const cardMarkdown = await transferCardMarkdown(card);
-      const tagsMarkdownPair = `${card.tags}: ${cardMarkdown}`;
-      whiteboardCardsWithTags = whiteboardCardsWithTags + tagsMarkdownPair + '/n/n';
-    });
-    try {
-      await Promise.all(promises)
-        .then(async () => {
-          const agentKnowledgeFile = await markdownWhiteboardToFile(
-            userId,
-            whiteboardId,
-            whiteboardCardsWithTags,
-          );
-          return agentKnowledgeFile;
-        })
-        .then(async (agentKnowledgeFile) => {
-          if (!agentKnowledgeFile) return res.status(500).json({ data: 'export failed' });
-
-          const file = await openAiUtils.openai.files.create({
-            file: fs.createReadStream(`${agentKnowledgeFile}`),
-            purpose: 'assistants',
-          });
-          const assistant = await openAiUtils.openai.beta.assistants.create({
-            instructions:
-              "Reflective Companion is designed to assist users in self-reflection through their daily diary entries. Its primary goal is to offer personalized insights, focusing on understanding and responding to the user's input and appended file. It will provide actionable instructions or short summary, grounded in the user's own experience which can be retrievaled in append file. Reflective Companion will maintain a friendly, conversational tone, similar to a user's friend, give the observation to user, and will avoid making assumptions. Instead, it will ask questions to better understand vague or unclear entries. It will pay special attention to identifying positive and negative moods in the diary entries, understanding what may be causing these emotions, and providing supportive feedback accordingly. Reflective Companion will remember specific topics or emotions from previous entries to build a more connected and personalized conversation over time, enhancing its ability to summarize the thoughts, supports and guide the user effectively. only reply in 100 to 200 tokens response for each question",
-            model: 'gpt-4-1106-preview',
-            tools: [{ type: 'retrieval' }],
-            file_ids: [file.id],
-          });
-          const newAgentId = await agentModel.createAgentInDb(
-            userPayload,
-            agentName,
-            assistant.id,
-            whiteboardId,
-            agentKnowledgeFile,
-            file.id,
-          );
-
-          res.status(200).json({ data: newAgentId });
-        })
-        .catch((error) => {
-          console.error(`create agent error:, ${error}`);
-          res.status(500).json({ data: 'create agent error' });
-        });
-    } catch (error) {
-      console.error(`card promise error:, ${error}`);
-      res.status(500).json({ data: 'create agent error' });
+  const { agentName } = req.body;
+  try {
+    const whiteboard = await getWhiteboard(whiteboardId);
+    if (!whiteboard || whiteboard.cards.length === 0) {
+      return res.status(400).json({ data: 'wrong whiteboard id or no cards in the whiteboard' });
     }
-  } else {
-    res.status(500).json({ data: 'get whiteboard error' });
+
+    const whiteboardCardsWithTags = await processCards(whiteboard.cards);
+    const agentKnowledgeFile = await markdownWhiteboardToFile(
+      userId,
+      whiteboardId,
+      whiteboardCardsWithTags,
+    );
+
+    if (!agentKnowledgeFile) {
+      return res.status(500).json({ data: 'export whiteboard failed' });
+    }
+
+    const file = await openAiUtils.uploadFileToOpenAi(agentKnowledgeFile);
+    const assistant = await openAiUtils.createAgentByOpenAi(file);
+    const newAgentId = await agentModel.createAgentInDb(
+      userPayload,
+      agentName,
+      assistant.id,
+      whiteboardId,
+      agentKnowledgeFile,
+      file.id,
+    );
+
+    res.status(200).json({ data: newAgentId });
+  } catch (error) {
+    console.error(`Error: ${error}`);
+    res.status(500).json({ data: 'An error occurred' });
   }
 }
 
@@ -106,8 +96,9 @@ export async function deleteAgent(req: Request, res: Response) {
   const { agentId } = req.params;
   try {
     const isDeleted = await agentModel.deleteAgent(agentId);
-    if (isDeleted) return res.status(200).json({ data: 'delete successfully' });
-    if (!isDeleted) return res.status(500).json({ data: 'wrong Id, please retry' });
+    return isDeleted
+      ? res.status(200).json({ data: 'delete successfully' })
+      : res.status(500).json({ data: 'wrong Id, please retry' });
   } catch (error) {
     if (error instanceof Error) console.error(`delete agent error: ${error.message}`);
     res.status(500).json({ data: 'delete failed, please retry later' });
@@ -148,9 +139,16 @@ export async function getThread(req: Request, res: Response) {
 
 export async function getThreadsByAgent(req: Request, res: Response) {
   const { agentId } = req.params;
-  const threads = await agentModel.getThreadsByAgent(agentId);
-  if (!threads) return res.status(400).json({ data: 'get agent threads wrong' });
-  res.status(200).json({ data: threads });
+  try {
+    const threads = await agentModel.getThreadsByAgent(agentId);
+    if (!threads) return res.status(400).json({ data: 'get agent threads wrong' });
+    res.status(200).json({ data: threads });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+      res.status(500).json({ data: 'internal server error' });
+    }
+  }
 }
 
 export async function updateThreadTitle(req: Request, res: Response) {
@@ -182,7 +180,6 @@ export async function updateThreadMessage(req: Request, res: Response) {
     let isRunCompleted = await openAiUtils.isRunCompleted(updateThread.openAiThreadId, runId);
     while (!isRunCompleted) {
       await waitForRunCompletion();
-      console.log('eeeeeeeeeeeee');
       isRunCompleted = await openAiUtils.isRunCompleted(updateThread.openAiThreadId, runId);
     }
     let messagesFromOpenAi = await openAiUtils.getOpenAiMessage(updateThread.openAiThreadId);
@@ -245,8 +242,9 @@ export async function deleteThread(req: Request, res: Response) {
 }
 
 export async function exportAiCard(req: Request, res: Response) {
-  const userPayload = res.locals.userPayload;
+  const { userPayload } = res.locals;
   const { threadId } = req.params;
+  const addAiCardSession = await mongoose.startSession();
   try {
     const thread = await agentModel.getThread(threadId);
     if (!thread) return res.status(400).json({ data: 'wrong thread input' });
@@ -260,22 +258,27 @@ export async function exportAiCard(req: Request, res: Response) {
       totalDisapprovement += disapprovement;
       totalDisapprovement += '\n';
     });
-    const aiCardInput: cardModel.AiCardInput = {
+    const aiCardInput: AiCardInput = {
       title: thread.title,
       whiteboardId: thread.whiteboardId,
       approvement: totalApprovement,
       disapprovement: totalDisapprovement,
     };
-    const aiCard = await cardModel.createAiCard(userPayload, aiCardInput);
-    await whiteboardModel.addWhiteboardCards(aiCard._id, thread.whiteboardId);
-
+    addAiCardSession.startTransaction();
+    const aiCard = await cardModel.createAiCard(userPayload, aiCardInput, addAiCardSession);
+    await whiteboardModel.addWhiteboardCards(aiCard._id, thread.whiteboardId, addAiCardSession);
+    await addAiCardSession.commitTransaction();
     if (aiCard) {
+      await redisClient.del(`${thread.whiteboardId}`);
       res.status(200).json({ data: aiCard, whiteboardId: thread.whiteboardId });
     }
   } catch (error) {
     if (error instanceof Error) {
       console.error(`create AI card error: ${error.message}`);
-      res.status(500).json({ data: 'create card unsuccessfully' });
     }
+    await addAiCardSession.abortTransaction();
+    res.status(500).json({ data: 'create card unsuccessfully' });
+  } finally {
+    addAiCardSession.endSession();
   }
 }

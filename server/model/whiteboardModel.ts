@@ -1,40 +1,28 @@
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import { Card, Whiteboard } from './schema.ts';
 import { createId } from './cardModel.ts';
-import { GetCard } from '../routes/card.ts';
-import { JwtUserPayload } from '../utils/signJWT.ts';
+import { JwtUserPayload, GetWhiteboard, Iwhiteboard } from '../utils/shape.ts';
 
-export interface GetWhiteboard {
-  id: string;
-  _id: string;
-  title: string;
-  cards: GetCard[];
-  createdAt: string;
-  updateAt: string;
-  removeAt: string;
-}
-
-export interface Iwhiteboard {
-  id: string;
-  _id: string;
-  title: string;
-  cards: string[];
-  createdAt: string;
-  updateAt: string;
-  removeAt: string;
-}
-
-export async function createWhiteboard(user: JwtUserPayload, title: string) {
+export async function createWhiteboard(
+  user: JwtUserPayload,
+  title: string,
+  session: ClientSession,
+) {
   const whiteboardId: string = createId(user);
-  const insertId = await Whiteboard.create({
-    id: whiteboardId,
-    title: title,
-  });
+  const [insertId] = await Whiteboard.create(
+    [
+      {
+        id: whiteboardId,
+        title: title,
+      },
+    ],
+    { session: session },
+  );
   return insertId;
 }
 
-export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard[]> {
-  const whiteboard = await Whiteboard.aggregate([
+export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard> {
+  const [whiteboard] = await Whiteboard.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(whiteboardId) } },
     {
       $addFields: {
@@ -71,17 +59,21 @@ export async function getWhiteboard(whiteboardId: string): Promise<GetWhiteboard
       },
     },
   ]);
-  return whiteboard as unknown as GetWhiteboard[];
+  return whiteboard as unknown as GetWhiteboard;
 }
 
-export async function addWhiteboardCards(cardId: string, whiteboardId: string) {
+export async function addWhiteboardCards(
+  cardId: string,
+  whiteboardId: string,
+  session: ClientSession,
+) {
   await Whiteboard.findByIdAndUpdate(
     whiteboardId,
     {
       $push: { cards: cardId },
       $set: { updateAt: Date.now() },
     },
-    { new: true },
+    { new: true, session: session },
   );
 }
 
@@ -96,14 +88,13 @@ export async function updateWhiteboardTitle(whiteboardId: string, title: string)
     },
     { new: true },
   );
-  if (updateWhiteboard) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!updateWhiteboard;
 }
 
-export async function deleteWhiteboard(whiteboardId: string): Promise<Boolean> {
+export async function deleteWhiteboard(
+  whiteboardId: string,
+  session: ClientSession,
+): Promise<Boolean> {
   const removeWhiteboard = await Whiteboard.findByIdAndUpdate(
     whiteboardId,
     {
@@ -111,13 +102,9 @@ export async function deleteWhiteboard(whiteboardId: string): Promise<Boolean> {
         removeAt: Date.now(),
       },
     },
-    { new: true },
+    { new: true, session: session },
   );
-  if (removeWhiteboard) {
-    return true;
-  } else {
-    return false;
-  }
+  return !!removeWhiteboard;
 }
 
 export async function getCardsByTag(tag: string | null, whiteboardId: string) {
@@ -163,7 +150,7 @@ export async function getCardsByTextSearch(keyword: string | null, whiteboardId:
   if (!keyword) return null;
   const targetWhiteboard = await getWhiteboard(whiteboardId);
   if (!targetWhiteboard) return null;
-  const cardIds = targetWhiteboard[0].cards.map((cards) => cards._id);
+  const cardIds = targetWhiteboard.cards.map((cards) => cards._id);
   const cardsWithTextSearch = await Card.aggregate([
     {
       $search: {

@@ -1,19 +1,9 @@
-/*
-    exportCardById
-        get Card>content>main,
-        用 fs 寫成 md 的檔案,
-        get images by fetch or what,
-        用 archive package 壓縮檔案,
-        輸出到 S3
-        提供下載
-*/
-
 import fs from 'fs';
 import JSZip from 'jszip';
 import path from 'path';
-import { getCardById } from '../model/cardModel.ts';
 import { Request, Response } from 'express';
-import { GetCard } from '../routes/card.ts';
+import { GetCard } from '../utils/shape.ts';
+import { getCardById } from '../model/cardModel.ts';
 import { getWhiteboard } from '../model/whiteboardModel.ts';
 
 export async function transferCardMarkdown(card: GetCard): Promise<string> {
@@ -145,16 +135,14 @@ export async function exportCardAsMarkdown(req: Request, res: Response) {
   const { cardId, whiteboardId } = req.params;
   const whiteboard = await getWhiteboard(whiteboardId);
   const card = await getCardById(cardId);
-  if (whiteboard.length === 0) return res.status(400).json({ data: 'wrong whiteboard id' });
-  const whiteboardCardIds = whiteboard[0].cards.map((whiteboardCard) =>
-    whiteboardCard._id.toString(),
-  );
+  if (!whiteboard) return res.status(400).json({ data: 'wrong whiteboard id' });
+  const whiteboardCardIds = whiteboard.cards.map((whiteboardCard) => whiteboardCard._id.toString());
   console.log(whiteboardCardIds);
   if (!whiteboardCardIds.includes(cardId))
     return res.status(400).json({ data: 'wrong whiteboard/card id pair' });
 
   const cardMarkdown = await transferCardMarkdown(card);
-  const filePath = await markdownCardToFile(userId, whiteboard[0]._id, card, cardMarkdown);
+  const filePath = await markdownCardToFile(userId, whiteboard._id, card, cardMarkdown);
   if (filePath && fs.existsSync(filePath)) {
     const zipPath = await jsZipMarkdown(filePath);
     const zipDirArray = zipPath.split('/');
@@ -176,8 +164,8 @@ export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
   const { whiteboardId } = req.params;
   const whiteboard = await getWhiteboard(whiteboardId);
   const whiteboardUrl = `${process.env.URL}/${userId}/${whiteboardId}`;
-  if (whiteboard[0] && whiteboard[0].cards) {
-    const promises = whiteboard[0].cards.map(async (card) => {
+  if (whiteboard && whiteboard.cards.length > 0) {
+    const promises = whiteboard.cards.map(async (card) => {
       const cardMarkdown = await transferCardMarkdown(card);
       return markdownCardToFile(userId, whiteboardId, card, cardMarkdown);
     });
@@ -204,14 +192,3 @@ export async function exportWhiteboardAsMarkdown(req: Request, res: Response) {
     res.status(500).json({ data: 'get whiteboard error' });
   }
 }
-
-/*
-    exportWhiteboard
-        get cards,
-        get Card>content>main,
-        用 fs 寫成 md 的檔案,
-        get images by fetch or what,
-        用 archive package 壓縮檔案,
-        輸出到 S3
-        res.download 下載
-*/

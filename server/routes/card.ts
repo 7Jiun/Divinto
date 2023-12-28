@@ -1,40 +1,9 @@
 import { Router } from 'express';
 import * as cardControl from '../controller/cardControl.ts';
 import * as multer from '../middleware/multer.ts';
-import { CardContent } from '../model/cardModel.ts';
 import { uploadImage } from '../controller/uploadControl.ts';
 import authenticate from '../middleware/authenticateUser.ts';
 const router = Router();
-
-export interface Position {
-  x: number;
-  y: number;
-}
-
-export interface GetCard {
-  whiteboardId: string;
-  _id: string;
-  id: string;
-  title: string;
-  position: Position;
-  content: CardContent;
-  tags: string[];
-  createdAt: string;
-  updateAt: string;
-  removeAt: string | null;
-}
-
-export interface UpdateCard {
-  _id: string;
-  id: string;
-  title: string;
-  position: Position;
-  content: string;
-  tags: string[];
-  createdAt: string;
-  updateAt: string;
-  removeAt: string | null;
-}
 
 router.route('/card/:cardId').get(authenticate, cardControl.getCard);
 

@@ -15,7 +15,7 @@
 
 .search-render {
   flex-basis: 40%;
-  max-width: 50%;
+  width: 50%;
   position: fixed; /* 固定位置 */
   left: 0;
   top: 8vh;
@@ -24,14 +24,89 @@
   margin: 0 auto; /* 增加外边距，并且居中 */
 }
 
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-bar {
+  display: flex;
+  width: 80%;
+  align-items: center; /* 確保內部元素在垂直方向上居中 */
+  justify-content: space-between; /* 元素間距平均分佈 */
+  padding: 0; /* 移除內邊距 */
+  overflow: visible;
+}
+
 .search-render input[type='text'] {
-  width: 30vw;
-  padding: 10px; /* 增加内边距，使输入更舒适 */
-  border: 1px solid #ccc; /* 边框颜色 */
-  border-radius: 5px; /* 轻微的圆角 */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* 轻微的阴影，增加立体感 */
-  margin: 20px; /* 增加与下方元素的距离 */
-  margin-left: 10vw;
+  flex-grow: 1; /* 允許 input 擴展以填滿空間 */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  margin: 20px 2vw 20px 3vw; /* 僅設置上下邊距 */
+}
+
+.tag-search {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+  position: relative;
+}
+
+.dropbtn {
+  background-color: #505782; /* 按鈕背景顏色 */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px; /* 圓角邊框 */
+  text-align: center;
+}
+
+.dropbtn:hover {
+  background-color: #5057829f; /* 滑鼠悬停时的背景颜色 */
+}
+
+.dropbtn:focus {
+  background-color: #5057824f;
+}
+
+.dropdown-content {
+  display: none; /* 默认不显示，点击按钮后通过React状态显示 */
+  position: absolute; /* 绝对定位，不占据文档流空间 */
+  top: 100%; /* 紧接着按钮下方 */
+  left: 0;
+  background-color: #f9f9f9;
+  min-width: 100%; /* 宽度与触发元素相同 */
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 60; /* 保证悬浮在其他内容上方 */
+  overflow-y: auto; /* 超出部分y轴滚动 */
+  max-height: 50vh; /* 根据需要设置最大高度，避免覆盖过多内容 */
+}
+
+.dropdown-content li {
+  position: relative;
+  cursor: pointer;
+  text-align: center;
+  background-color: #ffffff;
+  max-height: 8vh;
+  overflow-y: none;
+  border-bottom: 1px solid #ddd; /* 添加分隔线 */
+}
+
+.dropdown-content li:last-child {
+  border-bottom: none; /* 最后一个元素不需要分隔线 */
+}
+
+/* 当下拉菜单被触发时显示 */
+.tag-search:hover .dropdown-content {
+  display: block;
+}
+
+.show {
+  display: block;
 }
 
 .search-render input[type='text']:hover,
@@ -47,19 +122,17 @@
 .search-render ul {
   display: grid;
   left: 0;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
   padding: 20px;
   list-style: none;
   max-width: 50vw;
   width: 100%;
 }
-
 .search-render li {
   display: flex; /* 使用 flexbox 進行布局 */
   flex-direction: column; /* 元素垂直排列 */
   justify-content: space-between; /* 分散對齊 */
-  align-items: center; /* 水平居中對齊 */
   background-color: #f5f5f5;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -67,9 +140,28 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 300px; /* 固定卡片高度 */
   overflow: auto; /* 防止內容溢出 */
-  word-wrap: break-word; /* 在长单词或URL不会溢出容器 */
-  word-break: break-word; /* 在适当的地方断开 */
+  word-wrap: break-word; /* 在長單詞或URL不會溢出容器 */
+  word-break: break-word; /* 在適當的地方斷開 */
   cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑的過渡效果 */
+}
+
+.search-render li:hover {
+  transform: translateY(-5px); /* 滑鼠懸停時向上移動 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 滑鼠懸停時增加陰影 */
+}
+
+.search-render li h3 {
+  font-size: 1.2rem; /* 標題字體大小 */
+  margin-bottom: 10px; /* 標題下的間距 */
+  color: #333; /* 標題字體顏色 */
+  text-align: center; /* 標題對齊方式 */
+}
+
+.search-render li p {
+  font-size: 1rem; /* 段落字體大小 */
+  color: #666; /* 段落字體顏色 */
+  text-align: justify; /* 段落對齊方式 */
 }
 
 .search-render img {

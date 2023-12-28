@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import * as userModel from '../model/userModel.ts';
 import signJWT, { EXPIRE_TIME } from '../utils/signJWT.ts';
+import * as userModel from '../model/userModel.ts';
+import { createOnboardingData } from '../utils/onboardingData.ts';
+import mongoose from 'mongoose';
 
 async function createHashPassword(password: string): Promise<string | null> {
   try {
@@ -24,11 +26,32 @@ const COOKIE_OPTIONS = {
 
 export async function nativeUserSignUp(req: Request, res: Response) {
   const { email, name, password } = req.body;
+  const createUserSession = await mongoose.startSession();
+
   try {
+    createUserSession.startTransaction();
     const hashedPassword = await createHashPassword(password);
+
     if (!hashedPassword) return res.status(500).json({ data: 'create hashed user failed' });
-    const UserPayload = await userModel.nativeUserSignUp(email, name, hashedPassword);
-    if (!UserPayload) return res.status(500).json({ data: 'sign up failed' });
+    const UserPayload = await userModel.nativeUserSignUp(
+      email,
+      name,
+      hashedPassword,
+      createUserSession,
+    );
+
+    if (!UserPayload) {
+      await createUserSession.abortTransaction();
+      return res.status(500).json({ data: 'sign up failed' });
+    }
+
+    const isOnboardingData = await createOnboardingData(UserPayload, createUserSession);
+
+    if (!isOnboardingData) {
+      await createUserSession.abortTransaction();
+      return res.status(500).json({ data: 'sign up failed' });
+    }
+
     const token = await signJWT(UserPayload);
     res
       .cookie('jwtToken', token, COOKIE_OPTIONS)
@@ -45,6 +68,7 @@ export async function nativeUserSignUp(req: Request, res: Response) {
           },
         },
       });
+    await createUserSession.commitTransaction();
   } catch (error) {
     if (error instanceof Error) {
       console.error(`sign up error: ${error.message}`);
@@ -52,6 +76,9 @@ export async function nativeUserSignUp(req: Request, res: Response) {
         res.status(400).json({ data: 'email has been used' });
       res.status(500).json({ data: 'Signed up failed, please retry again' });
     }
+    await createUserSession.abortTransaction();
+  } finally {
+    createUserSession.endSession();
   }
 }
 
