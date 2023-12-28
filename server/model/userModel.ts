@@ -2,19 +2,29 @@ import mongoose, { ClientSession } from 'mongoose';
 import { CheckedUser, IUser } from '../utils/shape.ts';
 import { User } from './schema.ts';
 
-export async function nativeUserSignUp(email: string, name: string, password: string) {
+export async function nativeUserSignUp(
+  email: string,
+  name: string,
+  password: string,
+  session: ClientSession,
+) {
   const isEmailExist = await User.findOne({ email: email });
 
   if (isEmailExist) {
     throw new Error('Email already in use');
   }
 
-  const user = await User.create({
-    provider: 'native',
-    email: email,
-    name: name,
-    password: password,
-  });
+  const [user] = await User.create(
+    [
+      {
+        provider: 'native',
+        email: email,
+        name: name,
+        password: password,
+      },
+    ],
+    { session: session },
+  );
   return {
     id: user._id,
     name: name,
