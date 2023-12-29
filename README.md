@@ -2,6 +2,8 @@
 
 Divinto is a website that encourages users to delve into their thoughts by documenting daily reflections. It offers wide whiteboard for insightful connections between their entries and provides AI-powered personalized advice to enhance self-awareness and understanding.
 
+**Currently provide a mock data set for feature tests after user registration**
+
 <hr>
 
 ## Features demo:
