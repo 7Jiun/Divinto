@@ -5,6 +5,7 @@ import { UpdateNode } from './components/Node';
 import { Sidebar } from './components/Sidebar';
 import { Chatroom } from './components/Chatroom';
 import { Reflection } from './components/Reflection';
+import { Streaming } from './components/streamingPage';
 import { ProfilePage } from './components/ProfilePage';
 import { WhiteboardPage } from './components/WhiteboardPage';
 import { AgentPage } from './components/AgentPage';
@@ -74,6 +75,18 @@ const App = () => {
             isLoggedIn ? (
               <MainLayout>
                 <Reflection />
+              </MainLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/whiteboard/:id/streaming/:streamingId"
+          element={
+            isLoggedIn ? (
+              <MainLayout>
+                <Streaming />
               </MainLayout>
             ) : (
               <Navigate to="/login" />

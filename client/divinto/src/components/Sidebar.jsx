@@ -12,6 +12,11 @@ import './Sidebar.css';
 
 const token = localStorage.getItem('jwtToken');
 
+function isValidYouTubeUrlWithLength(url) {
+  const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+/;
+  return regex.test(url) && url.length >= 20 && url.length <= 200;
+}
+
 export async function getWhiteboardsByUser() {
   const token = localStorage.getItem('jwtToken');
   const response = await fetch(`${URL}/api/user/whiteboards`, {
@@ -83,6 +88,18 @@ export const Sidebar = () => {
     }
   };
 
+  const handleAddStreamingNoteClick = async () => {
+    if (isWhiteboardPage) {
+      const whiteboardId = location.pathname.split('/')[2];
+      const youtubeURL = prompt('請輸入 YouTube 網址');
+      if (!isValidYouTubeUrlWithLength(youtubeURL)) {
+        alert('錯誤的 youtube 網址，請檢查輸入內容');
+        return;
+      }
+      const youTubeId = youtubeURL.split('?v=')[1];
+      navigate(`/whiteboard/${whiteboardId}/streaming/${youTubeId}`);
+    }
+  };
   const showSidebar = () => setSidebar(!sidebar);
 
   useEffect(() => {
@@ -243,6 +260,12 @@ export const Sidebar = () => {
                   <button id="sidebar-search-step" onClick={handleReflectionClick}>
                     <IoIcons.IoIosSwitch />
                     反思、整理卡片
+                  </button>
+                </li>
+                <li>
+                  <button id="sidebar-search-step" onClick={handleAddStreamingNoteClick}>
+                    <IoIcons.IoIosFilm />
+                    串流筆記
                   </button>
                 </li>
                 <li>
